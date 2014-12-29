@@ -42,8 +42,8 @@ Construct and train the model, and (optionally) specify a callback function that
 ~~~{.cpp}
 	vector<LinearRegressor> regressors(10);
 	SupervisedDescentOptimiser<LinearRegressor> supervisedDescentModel(regressors);
-	auto printResidual = [&x_tr](const cv::Mat& currentPredictions) {
-		std::cout << cv::norm(currentPredictions, x_tr, cv::NORM_L2) / cv::norm(x_tr, cv::NORM_L2) << std::endl;
+	auto printResidual = [&x_tr](const Mat& currentPredictions) {
+		cout << cv::norm(currentPredictions, x_tr, cv::NORM_L2) / cv::norm(x_tr, cv::NORM_L2) << endl;
 	};
 	supervisedDescentModel.train(x_tr, x0, y_tr, h, printResidual);
 ~~~	
@@ -51,12 +51,12 @@ Construct and train the model, and (optionally) specify a callback function that
 The model can be tested on test data like so:
 ~~~{.cpp}
 	Mat predictions = supervisedDescentModel.test(x0_ts, y_ts, h);
-	std::cout << "Test residual: " << cv::norm(predictions, x_ts_gt, cv::NORM_L2) / cv::norm(x_ts_gt, cv::NORM_L2) << std::endl;
+	cout << "Test residual: " << cv::norm(predictions, x_ts_gt, cv::NORM_L2) / cv::norm(x_ts_gt, cv::NORM_L2) << endl;
 ~~~
 
 Predictions on new data can similarly be made with:
 ~~~{.cpp}
-SupervisedDescentOptimiser::predict(cv::Mat x0, cv::Mat y, H h)
+SupervisedDescentOptimiser::predict(Mat x0, Mat y, H h)
 ~~~
 which returns the prediction result.
 
@@ -95,7 +95,7 @@ supervisedDescentModel.train(trainingLandmarks, x0, Mat(), hog, printResidual);
 
 Testing and prediction work analogous.
 
-For the documented full working example, see `examples/landmark_detection.cpp`
+For the documented full working example, see `examples/landmark_detection.cpp`.
 
 
 ### Pose estimation:
@@ -120,7 +120,7 @@ public:
 		return projectedPoints;
 	};
 private:
-	cv::Mat model;
+	Mat model;
 }
 ~~~
 
@@ -131,7 +131,7 @@ supervisedDescentModel.train(x_tr, x0, y_tr, projection, printResidual);
 
 Testing and prediction work analogous.
 
-For the documented full working example, see `examples/landmark_detection.cpp`
+For the documented full working example, see `examples/landmark_detection.cpp`.
 
 
 ## Build the examples and tests
