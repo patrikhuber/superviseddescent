@@ -1,0 +1,13 @@
+PROJECT_NAME           = "@CMAKE_PROJECT_NAME@"
+PROJECT_NUMBER         = @superviseddescent_VERSION_MAJOR@.@superviseddescent_VERSION_MINOR@.@superviseddescent_VERSION_PATCH@
+STRIP_FROM_PATH        = @PROJECT_SOURCE_DIR@
+INPUT                  = @PROJECT_SOURCE_DIR@/README.md \
+                         @PROJECT_SOURCE_DIR@/include
+FILE_PATTERNS          = regressors.hpp \
+						 superviseddescent.hpp \
+						 matserialisation.hpp
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = README.md
+
+USE_MATHJAX            = YES
+MATHJAX_RELPATH        = http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML

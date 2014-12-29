@@ -1,0 +1,32 @@
+# Mechanism via FindLIB.cmake
+# ==============================
+# Boost:
+# -------
+# Windows: Download the pre-built binaries from http://sourceforge.net/projects/boost/files/boost-binaries/ for VS2013 (msvc-12 64bit).
+# Set the windows PATH variable to "<YOUR_BOOST_DIRECTORY>\lib64-msvc-12.0" and CMake will find it.
+# Linux: Boost can usually be installed via a package manager (e.g. apt-get install boost-all-dev) and this variable can be left uncommented.
+#set(BOOST_ROOT     "/home/user/boost/install"    CACHE STRING "Boost search location" FORCE)
+
+# Eigen3:
+# -------
+# Windows: Set to the path of the unzipped Eigen3 file.
+#set(EIGEN3_INCLUDE_DIR "C:\\eigen\\eigen-ffa86ffb5570\\" CACHE STRING "Directory of the Eigen3 headers" FORCE)
+# Linux: Can be left empty when installed system-wide. (Note/Todo: Doesnt work with Eigen 3.0.5 from Ubuntu 12.04). Otherwise, set the path manually.
+#set(EIGEN3_INCLUDE_DIR "/home/user/eigen-ffa86ffb5570/" CACHE STRING "Directory of the Eigen3 headers" FORCE)
+
+
+# Mechanism via ConfigLIB.cmake in 3rd party library directory
+# ==============================
+# OpenCV:
+# -------
+# Windows: Download the package from opencv.org, use 2.4.7.2 or never. It includes binaries for VS2013. Set this path accordingly.
+#set(OpenCV_DIR   "C:\\opencv\\install"   CACHE STRING "OpenCV config dir, where OpenCVConfig.cmake can be found" FORCE)
+# Linux: Usually can be left blank but it can be used if OpenCV is not found.
+#set(OpenCV_DIR   "/home/user/opencv/install/share/OpenCV"   CACHE STRING "OpenCV config dir, where OpenCVConfig.cmake can be found" FORCE)
+
+# Configuration options
+# ==============================
+
+set(BUILD_TESTS ON CACHE BOOL "Builds the unit tests." FORCE)
+set(BUILD_EXAMPLES ON CACHE BOOL "Build the example applications." FORCE)
+set(BUILD_DOCUMENTATION ON CACHE BOOL "Build the library documentation." FORCE)
