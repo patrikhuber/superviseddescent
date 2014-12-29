@@ -146,9 +146,9 @@ Building of the examples and tests requires CMake>=2.8.11, OpenCV (core, imgproc
 
 ## Documentation
 
-Doxygen (insert link)
+Doxygen: http://patrikhuber.github.io/superviseddescent/doc/
 
-The examples and the _Class List_ in doxygen are a good place to start.
+The [examples](https://github.com/patrikhuber/superviseddescent/tree/master/examples) and the [Class List](http://patrikhuber.github.io/superviseddescent/doc/annotated.html) in doxygen are a good place to start.
 
 ## License & contributions
 
