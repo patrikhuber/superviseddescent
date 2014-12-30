@@ -31,177 +31,19 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h1>
-<a id="superviseddescent-a-c11-implementation-of-the-supervised-descent-optimisation-method" class="anchor" href="#superviseddescent-a-c11-implementation-of-the-supervised-descent-optimisation-method" aria-hidden="true"><span class="octicon octicon-link"></span></a>superviseddescent: A C++11 implementation of the supervised descent optimisation method</h1>
 
 <p>superviseddescent is a C++11 implementation of the supervised descent method, which is a generic algorithm to perform optimisation of arbitrary functions.</p>
 
-<p>There are two main advantages compared to traditional optimisation algorithms like gradient descent, L-BFGS and the like:</p>
-
-<ul>
-<li>The function doesn't have to be differentiable. It works with arbitrary functions, for example with the HoG operator (which is a non-differentiable function)</li>
-<li>It might be better at reaching a global optimum - give it a try!</li>
-</ul>
+<p>This library provides a generic implementation and example code how to use it for facial landmark detection and 3D pose estimation.</p>
 
 <p>The theory is based on the idea of <em>Supervised Descent Method and Its Applications to Face Alignment</em>, from X. Xiong &amp; F. De la Torre, CVPR 2013 (<a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&amp;arnumber=6618919">http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&amp;arnumber=6618919</a>)</p>
 
-<h2>
-<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
+<h3><a href="https://github.com/patrikhuber/superviseddescent" aria-hidden="true">More information, features and sample code on Github</a></h3>
 
-<ul>
-<li>Generic implementation, can be used to optimise arbitrary parameters and functions</li>
-<li>Fast, using Eigen for matrix operations</li>
-<li>Modern, clean C++11/14</li>
-<li>Header only (compilation/installation only for the examples and tests)</li>
-<li>Fully cross-platform compatible - learned models can be run even on phones</li>
-</ul>
-
-<h2>
-<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
-
-<p>It is a header only library, and can thus be included directly into your project by just adding <code>superviseddescent/include</code> to your projects include directory and including <code>superviseddescent/superviseddescent.hpp</code>.</p>
-
-<ul>
-<li>Tested with the following compilers: gcc-4.8.2, clang-3.5, Visual Studio 2013</li>
-<li>Needed dependencies: Boost serialization (1.54.0), OpenCV core (2.4.3), Eigen (3.2). Older versions might work as well.</li>
-</ul>
-
-<h2>
-<a id="sample-code" class="anchor" href="#sample-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sample code</h2>
+<h3><a href="doc/index.html" aria-hidden="true">Documentation (doxygen)</a></h3>
 
 <h3>
-<a id="simple-example-approximate-sinx" class="anchor" href="#simple-example-approximate-sinx" aria-hidden="true"><span class="octicon octicon-link"></span></a>Simple example: Approximate sin(x)</h3>
-
-<p>Define a function:</p>
-
-<pre><code>auto h = [](Mat value, size_t, int) { return std::sin(value.at&lt;float&gt;(0)); };
-</code></pre>
-
-<p>Generate training data (see <code>examples/simple_function.cpp</code> for the (in this case boring) code):</p>
-
-<ul>
-<li>training labels <code>y_tr</code> in the interval [-1:0.2:1]</li>
-<li>the inverse function values (the ground truth parameters) <code>x_tr</code>
-</li>
-<li>fixed starting values of the parameters <code>x0</code> (a constant value in this case).</li>
-</ul>
-
-<p>Construct and train the model, and (optionally) specify a callback function that prints the residual after each learned regressor:</p>
-
-<div class="highlight highlight-cpp"><pre>    vector&lt;LinearRegressor&gt; <span class="pl-en">regressors</span>(<span class="pl-c1">10</span>);
-    SupervisedDescentOptimiser&lt;LinearRegressor&gt; <span class="pl-en">supervisedDescentModel</span>(regressors);
-    <span class="pl-st">auto</span> printResidual = [&amp;x_tr](<span class="pl-s">const</span> cv::Mat&amp; currentPredictions) {
-        std::cout &lt;&lt; <span class="pl-s3">cv::norm</span>(currentPredictions, x_tr, cv::NORM_L2) / <span class="pl-s3">cv::norm</span>(x_tr, cv::NORM_L2) &lt;&lt; std::endl;
-    };
-    supervisedDescentModel.train(x_tr, x0, y_tr, h, printResidual);</pre></div>
-
-<p>The model can be tested on test data like so:</p>
-
-<div class="highlight highlight-cpp"><pre>    Mat predictions = supervisedDescentModel.test(x0_ts, y_ts, h);
-    std::cout &lt;&lt; <span class="pl-s1"><span class="pl-pds">"</span>Test residual: <span class="pl-pds">"</span></span> &lt;&lt; cv::norm(predictions, x_ts_gt, cv::NORM_L2) / cv::norm(x_ts_gt, cv::NORM_L2) &lt;&lt; std::endl;</pre></div>
-
-<p>Predictions on new data can similarly be made with:</p>
-
-<div class="highlight highlight-cpp"><pre><span class="pl-en">SupervisedDescentOptimiser::predict</span>(cv::Mat x0, cv::Mat y, H h)</pre></div>
-
-<p>which returns the prediction result.</p>
-
-<h3>
-<a id="landmark-detection" class="anchor" href="#landmark-detection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Landmark detection:</h3>
-
-<p>The <code>SupervisedDescentOptimiser</code> can be used in the same way for landmark detection. In this case,</p>
-
-<ul>
-<li>
-<code>h</code> is a feature transform that extracts image features like HoG or SIFT from the image (we thus make it a function object, to store the images)</li>
-<li>we don't use the <code>y</code> values (the so called <em>template</em>) to train, because at testing, the HoG descriptors differ for each person (i.e. each persons face looks different)</li>
-<li>the parameters <code>x</code> are the current 2D landmark locations</li>
-<li>the initial parameters <code>x0</code> are computed by aligning the mean landmark to a detected face box.</li>
-</ul>
-
-<div class="highlight highlight-cpp"><pre><span class="pl-st">class</span> <span class="pl-en">HogTransform</span>
-{
-<span class="pl-s">public:</span>
-    <span class="pl-en">HogTransform</span>(vector&lt;Mat&gt; images, ...HoG parameters...) { ... };
-
-    Mat <span class="pl-en">operator</span>()(Mat parameters, <span class="pl-s3">size_t</span> regressorLevel, <span class="pl-st">int</span> trainingIndex = <span class="pl-c1">0</span>)
-    {
-        <span class="pl-c">// shortened, to get the idea across:</span>
-        Mat hogDescriptors = <span class="pl-s3">extractHoGFeatures</span>(images[trainingIndex], parameters);
-        <span class="pl-k">return</span> hogDescriptors;
-    }
-<span class="pl-s">private:</span>
-    vector&lt;Mat&gt; images;
-}<span class="pl-ii"></span></pre></div>
-
-<p>Training the model is the same, except we pass an empty <code>cv::Mat</code> instead of <code>y</code> values:</p>
-
-<div class="highlight highlight-cpp"><pre>HogTransform <span class="pl-en">hog</span>(trainingImages, ...HoG parameters...);
-supervisedDescentModel.train(trainingLandmarks, x0, Mat(), hog, printResidual);</pre></div>
-
-<p>Testing and prediction work analogous.</p>
-
-<p>For the documented full working example, see <code>examples/landmark_detection.cpp</code></p>
-
-<h3>
-<a id="pose-estimation" class="anchor" href="#pose-estimation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pose estimation:</h3>
-
-<p>Using the <code>SupervisedDescentOptimiser</code> for 3D pose estimation from 2D landmarks works exactly in the same way.</p>
-
-<ul>
-<li>
-<code>h</code> is the projection function that projects the 3D model to 2D coordinates, given the current parameters</li>
-<li>
-<code>y</code> are the 2D landmarks, known (or detected) at training and testing time</li>
-<li>
-<code>x</code> are the rotation and translation parameters (the 6 DOF of the model)</li>
-<li>the initial parameters <code>x0</code> are all set to 0, with the exception of t_z being -2000.</li>
-</ul>
-
-<div class="highlight highlight-cpp"><pre><span class="pl-st">class</span> <span class="pl-en">ModelProjection</span>
-{
-<span class="pl-s">public:</span>
-    <span class="pl-en">ModelProjection</span>(Mat model) : model(model) {};
-
-    Mat <span class="pl-en">operator</span>()(Mat parameters, <span class="pl-s3">size_t</span> regressorLevel, <span class="pl-st">int</span> trainingIndex = <span class="pl-c1">0</span>)
-    {
-        <span class="pl-c">// parameters is a vector consisting of [R_x, R_y, R_z, t_x, t_y, t_z]</span>
-        projectedPoints = <span class="pl-s3">projectModel</span>(parameters);
-        <span class="pl-k">return</span> projectedPoints;
-    };
-<span class="pl-s">private:</span>
-    cv::Mat model;
-}<span class="pl-ii"></span></pre></div>
-
-<div class="highlight highlight-cpp"><pre>ModelProjection <span class="pl-en">projection</span>(facemodel);
-supervisedDescentModel.train(x_tr, x0, y_tr, projection, printResidual);</pre></div>
-
-<p>Testing and prediction work analogous.</p>
-
-<p>For the documented full working example, see <code>examples/landmark_detection.cpp</code></p>
-
-<h2>
-<a id="build-the-examples-and-tests" class="anchor" href="#build-the-examples-and-tests" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build the examples and tests</h2>
-
-<p>Building of the examples and tests requires CMake&gt;=2.8.11, OpenCV (core, imgproc, highgui, objdetect) and Boost (system, filesystem, program_options, serialization).</p>
-
-<ul>
-<li>copy <code>initial_cache.cmake.template</code> to <code>initial_cache.cmake</code>, edit the necessary paths</li>
-<li>create a build directory next to the <code>superviseddescent</code> folder: <code>mkdir build; cd build</code>
-</li>
-<li><code>cmake -C ../superviseddescent/initial_cache.cmake -G "&lt;your favourite generator&gt;" ../superviseddescent -DCMAKE_INSTALL_PREFIX=install/</code></li>
-<li>build using your favourite tools, e.g. <code>make; make install</code> or open the solution in Visual Studio.</li>
-</ul>
-
-<h2>
-<a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Documentation</h2>
-
-<p>Doxygen (insert link)</p>
-
-<p>The examples and the <em>Class List</em> in doxygen are a good place to start.</p>
-
-<h2>
-<a id="license--contributions" class="anchor" href="#license--contributions" aria-hidden="true"><span class="octicon octicon-link"></span></a>License &amp; contributions</h2>
+<a id="license--contributions" class="anchor" href="#license--contributions" aria-hidden="true"><span class="octicon octicon-link"></span></a>License &amp; contributions:</h3>
 
 <p>This code is licensed under the Apache License, Version 2.0</p>
 
