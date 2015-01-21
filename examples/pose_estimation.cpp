@@ -60,7 +60,7 @@ float focalLengthToFovy(float focalLength, float height)
  *
  * @param[in] angle The angle around the x axis in radians.
  */
-cv::Mat createRotationMatrixX(float angle) // angle is in radians!
+cv::Mat createRotationMatrixX(float angle)
 {
 	cv::Mat rotX = (cv::Mat_<float>(4, 4) <<
 		1.0f, 0.0f, 0.0f, 0.0f,
@@ -76,7 +76,7 @@ cv::Mat createRotationMatrixX(float angle) // angle is in radians!
  *
  * @param[in] angle The angle around the y axis in radians.
  */
-cv::Mat createRotationMatrixY(float angle) // angle is in radians!
+cv::Mat createRotationMatrixY(float angle)
 {
 	cv::Mat rotY = (cv::Mat_<float>(4, 4) <<
 		std::cos(angle), 0.0f, std::sin(angle), 0.0f,
@@ -92,7 +92,7 @@ cv::Mat createRotationMatrixY(float angle) // angle is in radians!
  *
  * @param[in] angle The angle around the z axis in radians.
  */
-cv::Mat createRotationMatrixZ(float angle) // angle is in radians!
+cv::Mat createRotationMatrixZ(float angle)
 {
 	cv::Mat rotZ = (cv::Mat_<float>(4, 4) <<
 		std::cos(angle), -std::sin(angle), 0.0f, 0.0f,
