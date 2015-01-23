@@ -22,6 +22,8 @@
 #ifndef SUPERVISEDDESCENT_HPP_
 #define SUPERVISEDDESCENT_HPP_
 
+#include "superviseddescent/utils/ThreadPool.h"
+
 #include "opencv2/core/core.hpp"
 
 #ifdef WIN32
@@ -147,10 +149,21 @@ public:
 		Mat currentX = x0;
 		for (size_t regressorLevel = 0; regressorLevel < regressors.size(); ++regressorLevel) {
 			// 1) Project current parameters x to feature space:
-			Mat features;
+			// Enqueue all tasks in a thread pool:
+			utils::ThreadPool threadPool(4);
+			std::vector<std::future<typename std::result_of<H(Mat, size_t, int)>::type>> results; // will be float or Mat. I might remove float for the sake of code clarity, as it's only useful for very simple examples.
+			results.reserve(currentX.rows);
 			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
-				features.push_back(h(currentX.row(sampleIndex), regressorLevel, sampleIndex));
+				results.emplace_back(
+					threadPool.enqueue(h, currentX.row(sampleIndex), regressorLevel, sampleIndex)
+				);
 			}
+			// Gather the results from all threads and store the features:
+			Mat features;
+			for (auto&& result : results) {
+				features.push_back(result.get());
+			}
+			// Set the observed values, depending on if a template y is used:
 			Mat observedValues;
 			if (y.empty()) { // unknown y training case
 				observedValues = features;
