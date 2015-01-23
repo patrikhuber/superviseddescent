@@ -242,7 +242,7 @@ TEST(SupervisedDescentOptimiser, XCubeConvergenceCascade) {
 	// Make sure the training converges, i.e. the residual is correct on the training data:
 	Mat predictions = sdo.test(x0, y_tr, h);
 	double trainingResidual = normalisedLeastSquaresResidual(predictions, x_tr);
-	EXPECT_NEAR(0.04312725, trainingResidual, 0.00000001);
+	EXPECT_NEAR(0.04312725, trainingResidual, 0.00000002);
 
 	// Test the trained model:
 	// Test data with finer resolution:
@@ -570,5 +570,5 @@ TEST(SupervisedDescentOptimiser, SinErfConvergenceCascadeMultiY) {
 
 	predictions = sdo.test(x0_ts, y_ts, h);
 	double testingResidual = cv::norm(predictions, x_ts_gt, cv::NORM_L2) / cv::norm(x_ts_gt, cv::NORM_L2);
-	ASSERT_NEAR(0.0024807, testingResidual, 0.0000005);
+	ASSERT_NEAR(0.0024807, testingResidual, 0.000002);
 }
