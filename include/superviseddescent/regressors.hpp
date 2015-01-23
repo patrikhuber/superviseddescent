@@ -209,31 +209,38 @@ public:
 	bool learn(cv::Mat data, cv::Mat labels)
 	{
 		using cv::Mat;
+		// Map the cv::Mat data and labels to Eigen matrices:
+		Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> A_Eigen(data.ptr<float>(), data.rows, data.cols);
+		Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> labels_Eigen(labels.ptr<float>(), labels.rows, labels.cols);
 
-		Mat AtA = data.t() * data;
-
-		Mat regularisationMatrix = regulariser.getMatrix(AtA, data.rows);
+		Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> AtA_Eigen = A_Eigen.transpose() * A_Eigen;
 		
-		AtA = AtA + regularisationMatrix;
-		assert(AtA.isContinuous());
-		// Map the cv::Mat data to an Eigen::Matrix and perform a FullPivLU:
-		Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> AtA_Eigen(AtA.ptr<float>(), AtA.rows, AtA.cols);
-		Eigen::FullPivLU<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> luOfAtA(AtA_Eigen);
-		auto rankOfAtA = luOfAtA.rank();
-		if (!luOfAtA.isInvertible()) {
-			// Eigen will most likely return garbage here (according to their docu anyway). We have a few options:
-			// - Increase lambda
-			// - Calculate the pseudo-inverse. See: http://eigen.tuxfamily.org/index.php?title=FAQ#Is_there_a_method_to_compute_the_.28Moore-Penrose.29_pseudo_inverse_.3F
-			std::cout << "The regularised AtA is not invertible. We continued learning, but Eigen calculates garbage in this case according to their documentation. (The rank is " << std::to_string(rankOfAtA) << ", full rank would be " << std::to_string(AtA_Eigen.rows()) << "). Increase lambda (or use the pseudo-inverse, which is not implemented yet)." << std::endl;
+		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
+		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
+		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
+		Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
+
+		AtA_Eigen = AtA_Eigen + reg_Eigen;
+
+		// Perform a ColPivHouseholderQR (faster than FullPivLU) that allows to check for invertibility:
+		Eigen::ColPivHouseholderQR<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> qrOfAtA(AtA_Eigen);
+		auto rankOfAtA = qrOfAtA.rank();
+		if (!qrOfAtA.isInvertible()) {
+			// Eigen may return garbage (their docu is not very specific). Best option is to increase regularisation.
+			std::cout << "The regularised AtA is not invertible. We continued learning, but Eigen may return garbage (their docu is not very specific). (The rank is " << std::to_string(rankOfAtA) << ", full rank would be " << std::to_string(AtA_Eigen.rows()) << "). Increase lambda." << std::endl;
 		}
-		Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> AtAInv_Eigen = luOfAtA.inverse();
-		// Map the inverted matrix back to a cv::Mat by creating a Mat header:
-		Mat AtAInv(static_cast<int>(AtAInv_Eigen.rows()), static_cast<int>(AtAInv_Eigen.cols()), CV_32FC1, AtAInv_Eigen.data());
+		Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> AtAInv_Eigen = qrOfAtA.inverse();
 		
 		// x = (AtAReg)^-1 * At * b:
-		x = AtAInv * data.t() * labels; // store the result in the member variable
+		Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;
+
+		// Map the resulting x back to a cv::Mat by creating a Mat header:
+		Mat x(static_cast<int>(x_Eigen.rows()), static_cast<int>(x_Eigen.cols()), CV_32FC1, x_Eigen.data());
 		
-		return luOfAtA.isInvertible();
+		// We have to copy the data because the underlying data is managed by Eigen::Matrix x_Eigen, which will go out of scope after we leave this function:
+		this->x = x.clone();
+		
+		return qrOfAtA.isInvertible();
 	};
 
 	/**

@@ -82,7 +82,7 @@ TEST(LinearRegressor, NDimTwoExamplesTestingResidual) {
 	groundtruth.at<float>(1) = 2.0f;
 	groundtruth.at<float>(2) = -1.0f; // gt = [ 0 (error 0), 2 (error 0), -1 (error -3)]
 	double residual = lr.test(test, groundtruth);
-	ASSERT_DOUBLE_EQ(1.3416407864998738, residual) << "Expected the residual to be 1.34164...";
+	ASSERT_NEAR(1.3416407, residual, 0.0000001);
 }
 
 TEST(LinearRegressor, NDimTwoExamplesNDimYLearning) {
@@ -144,7 +144,7 @@ TEST(LinearRegressor, NDimTwoExamplesNDimYTestingResidual) {
 	groundtruth.at<float>(1, 1) = 4.0f;
 	groundtruth.at<float>(2, 1) = -2.0f;
 	double residual = lr.test(test, groundtruth);
-	ASSERT_DOUBLE_EQ(1.1135528725660042, residual) << "Expected the residual to be 1.11355...";
+	ASSERT_NEAR(1.11355285, residual, 0.00000004);
 }
 
 TEST(LinearRegressor, NDimManyExamplesNDimY) {
@@ -155,12 +155,12 @@ TEST(LinearRegressor, NDimManyExamplesNDimY) {
 	LinearRegressor lr;
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
-	EXPECT_FLOAT_EQ(0.489539176f, lr.x.at<float>(0, 0)) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
-	EXPECT_FLOAT_EQ(-0.0660829917f, lr.x.at<float>(1, 0)) << "Expected the learned x_1_0 to be different";
-	EXPECT_FLOAT_EQ(0.339629412f, lr.x.at<float>(2, 0)) << "Expected the learned x_2_0 to be different";
-	EXPECT_FLOAT_EQ(-0.833899379f, lr.x.at<float>(0, 1)) << "Expected the learned x_0_1 to be different";
-	EXPECT_FLOAT_EQ(0.626753688f, lr.x.at<float>(1, 1)) << "Expected the learned x_1_1 to be different";
-	EXPECT_FLOAT_EQ(0.744218946f, lr.x.at<float>(2, 1)) << "Expected the learned x_2_1 to be different";
+	EXPECT_NEAR(0.489539f, lr.x.at<float>(0, 0), 0.000002); // Every col is a learned regressor for a label
+	EXPECT_NEAR(-0.06608297f, lr.x.at<float>(1, 0), 0.00000003);
+	EXPECT_FLOAT_EQ(0.339629412f, lr.x.at<float>(2, 0));
+	EXPECT_FLOAT_EQ(-0.833899379f, lr.x.at<float>(0, 1));
+	EXPECT_FLOAT_EQ(0.626753688f, lr.x.at<float>(1, 1));
+	EXPECT_FLOAT_EQ(0.744218946f, lr.x.at<float>(2, 1));
 
 	// Testing:
 	Mat test = (cv::Mat_<float>(3, 3) << 2.0f, 6.0f, 5.0f, 2.9f, -11.3, 6.0f, -2.0f, -8.438f, 3.3f);
@@ -181,7 +181,7 @@ TEST(LinearRegressor, NDimManyExamplesNDimYRegularisation) {
 	EXPECT_FLOAT_EQ(0.282755911f, lr.x.at<float>(0, 0)) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
 	EXPECT_FLOAT_EQ(0.0360795595f, lr.x.at<float>(1, 0)) << "Expected the learned x_1_0 to be different";
 	EXPECT_FLOAT_EQ(0.291039944f, lr.x.at<float>(2, 0)) << "Expected the learned x_2_0 to be different";
-	EXPECT_FLOAT_EQ(-0.0989616737f, lr.x.at<float>(0, 1)) << "Expected the learned x_0_1 to be different";
+	EXPECT_NEAR(-0.0989616f, lr.x.at<float>(0, 1), 0.0000001) << "Expected the learned x_0_1 to be different";
 	EXPECT_FLOAT_EQ(0.330635577f, lr.x.at<float>(1, 1)) << "Expected the learned x_1_1 to be different";
 	EXPECT_FLOAT_EQ(0.217046738f, lr.x.at<float>(2, 1)) << "Expected the learned x_2_1 to be different";
 
@@ -202,14 +202,14 @@ TEST(LinearRegressor, NDimManyExamplesNDimYBias) {
 	cv::hconcat(data, biasColumn, data);
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
-	EXPECT_FLOAT_EQ(0.485008746f, lr.x.at<float>(0, 0)) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
-	EXPECT_FLOAT_EQ(0.0122186244f, lr.x.at<float>(1, 0)) << "Expected the learned x_1_0 to be different";
-	EXPECT_FLOAT_EQ(0.407824278f, lr.x.at<float>(2, 0)) << "Expected the learned x_2_0 to be different";
-	EXPECT_FLOAT_EQ(-0.615155935f, lr.x.at<float>(3, 0)) << "Expected the learned x_3_0 to be different";
-	EXPECT_FLOAT_EQ(-0.894791782f, lr.x.at<float>(0, 1)) << "Expected the learned x_0_1 to be different";
-	EXPECT_FLOAT_EQ(1.67920494f, lr.x.at<float>(1, 1)) << "Expected the learned x_1_1 to be different";
-	EXPECT_FLOAT_EQ(1.66081595f, lr.x.at<float>(2, 1)) << "Expected the learned x_2_1 to be different";
-	EXPECT_FLOAT_EQ(-8.26834011f, lr.x.at<float>(3, 1)) << "Expected the learned x_3_1 to be different";
+	EXPECT_NEAR(0.485009f, lr.x.at<float>(0, 0), 0.000001) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
+	EXPECT_NEAR(0.012218f, lr.x.at<float>(1, 0), 0.000002) << "Expected the learned x_1_0 to be different";
+	EXPECT_NEAR(0.407823f, lr.x.at<float>(2, 0), 0.000002) << "Expected the learned x_2_0 to be different";
+	EXPECT_NEAR(-0.61515f, lr.x.at<float>(3, 0), 0.00001) << "Expected the learned x_3_0 to be different";
+	EXPECT_NEAR(-0.894791f, lr.x.at<float>(0, 1), 0.000001) << "Expected the learned x_0_1 to be different";
+	EXPECT_NEAR(1.679203f, lr.x.at<float>(1, 1), 0.000003) << "Expected the learned x_1_1 to be different";
+	EXPECT_NEAR(1.660814f, lr.x.at<float>(2, 1), 0.000002) << "Expected the learned x_2_1 to be different";
+	EXPECT_NEAR(-8.26833f, lr.x.at<float>(3, 1), 0.00002) << "Expected the learned x_3_1 to be different";
 
 	// Testing:
 	Mat test = (cv::Mat_<float>(3, 3) << 2.0f, 6.0f, 5.0f, 2.9f, -11.3, 6.0f, -2.0f, -8.438f, 3.3f);
@@ -217,7 +217,7 @@ TEST(LinearRegressor, NDimManyExamplesNDimYBias) {
 	cv::hconcat(test, biasColumnTest, test);
 	Mat groundtruth = (cv::Mat_<float>(3, 2) << 2.4673f, 8.3214f, 3.1002f, -19.8734f, -0.3425f, -15.1672f);
 	double residual = lr.test(test, groundtruth);
-	ASSERT_LE(residual, 0.000003) << "Expected the residual to be smaller than "; // we could relax that a bit
+	ASSERT_LE(residual, 0.000006); // we could relax that a bit
 }
 
 // Actually we could test the Regulariser separately, no need to have separate unit tests.
@@ -232,14 +232,14 @@ TEST(LinearRegressor, NDimManyExamplesNDimYBiasRegularisation) {
 	cv::hconcat(data, biasColumn, data);
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
-	EXPECT_FLOAT_EQ(0.281424582f, lr.x.at<float>(0, 0)) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
+	EXPECT_NEAR(0.2814246f, lr.x.at<float>(0, 0), 0.0000002) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
 	EXPECT_FLOAT_EQ(0.0331765190f, lr.x.at<float>(1, 0)) << "Expected the learned x_1_0 to be different";
 	EXPECT_FLOAT_EQ(0.289116770f, lr.x.at<float>(2, 0)) << "Expected the learned x_2_0 to be different";
 	EXPECT_FLOAT_EQ(0.0320090912f, lr.x.at<float>(3, 0)) << "Expected the learned x_3_0 to be different";
-	EXPECT_FLOAT_EQ(-0.100544833f, lr.x.at<float>(0, 1)) << "Expected the learned x_0_1 to be different";
+	EXPECT_NEAR(-0.1005448f, lr.x.at<float>(0, 1), 0.0000001) << "Expected the learned x_0_1 to be different";
 	EXPECT_FLOAT_EQ(0.327183396f, lr.x.at<float>(1, 1)) << "Expected the learned x_1_1 to be different";
 	EXPECT_FLOAT_EQ(0.214759737f, lr.x.at<float>(2, 1)) << "Expected the learned x_2_1 to be different";
-	EXPECT_FLOAT_EQ(0.0380640067f, lr.x.at<float>(3, 1)) << "Expected the learned x_3_1 to be different";
+	EXPECT_NEAR(0.03806401f, lr.x.at<float>(3, 1), 0.00000002) << "Expected the learned x_3_1 to be different";
 
 	// Testing:
 	Mat test = (cv::Mat_<float>(3, 3) << 2.0f, 6.0f, 5.0f, 2.9f, -11.3, 6.0f, -2.0f, -8.438f, 3.3f);
@@ -261,13 +261,13 @@ TEST(LinearRegressor, NDimManyExamplesNDimYBiasRegularisationButNotBias) {
 	cv::hconcat(data, biasColumn, data);
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
-	EXPECT_FLOAT_EQ(0.218878254f, lr.x.at<float>(0, 0)) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
-	EXPECT_FLOAT_EQ(-0.103211358f, lr.x.at<float>(1, 0)) << "Expected the learned x_1_0 to be different";
-	EXPECT_FLOAT_EQ(0.198760599f, lr.x.at<float>(2, 0)) << "Expected the learned x_2_0 to be different";
+	EXPECT_NEAR(0.2188783f, lr.x.at<float>(0, 0), 0.0000002) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
+	EXPECT_NEAR(-0.1032114f, lr.x.at<float>(1, 0), 0.0000001) << "Expected the learned x_1_0 to be different";
+	EXPECT_NEAR(0.1987606f, lr.x.at<float>(2, 0), 0.0000002) << "Expected the learned x_2_0 to be different";
 	EXPECT_FLOAT_EQ(1.53583705f, lr.x.at<float>(3, 0)) << "Expected the learned x_3_0 to be different";
 	EXPECT_FLOAT_EQ(-0.174922630f, lr.x.at<float>(0, 1)) << "Expected the learned x_0_1 to be different";
 	EXPECT_FLOAT_EQ(0.164996058f, lr.x.at<float>(1, 1)) << "Expected the learned x_1_1 to be different";
-	EXPECT_FLOAT_EQ(0.107311621f, lr.x.at<float>(2, 1)) << "Expected the learned x_2_1 to be different";
+	EXPECT_NEAR(0.1073116f, lr.x.at<float>(2, 1), 0.0000001) << "Expected the learned x_2_1 to be different";
 	EXPECT_FLOAT_EQ(1.82635951f, lr.x.at<float>(3, 1)) << "Expected the learned x_3_1 to be different";
 
 	// Testing:
