@@ -150,7 +150,11 @@ public:
 		for (size_t regressorLevel = 0; regressorLevel < regressors.size(); ++regressorLevel) {
 			// 1) Project current parameters x to feature space:
 			// Enqueue all tasks in a thread pool:
-			utils::ThreadPool threadPool(4);
+			auto concurentThreadsSupported = std::thread::hardware_concurrency();
+			if (concurentThreadsSupported == 0) {
+				concurentThreadsSupported = 4;
+			}
+			utils::ThreadPool threadPool(concurentThreadsSupported);
 			std::vector<std::future<typename std::result_of<H(Mat, size_t, int)>::type>> results; // will be float or Mat. I might remove float for the sake of code clarity, as it's only useful for very simple examples.
 			results.reserve(currentX.rows);
 			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
