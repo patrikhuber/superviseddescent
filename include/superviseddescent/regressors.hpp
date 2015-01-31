@@ -206,7 +206,7 @@ public:
 	 * @param[in] labels Labels corresponding to the training data.
 	 * @return Returns whether \f$ \text{data}^t * \text{data} \f$ was invertible.
 	 */
-	bool learn(cv::Mat data, cv::Mat labels)
+	bool learn(cv::Mat data, cv::Mat labels) override
 	{
 		using cv::Mat;
 		// Map the cv::Mat data and labels to Eigen matrices:
@@ -252,7 +252,7 @@ public:
 	 * @param[in] labels Corresponding label information.
 	 * @return The normalised least squares residual.
 	 */
-	double test(cv::Mat data, cv::Mat labels)
+	double test(cv::Mat data, cv::Mat labels) override
 	{
 		cv::Mat predictions;
 		for (int i = 0; i < data.rows; ++i) {
@@ -268,7 +268,7 @@ public:
 	 * @param[in] values One data point as a row vector.
 	 * @return The predicted value(s).
 	 */
-	cv::Mat predict(cv::Mat values)
+	cv::Mat predict(cv::Mat values) override
 	{
 		cv::Mat prediction = values * x;
 		return prediction;
