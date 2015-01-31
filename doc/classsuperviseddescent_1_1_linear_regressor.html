@@ -118,12 +118,12 @@ Inheritance diagram for superviseddescent::LinearRegressor:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a0ca9fabd613204489ea81213e0f9396d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a0ca9fabd613204489ea81213e0f9396d">LinearRegressor</a> (<a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a> regulariser=<a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a>())</td></tr>
 <tr class="separator:a0ca9fabd613204489ea81213e0f9396d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0afe8d7447a1e8f2e277bf8bafa5adcc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a0afe8d7447a1e8f2e277bf8bafa5adcc">learn</a> (cv::Mat data, cv::Mat labels)</td></tr>
-<tr class="separator:a0afe8d7447a1e8f2e277bf8bafa5adcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af1c1ba50ab98869bcf0f80e94c06a981"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#af1c1ba50ab98869bcf0f80e94c06a981">test</a> (cv::Mat data, cv::Mat labels)</td></tr>
-<tr class="separator:af1c1ba50ab98869bcf0f80e94c06a981"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac623ad269cbf1e93e34275335c3a8c50"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#ac623ad269cbf1e93e34275335c3a8c50">predict</a> (cv::Mat values)</td></tr>
-<tr class="separator:ac623ad269cbf1e93e34275335c3a8c50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a974948bd6d8424ec7cf75a405abe20c4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a974948bd6d8424ec7cf75a405abe20c4">learn</a> (cv::Mat data, cv::Mat labels) override</td></tr>
+<tr class="separator:a974948bd6d8424ec7cf75a405abe20c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f0d9aeb567e22dd71d2f8f13a2131ae"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a5f0d9aeb567e22dd71d2f8f13a2131ae">test</a> (cv::Mat data, cv::Mat labels) override</td></tr>
+<tr class="separator:a5f0d9aeb567e22dd71d2f8f13a2131ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4332e48c2d3e733927bc0905451456d7"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a4332e48c2d3e733927bc0905451456d7">predict</a> (cv::Mat values) override</td></tr>
+<tr class="separator:a4332e48c2d3e733927bc0905451456d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -175,7 +175,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a0afe8d7447a1e8f2e277bf8bafa5adcc"></a>
+<a class="anchor" id="a974948bd6d8424ec7cf75a405abe20c4"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -202,7 +202,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -221,7 +221,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 
 </div>
 </div>
-<a class="anchor" id="ac623ad269cbf1e93e34275335c3a8c50"></a>
+<a class="anchor" id="a4332e48c2d3e733927bc0905451456d7"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -238,7 +238,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -255,7 +255,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 
 </div>
 </div>
-<a class="anchor" id="af1c1ba50ab98869bcf0f80e94c06a981"></a>
+<a class="anchor" id="a5f0d9aeb567e22dd71d2f8f13a2131ae"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -282,7 +282,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -306,7 +306,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Dec 30 2014 00:00:45 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jan 31 2015 23:29:38 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

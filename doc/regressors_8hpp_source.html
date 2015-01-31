@@ -206,88 +206,95 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    {</div>
 <div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    };</div>
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;</div>
-<div class="line"><a name="l00209"></a><span class="lineno"><a class="line" href="classsuperviseddescent_1_1_linear_regressor.html#a0afe8d7447a1e8f2e277bf8bafa5adcc">  209</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#a0afe8d7447a1e8f2e277bf8bafa5adcc">learn</a>(cv::Mat data, cv::Mat labels)</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    {</div>
+<div class="line"><a name="l00209"></a><span class="lineno"><a class="line" href="classsuperviseddescent_1_1_linear_regressor.html#a974948bd6d8424ec7cf75a405abe20c4">  209</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#a974948bd6d8424ec7cf75a405abe20c4">learn</a>(cv::Mat data, cv::Mat labels)<span class="keyword"> override</span></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="keyword">    </span>{</div>
 <div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;        <span class="keyword">using</span> cv::Mat;</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;        Mat AtA = data.t() * data;</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;        Mat regularisationMatrix = regulariser.<a class="code" href="classsuperviseddescent_1_1_regulariser.html#a99e85bd6a81e12276f955db0c39cace5">getMatrix</a>(AtA, data.rows);</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;        </div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;        AtA = AtA + regularisationMatrix;</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;        assert(AtA.isContinuous());</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;        <span class="comment">// Map the cv::Mat data to an Eigen::Matrix and perform a FullPivLU:</span></div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;        Eigen::Map&lt;Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt;&gt; AtA_Eigen(AtA.ptr&lt;<span class="keywordtype">float</span>&gt;(), AtA.rows, AtA.cols);</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;        Eigen::FullPivLU&lt;Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt;&gt; luOfAtA(AtA_Eigen);</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;        <span class="keyword">auto</span> rankOfAtA = luOfAtA.rank();</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;        <span class="keywordflow">if</span> (!luOfAtA.isInvertible()) {</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;            <span class="comment">// Eigen will most likely return garbage here (according to their docu anyway). We have a few options:</span></div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;            <span class="comment">// - Increase lambda</span></div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;            <span class="comment">// - Calculate the pseudo-inverse. See: http://eigen.tuxfamily.org/index.php?title=FAQ#Is_there_a_method_to_compute_the_.28Moore-Penrose.29_pseudo_inverse_.3F</span></div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;The regularised AtA is not invertible. We continued learning, but Eigen calculates garbage in this case according to their documentation. (The rank is &quot;</span> &lt;&lt; std::to_string(rankOfAtA) &lt;&lt; <span class="stringliteral">&quot;, full rank would be &quot;</span> &lt;&lt; std::to_string(AtA_Eigen.rows()) &lt;&lt; <span class="stringliteral">&quot;). Increase lambda (or use the pseudo-inverse, which is not implemented yet).&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        }</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;        Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt; AtAInv_Eigen = luOfAtA.inverse();</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;        <span class="comment">// Map the inverted matrix back to a cv::Mat by creating a Mat header:</span></div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;        Mat AtAInv(static_cast&lt;int&gt;(AtAInv_Eigen.rows()), static_cast&lt;int&gt;(AtAInv_Eigen.cols()), CV_32FC1, AtAInv_Eigen.data());</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;        </div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;        <span class="comment">// x = (AtAReg)^-1 * At * b:</span></div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;        <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a> = AtAInv * data.t() * labels; <span class="comment">// store the result in the member variable</span></div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;        </div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;        <span class="keywordflow">return</span> luOfAtA.isInvertible();</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    };</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;</div>
-<div class="line"><a name="l00248"></a><span class="lineno"><a class="line" href="classsuperviseddescent_1_1_linear_regressor.html#af1c1ba50ab98869bcf0f80e94c06a981">  248</a></span>&#160;    <span class="keywordtype">double</span> <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#af1c1ba50ab98869bcf0f80e94c06a981">test</a>(cv::Mat data, cv::Mat labels)</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    {</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;        cv::Mat predictions;</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; data.rows; ++i) {</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;            cv::Mat prediction = <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#ac623ad269cbf1e93e34275335c3a8c50">predict</a>(data.row(i));</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;            predictions.push_back(prediction);</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;        }</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;        <span class="keywordflow">return</span> cv::norm(predictions, labels, cv::NORM_L2) / cv::norm(labels, cv::NORM_L2);</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    };</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;</div>
-<div class="line"><a name="l00264"></a><span class="lineno"><a class="line" href="classsuperviseddescent_1_1_linear_regressor.html#ac623ad269cbf1e93e34275335c3a8c50">  264</a></span>&#160;    cv::Mat <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#ac623ad269cbf1e93e34275335c3a8c50">predict</a>(cv::Mat values)</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    {</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;        cv::Mat prediction = values * <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a>;</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;        <span class="keywordflow">return</span> prediction;</div>
-<div class="line"><a name="l00268"></a><span class="lineno"><a class="line" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">  268</a></span>&#160;    };</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    </div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    cv::Mat <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a>; </div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <a class="code" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a> regulariser; </div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="keyword">friend</span> <span class="keyword">class </span>boost::serialization::access;</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">class</span> Archive&gt;</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <span class="keywordtype">void</span> serialize(Archive &amp; ar, <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> version)</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    {</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;        ar &amp; <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a>;</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;        ar &amp; regulariser;</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    }</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;};</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;} <span class="comment">/* namespace superviseddescent */</span></div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* REGRESSORS_HPP_ */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;        <span class="comment">// Map the cv::Mat data and labels to Eigen matrices:</span></div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;        Eigen::Map&lt;Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt;&gt; A_Eigen(data.ptr&lt;<span class="keywordtype">float</span>&gt;(), data.rows, data.cols);</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;        Eigen::Map&lt;Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt;&gt; labels_Eigen(labels.ptr&lt;<span class="keywordtype">float</span>&gt;(), labels.rows, labels.cols);</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;        Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt; AtA_Eigen = A_Eigen.transpose() * A_Eigen;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;        </div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;        <span class="comment">// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:</span></div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;        Mat AtA_Map(static_cast&lt;int&gt;(AtA_Eigen.rows()), static_cast&lt;int&gt;(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;        Mat regularisationMatrix = regulariser.<a class="code" href="classsuperviseddescent_1_1_regulariser.html#a99e85bd6a81e12276f955db0c39cace5">getMatrix</a>(AtA_Map, data.rows);</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;        Eigen::Map&lt;Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt;&gt; reg_Eigen(regularisationMatrix.ptr&lt;<span class="keywordtype">float</span>&gt;(), regularisationMatrix.rows, regularisationMatrix.cols);</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;        AtA_Eigen = AtA_Eigen + reg_Eigen;</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;        <span class="comment">// Perform a ColPivHouseholderQR (faster than FullPivLU) that allows to check for invertibility:</span></div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;        Eigen::ColPivHouseholderQR&lt;Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt;&gt; qrOfAtA(AtA_Eigen);</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;        <span class="keyword">auto</span> rankOfAtA = qrOfAtA.rank();</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        <span class="keywordflow">if</span> (!qrOfAtA.isInvertible()) {</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;            <span class="comment">// Eigen may return garbage (their docu is not very specific). Best option is to increase regularisation.</span></div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;The regularised AtA is not invertible. We continued learning, but Eigen may return garbage (their docu is not very specific). (The rank is &quot;</span> &lt;&lt; std::to_string(rankOfAtA) &lt;&lt; <span class="stringliteral">&quot;, full rank would be &quot;</span> &lt;&lt; std::to_string(AtA_Eigen.rows()) &lt;&lt; <span class="stringliteral">&quot;). Increase lambda.&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;        }</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;        Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt; AtAInv_Eigen = qrOfAtA.inverse();</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;        </div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;        <span class="comment">// x = (AtAReg)^-1 * At * b:</span></div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;        Eigen::Matrix&lt;float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor&gt; x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;        <span class="comment">// Map the resulting x back to a cv::Mat by creating a Mat header:</span></div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;        Mat <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a>(static_cast&lt;int&gt;(x_Eigen.rows()), static_cast&lt;int&gt;(x_Eigen.cols()), CV_32FC1, x_Eigen.data());</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;        </div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;        <span class="comment">// We have to copy the data because the underlying data is managed by Eigen::Matrix x_Eigen, which will go out of scope after we leave this function:</span></div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;        this-&gt;<a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a> = x.clone();</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;        </div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;        <span class="keywordflow">return</span> qrOfAtA.isInvertible();</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    };</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;</div>
+<div class="line"><a name="l00255"></a><span class="lineno"><a class="line" href="classsuperviseddescent_1_1_linear_regressor.html#a5f0d9aeb567e22dd71d2f8f13a2131ae">  255</a></span>&#160;    <span class="keywordtype">double</span> <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#a5f0d9aeb567e22dd71d2f8f13a2131ae">test</a>(cv::Mat data, cv::Mat labels)<span class="keyword"> override</span></div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;<span class="keyword">    </span>{</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;        cv::Mat predictions;</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; data.rows; ++i) {</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;            cv::Mat prediction = <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#a4332e48c2d3e733927bc0905451456d7">predict</a>(data.row(i));</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;            predictions.push_back(prediction);</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;        }</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;        <span class="keywordflow">return</span> cv::norm(predictions, labels, cv::NORM_L2) / cv::norm(labels, cv::NORM_L2);</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    };</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;</div>
+<div class="line"><a name="l00271"></a><span class="lineno"><a class="line" href="classsuperviseddescent_1_1_linear_regressor.html#a4332e48c2d3e733927bc0905451456d7">  271</a></span>&#160;    cv::Mat <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#a4332e48c2d3e733927bc0905451456d7">predict</a>(cv::Mat values)<span class="keyword"> override</span></div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;<span class="keyword">    </span>{</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;        cv::Mat prediction = values * <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a>;</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;        <span class="keywordflow">return</span> prediction;</div>
+<div class="line"><a name="l00275"></a><span class="lineno"><a class="line" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">  275</a></span>&#160;    };</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    </div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    cv::Mat <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a>; </div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <a class="code" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a> regulariser; </div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="keyword">friend</span> <span class="keyword">class </span>boost::serialization::access;</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">class</span> Archive&gt;</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="keywordtype">void</span> serialize(Archive &amp; ar, <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> version)</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    {</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;        ar &amp; <a class="code" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a>;</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;        ar &amp; regulariser;</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    }</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;};</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;} <span class="comment">/* namespace superviseddescent */</span></div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* REGRESSORS_HPP_ */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html_a0ca9fabd613204489ea81213e0f9396d"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html#a0ca9fabd613204489ea81213e0f9396d">superviseddescent::LinearRegressor::LinearRegressor</a></div><div class="ttdeci">LinearRegressor(Regulariser regulariser=Regulariser())</div><div class="ttdef"><b>Definition:</b> regressors.hpp:195</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regulariser_html_a335ac25b8ba26075d1c7687fe26a1baca8011d521200389cc16a9b6a74585462b"><div class="ttname"><a href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1baca8011d521200389cc16a9b6a74585462b">superviseddescent::Regulariser::RegularisationType::MatrixNorm</a></div><div class="ttdoc">Use  A suitable default for param suggested by the SDM authors is 0.5. </div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regressor_html_ad88c95f3d2c0e1308a51f089bcb721a3"><div class="ttname"><a href="classsuperviseddescent_1_1_regressor.html#ad88c95f3d2c0e1308a51f089bcb721a3">superviseddescent::Regressor::test</a></div><div class="ttdeci">virtual double test(cv::Mat data, cv::Mat labels)=0</div></div>
-<div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html_ac623ad269cbf1e93e34275335c3a8c50"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html#ac623ad269cbf1e93e34275335c3a8c50">superviseddescent::LinearRegressor::predict</a></div><div class="ttdeci">cv::Mat predict(cv::Mat values)</div><div class="ttdef"><b>Definition:</b> regressors.hpp:264</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regulariser_html_a99e85bd6a81e12276f955db0c39cace5"><div class="ttname"><a href="classsuperviseddescent_1_1_regulariser.html#a99e85bd6a81e12276f955db0c39cace5">superviseddescent::Regulariser::getMatrix</a></div><div class="ttdeci">cv::Mat getMatrix(cv::Mat data, int numTrainingElements)</div><div class="ttdef"><b>Definition:</b> regressors.hpp:131</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regulariser_html_a7430f425a12f5973ba272354dd3a3de4"><div class="ttname"><a href="classsuperviseddescent_1_1_regulariser.html#a7430f425a12f5973ba272354dd3a3de4">superviseddescent::Regulariser::Regulariser</a></div><div class="ttdeci">Regulariser(RegularisationType regularisationType=RegularisationType::Manual, float param=0.0f, bool regulariseLastRow=true)</div><div class="ttdef"><b>Definition:</b> regressors.hpp:118</div></div>
-<div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html_af1c1ba50ab98869bcf0f80e94c06a981"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html#af1c1ba50ab98869bcf0f80e94c06a981">superviseddescent::LinearRegressor::test</a></div><div class="ttdeci">double test(cv::Mat data, cv::Mat labels)</div><div class="ttdef"><b>Definition:</b> regressors.hpp:248</div></div>
+<div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html_a974948bd6d8424ec7cf75a405abe20c4"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html#a974948bd6d8424ec7cf75a405abe20c4">superviseddescent::LinearRegressor::learn</a></div><div class="ttdeci">bool learn(cv::Mat data, cv::Mat labels) override</div><div class="ttdef"><b>Definition:</b> regressors.hpp:209</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regressor_html"><div class="ttname"><a href="classsuperviseddescent_1_1_regressor.html">superviseddescent::Regressor</a></div><div class="ttdef"><b>Definition:</b> regressors.hpp:48</div></div>
-<div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html_a0afe8d7447a1e8f2e277bf8bafa5adcc"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html#a0afe8d7447a1e8f2e277bf8bafa5adcc">superviseddescent::LinearRegressor::learn</a></div><div class="ttdeci">bool learn(cv::Mat data, cv::Mat labels)</div><div class="ttdef"><b>Definition:</b> regressors.hpp:209</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html">superviseddescent::LinearRegressor</a></div><div class="ttdef"><b>Definition:</b> regressors.hpp:186</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regressor_html_a217f0baa510cc8321d0120a8bec2f78d"><div class="ttname"><a href="classsuperviseddescent_1_1_regressor.html#a217f0baa510cc8321d0120a8bec2f78d">superviseddescent::Regressor::learn</a></div><div class="ttdeci">virtual bool learn(cv::Mat data, cv::Mat labels)=0</div></div>
-<div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html_aea6c2fc9604303f58ab0fbcbbc889c6f"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">superviseddescent::LinearRegressor::x</a></div><div class="ttdeci">cv::Mat x</div><div class="ttdoc">The linear model we learn ( ). TODO: Make private member variable. </div><div class="ttdef"><b>Definition:</b> regressors.hpp:268</div></div>
+<div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html_aea6c2fc9604303f58ab0fbcbbc889c6f"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">superviseddescent::LinearRegressor::x</a></div><div class="ttdeci">cv::Mat x</div><div class="ttdoc">The linear model we learn ( ). TODO: Make private member variable. </div><div class="ttdef"><b>Definition:</b> regressors.hpp:275</div></div>
+<div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html_a4332e48c2d3e733927bc0905451456d7"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html#a4332e48c2d3e733927bc0905451456d7">superviseddescent::LinearRegressor::predict</a></div><div class="ttdeci">cv::Mat predict(cv::Mat values) override</div><div class="ttdef"><b>Definition:</b> regressors.hpp:271</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regulariser_html"><div class="ttname"><a href="classsuperviseddescent_1_1_regulariser.html">superviseddescent::Regulariser</a></div><div class="ttdef"><b>Definition:</b> regressors.hpp:92</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regulariser_html_a335ac25b8ba26075d1c7687fe26a1bac"><div class="ttname"><a href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bac">superviseddescent::Regulariser::RegularisationType</a></div><div class="ttdeci">RegularisationType</div><div class="ttdef"><b>Definition:</b> regressors.hpp:98</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regulariser_html_a335ac25b8ba26075d1c7687fe26a1bacae1ba155a9f2e8c3be94020eef32a0301"><div class="ttname"><a href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bacae1ba155a9f2e8c3be94020eef32a0301">superviseddescent::Regulariser::RegularisationType::Manual</a></div><div class="ttdoc">Use the given param value as lambda. </div></div>
+<div class="ttc" id="classsuperviseddescent_1_1_linear_regressor_html_a5f0d9aeb567e22dd71d2f8f13a2131ae"><div class="ttname"><a href="classsuperviseddescent_1_1_linear_regressor.html#a5f0d9aeb567e22dd71d2f8f13a2131ae">superviseddescent::LinearRegressor::test</a></div><div class="ttdeci">double test(cv::Mat data, cv::Mat labels) override</div><div class="ttdef"><b>Definition:</b> regressors.hpp:255</div></div>
 <div class="ttc" id="classsuperviseddescent_1_1_regressor_html_ac6e342e2d18ed634df6300973e1777cc"><div class="ttname"><a href="classsuperviseddescent_1_1_regressor.html#ac6e342e2d18ed634df6300973e1777cc">superviseddescent::Regressor::predict</a></div><div class="ttdeci">virtual cv::Mat predict(cv::Mat values)=0</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Dec 30 2014 00:00:44 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jan 31 2015 23:29:37 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>
