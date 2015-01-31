@@ -236,10 +236,25 @@ public:
 		using cv::Mat;
 		Mat currentX = x0;
 		for (size_t regressorLevel = 0; regressorLevel < regressors.size(); ++regressorLevel) {
-			Mat features;
-			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
-				features.push_back(h(currentX.row(sampleIndex), regressorLevel, sampleIndex));
+			// Enqueue all tasks in a thread pool:
+			auto concurentThreadsSupported = std::thread::hardware_concurrency();
+			if (concurentThreadsSupported == 0) {
+				concurentThreadsSupported = 4;
 			}
+			utils::ThreadPool threadPool(concurentThreadsSupported);
+			std::vector<std::future<typename std::result_of<H(Mat, size_t, int)>::type>> results; // will be float or Mat. I might remove float for the sake of code clarity, as it's only useful for very simple examples.
+			results.reserve(currentX.rows);
+			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
+				results.emplace_back(
+					threadPool.enqueue(h, currentX.row(sampleIndex), regressorLevel, sampleIndex)
+					);
+			}
+			// Gather the results from all threads and store the features:
+			Mat features;
+			for (auto&& result : results) {
+				features.push_back(result.get());
+			}
+
 			Mat observedValues;
 			if (y.empty()) { // unknown y training case
 				observedValues = features;
