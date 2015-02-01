@@ -44,42 +44,42 @@
 namespace boost {
 	namespace serialization {
 
-		/**
-		 * Serialize a cv::Mat using boost::serialization.
-		 *
-		 * Supports all types of matrices as well as non-contiguous ones.
-		 
-		 * @param[in] ar The archive to serialise to (or to serialise from).
-		 * @param[in] mat The matrix to serialise (or deserialise).
-		 * @param[in] unused An optional version argument.
-		 */
-		template<class Archive>
-		void serialize(Archive &ar, cv::Mat& mat, const unsigned int)
-		{
-			int rows, cols, type;
-			bool continuous;
+/**
+ * Serialize a cv::Mat using boost::serialization.
+ *
+ * Supports all types of matrices as well as non-contiguous ones.
+ *
+ * @param[in] ar The archive to serialise to (or to serialise from).
+ * @param[in] mat The matrix to serialise (or deserialise).
+ * @param[in] unused An optional version argument.
+ */
+template<class Archive>
+void serialize(Archive &ar, cv::Mat& mat, const unsigned int)
+{
+	int rows, cols, type;
+	bool continuous;
 
-			if (Archive::is_saving::value) {
-				rows = mat.rows; cols = mat.cols; type = mat.type();
-				continuous = mat.isContinuous();
-			}
+	if (Archive::is_saving::value) {
+		rows = mat.rows; cols = mat.cols; type = mat.type();
+		continuous = mat.isContinuous();
+	}
 
-			ar & rows & cols & type & continuous;
+	ar & rows & cols & type & continuous;
 
-			if (Archive::is_loading::value)
-				mat.create(rows, cols, type);
+	if (Archive::is_loading::value)
+		mat.create(rows, cols, type);
 
-			if (continuous) {
-				const unsigned int data_size = rows * cols * static_cast<int>(mat.elemSize());
-				ar & boost::serialization::make_array(mat.ptr(), data_size);
-			}
-			else {
-				const unsigned int row_size = cols * static_cast<int>(mat.elemSize());
-				for (int i = 0; i < rows; i++) {
-					ar & boost::serialization::make_array(mat.ptr(i), row_size);
-				}
-			}
-		};
+	if (continuous) {
+		const unsigned int data_size = rows * cols * static_cast<int>(mat.elemSize());
+		ar & boost::serialization::make_array(mat.ptr(), data_size);
+	}
+	else {
+		const unsigned int row_size = cols * static_cast<int>(mat.elemSize());
+		for (int i = 0; i < rows; i++) {
+			ar & boost::serialization::make_array(mat.ptr(i), row_size);
+		}
+	}
+};
 
 	} /* namespace serialization */
 } /* namespace boost */
