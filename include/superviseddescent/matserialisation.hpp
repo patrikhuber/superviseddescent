@@ -54,7 +54,7 @@ namespace boost {
  * @param[in] unused An optional version argument.
  */
 template<class Archive>
-void serialize(Archive &ar, cv::Mat& mat, const unsigned int)
+void serialize(Archive& ar, cv::Mat& mat, const unsigned int)
 {
 	int rows, cols, type;
 	bool continuous;
