@@ -208,30 +208,31 @@ public:
 	bool learn(cv::Mat data, cv::Mat labels) override
 	{
 		using cv::Mat;
+		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 		// Map the cv::Mat data and labels to Eigen matrices:
-		Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> A_Eigen(data.ptr<float>(), data.rows, data.cols);
-		Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> labels_Eigen(labels.ptr<float>(), labels.rows, labels.cols);
+		Eigen::Map<RowMajorMatrixXf> A_Eigen(data.ptr<float>(), data.rows, data.cols);
+		Eigen::Map<RowMajorMatrixXf> labels_Eigen(labels.ptr<float>(), labels.rows, labels.cols);
 
-		Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> AtA_Eigen = A_Eigen.transpose() * A_Eigen;
+		RowMajorMatrixXf AtA_Eigen = A_Eigen.transpose() * A_Eigen;
 		
 		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
 		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
 		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
-		Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
+		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
 
 		AtA_Eigen = AtA_Eigen + reg_Eigen;
 
 		// Perform a ColPivHouseholderQR (faster than FullPivLU) that allows to check for invertibility:
-		Eigen::ColPivHouseholderQR<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> qrOfAtA(AtA_Eigen);
+		Eigen::ColPivHouseholderQR<RowMajorMatrixXf> qrOfAtA(AtA_Eigen);
 		auto rankOfAtA = qrOfAtA.rank();
 		if (!qrOfAtA.isInvertible()) {
 			// Eigen may return garbage (their docu is not very specific). Best option is to increase regularisation.
 			std::cout << "The regularised AtA is not invertible. We continued learning, but Eigen may return garbage (their docu is not very specific). (The rank is " << std::to_string(rankOfAtA) << ", full rank would be " << std::to_string(AtA_Eigen.rows()) << "). Increase lambda." << std::endl;
 		}
-		Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> AtAInv_Eigen = qrOfAtA.inverse();
+		RowMajorMatrixXf AtAInv_Eigen = qrOfAtA.inverse();
 		
 		// x = (AtAReg)^-1 * At * b:
-		Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;
+		RowMajorMatrixXf x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;
 
 		// Map the resulting x back to a cv::Mat by creating a Mat header:
 		Mat x(static_cast<int>(x_Eigen.rows()), static_cast<int>(x_Eigen.cols()), CV_32FC1, x_Eigen.data());
