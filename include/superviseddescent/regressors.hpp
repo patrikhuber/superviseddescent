@@ -33,7 +33,6 @@
 #endif
 #include "boost/serialization/serialization.hpp"
 
-#include <cassert>
 #include <iostream>
 
 namespace superviseddescent {
