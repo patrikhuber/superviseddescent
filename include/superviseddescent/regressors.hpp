@@ -22,7 +22,7 @@
 #ifndef REGRESSORS_HPP_
 #define REGRESSORS_HPP_
 
-#include "matserialisation.hpp"
+#include "superviseddescent/matserialisation.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "Eigen/Dense"
