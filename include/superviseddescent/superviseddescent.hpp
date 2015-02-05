@@ -41,7 +41,7 @@
  * from data using a series of regressors. As the gradient direction is learned
  * directly from data, the function does not have to be differentiable.
  *
- * The theory is based on the idea of _Supervised Descent Method and Its
+ * The theory is based on the idea of [1] _Supervised Descent Method and Its
  * Applications to Face Alignment_, from X. Xiong & F. De la Torre, CVPR 2013.
  */
 namespace superviseddescent {
@@ -90,45 +90,48 @@ public:
 	/**
 	 * Train the regressor model from the given training data.
 	 *
-	 * The function takes as input a set of groundtruth parameters \p x, initialisation 
-	 * values for these parameters \p x0, an optional set of templates \p y (see
-	 * description below) and a function \p h that is applied to the parameters.
+	 * The function takes as input a set of ground truth parameters (\p parameters), initialisation 
+	 * values for these parameters (\p initialisations), an optional set of templates (\p templates)
+	 * (see description below) and a function \p projection that is applied to the parameters.
+	 *
+	 * In [1], the \p parameters are called \f$ x \f$, the \p initialisations are \f$ x_0 \f$,
+	 * the \p templates \f$ y \f$ and the \p projection function is denoted as \f$ h \f$.
 	 * 
-	 * \p y can either be given or set to empty (\p =cv::Mat()); There are two cases:\n
-	 *  1. y is known at testing time, i.e. a fixed template. For example pose estimation using given landmarks (=y).
-	 *  2. y is not known at testing time. For example landmark detection, where we don't know y at testing (the e.g. HoG values are different for each testing face).
+	 * The \p templates y can either be given or set to empty (\c =cv::Mat()); There are two cases:\n
+	 *  1. \f$ y \f$ is known at testing time, i.e. a fixed template. For example pose estimation using given landmarks (=\f$ y \f$).
+	 *  2. \f$ y \f$ is not known at testing time. For example landmark detection, where we don't know \f$ y \f$ at testing (the e.g. HoG values are different for each testing face).
 	 *
-	 * Examples for the parameters:\n
-	 *  1. x = the 6 DOF pose parameters (R, t);
-	 *     y = 2D landmark positions;
-	 *     x0 = c;
-	 *     h = projection from 3D model to 2D, using current params x.
-	 *  2. x = groundtruth landmarks - the final location we want to be, i.e. our parameters;
-	 *     no y in both training and test;
-	 *     x0 = landmark locations after e.g. initialisation with a facedetector;
-	 *     h = HoG feature extraction at the current landmark locations x.
+	 * Example cases:\n
+	 *  1. \f$ x \f$ = the 6 DOF pose parameters (R, t);
+	 *     \f$ y \f$ = 2D landmark positions;
+	 *     \f$ x_0 \f$ = const;
+	 *     \f$ h \f$ = projection from 3D model to 2D, using current params \f$ x \f$.
+	 *  2. \f$ x \f$ = groundtruth landmarks - the final location we want to be, i.e. our parameters;
+	 *     no \f$ y \f$ in both training and test;
+	 *     \f$ x_0 \f$ = landmark locations after e.g. initialisation with a facedetector;
+	 *     \f$ h \f$ = HoG feature extraction at the current landmark locations x.
 	 *
-	 * \p h is a function that takes one training sample (a cv::Mat row vector) and returns a cv::Mat row-vector.
+	 * \p projection is a function that takes one training sample (a \c cv::Mat row vector) and returns a \c cv::Mat row-vector.
 	 *
-	 * This function calls a default (no-op) callback function after training of each regressor. To specify a callback function, see the overload train(cv::Mat x, cv::Mat x0, cv::Mat y, H h, OnTrainingEpochCallback onTrainingEpochCallback).
+	 * This function calls a default (no-op) callback function after training of each regressor. To specify a callback function, see the overload train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnTrainingEpochCallback onTrainingEpochCallback).
 	 *
-	 * @param[in] x A matrix of ground truth values of parameters, with each row being one training example. These are the parameters we want to learn.
-	 * @param[in] x0 Initialisation values for the parameters (x). Constant (x0 = c) in case a) and variable in case b).
-	 * @param[in] y An optional matrix of template values. See description above.
-	 * @param[in] h The projection function that projects the given x (parameter) values to the space of the y values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform.
+	 * @param[in] parameters A matrix of ground truth values of parameters, with each row being one training example. These are the parameters we want to learn.
+	 * @param[in] initialisations Initialisation values for the parameters. Constant in case 1) and variable in case 2).
+	 * @param[in] templates An optional matrix of template values. See description above.
+	 * @param[in] projection The projection function that projects the given parameter values to the space of the template values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform.
 	 */	
-	template<class H>
-	void train(cv::Mat x, cv::Mat x0, cv::Mat y, H h)
+	template<class ProjectionFunction>
+	void train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)
 	{
-		return train(x, x0, y, h, noEval);
+		return train(parameters, initialisations, templates, projection, noEval);
 	};
 
 	/**
-	 * Identical to train(cv::Mat x, cv::Mat x0, cv::Mat y, H h), but allows to
+	 * Identical to train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection), but allows to
 	 * specify a callback function that gets called with the current prediction
 	 * after every regressor.
 	 *
-	 * The signature of the callback function must take a cv::Mat with the current
+	 * The signature of the callback function must take a \c cv::Mat with the current
 	 * predictions and can capture any additional variables from the surrounding context.
 	 * For example, to print the normalised least squares residual between
 	 * \p groundtruth and the current predictions:
@@ -138,15 +141,15 @@ public:
 	 * };
 	 * \endcode
 	 *
-	 * @copydoc train(cv::Mat x, cv::Mat x0, cv::Mat y, H h).
+	 * @copydoc train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection).
 	 *
 	 * @param[in] onTrainingEpochCallback A callback function that gets called after the training of each individual regressor.
 	 */
-	template<class H, class OnTrainingEpochCallback>
-	void train(cv::Mat x, cv::Mat x0, cv::Mat y, H h, OnTrainingEpochCallback onTrainingEpochCallback)
+	template<class ProjectionFunction, class OnTrainingEpochCallback>
+	void train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnTrainingEpochCallback onTrainingEpochCallback)
 	{
 		using cv::Mat;
-		Mat currentX = x0;
+		Mat currentX = initialisations;
 		for (size_t regressorLevel = 0; regressorLevel < regressors.size(); ++regressorLevel) {
 			// 1) Project current parameters x to feature space:
 			// Enqueue all tasks in a thread pool:
@@ -155,11 +158,11 @@ public:
 				concurentThreadsSupported = 4;
 			}
 			utils::ThreadPool threadPool(concurentThreadsSupported);
-			std::vector<std::future<typename std::result_of<H(Mat, size_t, int)>::type>> results; // will be float or Mat. I might remove float for the sake of code clarity, as it's only useful for very simple examples.
+			std::vector<std::future<typename std::result_of<ProjectionFunction(Mat, size_t, int)>::type>> results; // will be float or Mat. I might remove float for the sake of code clarity, as it's only useful for very simple examples.
 			results.reserve(currentX.rows);
 			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
 				results.emplace_back(
-					threadPool.enqueue(h, currentX.row(sampleIndex), regressorLevel, sampleIndex)
+					threadPool.enqueue(projection, currentX.row(sampleIndex), regressorLevel, sampleIndex)
 				);
 			}
 			// Gather the results from all threads and store the features:
@@ -169,13 +172,13 @@ public:
 			}
 			// Set the observed values, depending on if a template y is used:
 			Mat observedValues;
-			if (y.empty()) { // unknown y training case
+			if (templates.empty()) { // unknown template training case
 				observedValues = features;
 			}
-			else { // known y
-				observedValues = features - y;
+			else { // known template
+				observedValues = features - templates;
 			}
-			Mat b = currentX - x;
+			Mat b = currentX - parameters; // currentX - x;
 			// 2) Learn using that data:
 			regressors[regressorLevel].learn(observedValues, b);
 			// 3) Apply the learned regressor and use the predictions to learn the next regressor in next loop iteration:
@@ -194,27 +197,27 @@ public:
 	 *
 	 * The test data should be specified as one row per example.
 	 *
-	 * \p y can either be given or set to empty (\p =cv::Mat()), according to what was learned during training.
+	 * \p y can either be given or set to empty (\c =cv::Mat()), according to what was learned during training.
 	 *
-	 * For a detailed explanation of the parameters, see train(cv::Mat x, cv::Mat x0, cv::Mat y, H h).
+	 * For a detailed explanation of the parameters, see train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection).
 	 *
-	 * Calls the testing with a default (no-op) callback function. To specify a callback function, see the overload test(cv::Mat x0, cv::Mat y, H h, OnRegressorIterationCallback onRegressorIterationCallback).
+	 * Calls the testing with a default (no-op) callback function. To specify a callback function, see the overload test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnRegressorIterationCallback onRegressorIterationCallback).
 	 *
-	 * @param[in] x0 Initialisation values for the parameters (x). Constant (x0 = c) in case a) and variable in case b).
-	 * @param[in] y An optional matrix of template values. See description above.
-	 * @param[in] h The projection function that projects the given x (parameter) values to the space of the y values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform.
+	 * @param[in] initialisations Initialisation values for the parameters. Constant in case 1) and variable in case 2).
+	 * @param[in] templates An optional matrix of template values. See description above.
+	 * @param[in] projection The projection function that projects the given parameter values to the space of the template values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform.
 	 * @return Returns the final prediction of all given test examples.
 	 */
-	template<class H>
-	cv::Mat test(cv::Mat x0, cv::Mat y, H h)
+	template<class ProjectionFunction>
+	cv::Mat test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)
 	{
-		return test(x0, y, h, noEval);
+		return test(initialisations, templates, projection, noEval);
 	};
 
 	/**
-	 * Identical to test(cv::Mat x0, cv::Mat y, H h), but allows to specify a
-	 * callback function that gets called with the current prediction
-	 * after applying each regressor.
+	 * Identical to test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection),
+	 * but allows to specify a callback function that gets called with the current
+	 * prediction after applying each regressor.
 	 *
 	 * The signature of the callback function must take a cv::Mat with the current
 	 * predictions and can capture any additional variables from the surrounding context.
@@ -226,15 +229,15 @@ public:
 	 * };
 	 * \endcode
 	 *
-	 * @copydoc test(cv::Mat x0, cv::Mat y, H h).
+	 * @copydoc test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection).
 	 *
 	 * @param[in] onRegressorIterationCallback A callback function that gets called after each applied regressor, with the current prediction result.
 	 */
-	template<class H, class OnRegressorIterationCallback>
-	cv::Mat test(cv::Mat x0, cv::Mat y, H h, OnRegressorIterationCallback onRegressorIterationCallback)
+	template<class ProjectionFunction, class OnRegressorIterationCallback>
+	cv::Mat test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnRegressorIterationCallback onRegressorIterationCallback)
 	{
 		using cv::Mat;
-		Mat currentX = x0;
+		Mat currentX = initialisations;
 		for (size_t regressorLevel = 0; regressorLevel < regressors.size(); ++regressorLevel) {
 			// Enqueue all tasks in a thread pool:
 			auto concurentThreadsSupported = std::thread::hardware_concurrency();
@@ -242,11 +245,11 @@ public:
 				concurentThreadsSupported = 4;
 			}
 			utils::ThreadPool threadPool(concurentThreadsSupported);
-			std::vector<std::future<typename std::result_of<H(Mat, size_t, int)>::type>> results; // will be float or Mat. I might remove float for the sake of code clarity, as it's only useful for very simple examples.
+			std::vector<std::future<typename std::result_of<ProjectionFunction(Mat, size_t, int)>::type>> results; // will be float or Mat. I might remove float for the sake of code clarity, as it's only useful for very simple examples.
 			results.reserve(currentX.rows);
 			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
 				results.emplace_back(
-					threadPool.enqueue(h, currentX.row(sampleIndex), regressorLevel, sampleIndex)
+					threadPool.enqueue(projection, currentX.row(sampleIndex), regressorLevel, sampleIndex)
 					);
 			}
 			// Gather the results from all threads and store the features:
@@ -256,11 +259,11 @@ public:
 			}
 
 			Mat observedValues;
-			if (y.empty()) { // unknown y training case
+			if (templates.empty()) { // unknown template training case
 				observedValues = features;
 			}
-			else { // known y
-				observedValues = features - y;
+			else { // known template
+				observedValues = features - templates;
 			}
 			Mat x_k;
 			// Calculate x_k = currentX - R * (h(currentX) - y):
@@ -279,28 +282,28 @@ public:
 	 *
 	 * The input matrices should only contain one row (i.e. one training example).
 	 *
-	 * \p y can either be given or set to empty (\p =cv::Mat()), according to what was learned during training.
+	 * \p y can either be given or set to empty (\c =cv::Mat()), according to what was learned during training.
 	 *
-	 * For a detailed explanation of the parameters, see train(cv::Mat x, cv::Mat x0, cv::Mat y, H h).
+	 * For a detailed explanation of the parameters, see train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection).
 	 *
-	 * @param[in] x0 Initialisation values for the parameters (x). Constant (x0 = c) in case a) and variable in case b).
-	 * @param[in] y An optional matrix of template values. See description above.
-	 * @param[in] h The projection function that projects the given x (parameter) values to the space of the y values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform.
+	 * @param[in] initialisations Initialisation values for the parameters. Constant in case 1) and variable in case 2).
+	 * @param[in] templates An optional matrix of template values. See description above.
+	 * @param[in] projection The projection function that projects the given parameter values to the space of the template values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform.
 	 * @return Returns the predicted parameters for the given test example.
 	 */	
-	template<class H>
-	cv::Mat predict(cv::Mat x0, cv::Mat y, H h)
+	template<class ProjectionFunction>
+	cv::Mat predict(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)
 	{
 		using cv::Mat;
-		Mat currentX = x0;
+		Mat currentX = initialisations;
 		for (size_t r = 0; r < regressors.size(); ++r) {
 			// calculate x_k = currentX - R * (h(currentX) - y):
 			Mat observedValues;
-			if (y.empty()) { // unknown y training case
-				observedValues = h(currentX, r);
+			if (templates.empty()) { // unknown template training case
+				observedValues = projection(currentX, r);
 			}
-			else { // known y
-				observedValues = h(currentX, r) - y;
+			else { // known template
+				observedValues = projection(currentX, r) - templates;
 			}
 			Mat x_k = currentX - regressors[r].predict(observedValues);
 			currentX = x_k;
