@@ -51,10 +51,10 @@ namespace boost {
  *
  * @param[in] ar The archive to serialise to (or to serialise from).
  * @param[in] mat The matrix to serialise (or deserialise).
- * @param[in] unused An optional version argument.
+ * @param[in] version An optional version argument.
  */
 template<class Archive>
-void serialize(Archive& ar, cv::Mat& mat, const unsigned int)
+void serialize(Archive& ar, cv::Mat& mat, const unsigned int /*version*/)
 {
 	int rows, cols, type;
 	bool continuous;

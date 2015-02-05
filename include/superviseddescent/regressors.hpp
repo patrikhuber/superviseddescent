@@ -287,7 +287,7 @@ private:
 	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version)
+	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
 		ar & x;
 		ar & regulariser;

@@ -83,7 +83,7 @@ public:
 	 *
 	 * @param[in] regressors One or several regressors.
 	 */
-	SupervisedDescentOptimiser(std::vector<RegressorType> regressors) : regressors(regressors)
+	SupervisedDescentOptimiser(std::vector<RegressorType> regressors) : regressors(std::move(regressors))
 	{
 	};
 
@@ -319,7 +319,7 @@ private:
 	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version)
+	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
 		ar & regressors;
 	}
