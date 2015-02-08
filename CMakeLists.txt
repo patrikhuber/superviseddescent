@@ -61,7 +61,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 # The install target:
-install(FILES ${HEADERS} DESTINATION include/superviseddescent)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
 
 if(BUILD_TESTS)
 	message(STATUS "Configuring gtest-1.7.0...")
