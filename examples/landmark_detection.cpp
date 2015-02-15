@@ -335,10 +335,11 @@ void drawLandmarks(cv::Mat image, cv::Mat landmarks, cv::Scalar color = cv::Scal
  * This app demonstrates learning of the descent direction from data for
  * a simple facial landmark detection sample app.
  *
- * First, OpenCV's face detector ...It uses a simple 10-point 3D face model, generates random poses and
- * uses the generated pose parameters (\c x) and their respective 2D
- * projections (\c y) to learn how to optimise for the parameters given
- * input landmarks \c y.
+ * First, we detect a face using OpenCV's face detector, and put the mean
+ * landmarks into the face box. Then, the update step of the landmark coordinates
+ * is learned using cascaded regression. HoG features are extracted around the
+ * landmark positions, and from that, the update step towards the ground truth
+ * positions is learned.
  *
  * This is an example of the library when a known template \c y is not available
  * during testing (because the HoG features are different for every subject).
