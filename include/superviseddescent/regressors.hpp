@@ -220,7 +220,13 @@ public:
 		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
 		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
 
-		AtA_Eigen = AtA_Eigen + reg_Eigen;
+		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);
+		Eigen::VectorXf diagVec(regularisationMatrix.rows);
+		for (int i = 0; i < diagVec.size(); ++i) {
+			diagVec(i) = regularisationMatrix.at<float>(i, i);
+		}
+		reg_Eigen_diag.diagonal() = diagVec;
+		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
 
 		// Perform a ColPivHouseholderQR (faster than FullPivLU) that allows to check for invertibility:
 		Eigen::ColPivHouseholderQR<RowMajorMatrixXf> qrOfAtA(AtA_Eigen);
