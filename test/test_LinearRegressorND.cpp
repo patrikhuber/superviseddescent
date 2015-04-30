@@ -181,7 +181,7 @@ TEST(LinearRegressor, NDimManyExamplesNDimYRegularisation) {
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 	EXPECT_FLOAT_EQ(0.282755911f, lr.x.at<float>(0, 0)) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
-	EXPECT_FLOAT_EQ(0.0360795595f, lr.x.at<float>(1, 0)) << "Expected the learned x_1_0 to be different";
+	EXPECT_NEAR(0.03607957f, lr.x.at<float>(1, 0), 0.00000002) << "Expected the learned x_1_0 to be different";
 	EXPECT_FLOAT_EQ(0.291039944f, lr.x.at<float>(2, 0)) << "Expected the learned x_2_0 to be different";
 	EXPECT_NEAR(-0.0989616f, lr.x.at<float>(0, 1), 0.0000001) << "Expected the learned x_0_1 to be different";
 	EXPECT_FLOAT_EQ(0.330635577f, lr.x.at<float>(1, 1)) << "Expected the learned x_1_1 to be different";
@@ -235,7 +235,7 @@ TEST(LinearRegressor, NDimManyExamplesNDimYBiasRegularisation) {
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 	EXPECT_NEAR(0.2814246f, lr.x.at<float>(0, 0), 0.0000002) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
-	EXPECT_FLOAT_EQ(0.0331765190f, lr.x.at<float>(1, 0)) << "Expected the learned x_1_0 to be different";
+	EXPECT_NEAR(0.03317654f, lr.x.at<float>(1, 0), 00000003) << "Expected the learned x_1_0 to be different";
 	EXPECT_FLOAT_EQ(0.289116770f, lr.x.at<float>(2, 0)) << "Expected the learned x_2_0 to be different";
 	EXPECT_FLOAT_EQ(0.0320090912f, lr.x.at<float>(3, 0)) << "Expected the learned x_3_0 to be different";
 	EXPECT_NEAR(-0.1005448f, lr.x.at<float>(0, 1), 0.0000001) << "Expected the learned x_0_1 to be different";

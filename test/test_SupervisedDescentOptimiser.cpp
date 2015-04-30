@@ -133,7 +133,7 @@ TEST(SupervisedDescentOptimiser, SinConvergenceCascade) {
 	// Make sure the training converges, i.e. the residual is correct on the training data:
 	Mat predictions = sdo.test(x0, y_tr, h);
 	double trainingResidual = normalisedLeastSquaresResidual(predictions, x_tr);
-	EXPECT_NEAR(0.040279395, trainingResidual, 0.000000001);
+	EXPECT_NEAR(0.040279395, trainingResidual, 0.00000008);
 		
 	// Test the trained model:
 	// Test data with finer resolution:
@@ -153,7 +153,7 @@ TEST(SupervisedDescentOptimiser, SinConvergenceCascade) {
 
 	predictions = sdo.test(x0_ts, y_ts, h);
 	double testResidual = normalisedLeastSquaresResidual(predictions, x_ts_gt);
-	ASSERT_NEAR(0.026156775, testResidual, 0.000000004);
+	ASSERT_NEAR(0.026156775, testResidual, 0.00000005);
 }
 
 TEST(SupervisedDescentOptimiser, XCubeConvergence) {
@@ -420,7 +420,7 @@ TEST(SupervisedDescentOptimiser, ExpConvergence) {
 
 	predictions = sdo.test(x0_ts, y_ts, h);
 	double testResidual = normalisedLeastSquaresResidual(predictions, x_ts_gt);
-	ASSERT_NEAR(0.1924569501, testResidual, 0.0000000005);
+	ASSERT_NEAR(0.1924569501, testResidual, 0.000000006);
 }
 
 TEST(SupervisedDescentOptimiser, ExpConvergenceCascade) {

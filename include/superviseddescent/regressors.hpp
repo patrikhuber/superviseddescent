@@ -295,7 +295,7 @@ public:
  * Works with multi-dimensional label data. In that case, the coefficients for
  * each label will be learned independently.
  */
-template<class Solver = ColPivHouseholderQRSolver>
+template<class Solver = PartialPivLUSolver>
 class LinearRegressor : public Regressor
 {
 
