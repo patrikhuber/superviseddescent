@@ -1,7 +1,7 @@
 project(superviseddescent)
 cmake_minimum_required(VERSION 2.8.7)
 set(superviseddescent_VERSION_MAJOR 0)
-set(superviseddescent_VERSION_MINOR 2)
+set(superviseddescent_VERSION_MINOR 3)
 set(superviseddescent_VERSION_PATCH 0)
 
 # g++ needs a compiler flag to enable C++11 support
