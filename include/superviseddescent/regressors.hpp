@@ -172,6 +172,59 @@ private:
 	}
 };
 
+/**
+ * A solver that the LinearRegressor uses to solve its system of linear
+ * equations. It needs a solve function with the following signature:
+ * \c cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
+ *
+ * The \c PartialPivLUSolver is a fast solver but it can't check for invertibility.
+ * It supports parallel solving if compiled with openmp enabled.
+ * Uses PartialPivLU::solve() instead of inverting the matrix.
+ */
+class PartialPivLUSolver
+{
+public:
+	// Note: we should leave the choice of inverting A or AtA to the solver.
+	// But this also means we need to pass through the regularisation params.
+	// We can't just pass a cv::Mat regularisation because the dimensions for
+	// regularising A and AtA are different.
+	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
+	{
+		using cv::Mat;
+		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+
+		// Map the cv::Mat data and labels to Eigen matrices:
+		Eigen::Map<RowMajorMatrixXf> A_Eigen(data.ptr<float>(), data.rows, data.cols);
+		Eigen::Map<RowMajorMatrixXf> labels_Eigen(labels.ptr<float>(), labels.rows, labels.cols);
+
+		RowMajorMatrixXf AtA_Eigen = A_Eigen.transpose() * A_Eigen;
+
+		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
+		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
+		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
+		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
+
+		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);
+		Eigen::VectorXf diagVec(regularisationMatrix.rows);
+		for (int i = 0; i < diagVec.size(); ++i) {
+			diagVec(i) = regularisationMatrix.at<float>(i, i);
+		}
+		reg_Eigen_diag.diagonal() = diagVec;
+		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
+
+		// Perform a fast PartialPivLU and use luOfAtA.solve() (better than inverting):
+		Eigen::PartialPivLU<RowMajorMatrixXf> luOfAtA(AtA_Eigen);
+		RowMajorMatrixXf x_Eigen = luOfAtA.solve(A_Eigen.transpose() * labels_Eigen);
+		//RowMajorMatrixXf x_Eigen = AtA_Eigen.partialPivLu.solve(A_Eigen.transpose() * labels_Eigen);
+
+		// Map the resulting x back to a cv::Mat by creating a Mat header:
+		Mat x(static_cast<int>(x_Eigen.rows()), static_cast<int>(x_Eigen.cols()), CV_32FC1, x_Eigen.data());
+
+		// We have to copy the data because the underlying data is managed by Eigen::Matrix x_Eigen, which will go out of scope after we leave this function:
+		return x.clone();
+		//return qrOfAtA.isInvertible();
+	};
+};
 
 /**
  * A solver that the LinearRegressor uses to solve its system of linear
