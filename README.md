@@ -156,6 +156,4 @@ This code is licensed under the Apache License, Version 2.0
 
 Contributions are very welcome! (best in the form of pull requests.) Please use Github issues for any bug reports, ideas, and discussions.
 
-If you use this code in your own work, please cite the following paper: _Random Cascaded-Regression Copse for Robust Facial Landmark Detection_, Z. Feng, P. Huber, J. Kittler, W. Christmas, X.J. Wu, IEEE Signal Processing Letters, Vol: 22(1), 2015 (http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber=6877655).
-
-(_We are working on publishing a paper that more closely resembles this library, and we will replace the previously mentioned paper here with the new one as soon as it is published._)
+If you use this code in your own work, please cite the following paper: _Fitting 3D Morphable Models using Local Features_, P. Huber, Z. Feng, W. Christmas, J. Kittler, M. Rätsch, IEEE International Conference on Image Processing (ICIP) 2015, Québec City, Canada (http://arxiv.org/abs/1503.02330).
