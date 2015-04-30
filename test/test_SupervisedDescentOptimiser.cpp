@@ -116,17 +116,7 @@ TEST(SupervisedDescentOptimiser, SinConvergenceCascade) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors;
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
+	vector<LinearRegressor<>> regressors(10);
 	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
 	sdo.train(x_tr, x0, y_tr, h);
 
@@ -225,17 +215,7 @@ TEST(SupervisedDescentOptimiser, XCubeConvergenceCascade) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors;
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
+	vector<LinearRegressor<>> regressors(10);
 	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
 	sdo.train(x_tr, x0, y_tr, h);
 
@@ -334,17 +314,7 @@ TEST(SupervisedDescentOptimiser, ErfConvergenceCascade) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors;
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
+	vector<LinearRegressor<>> regressors(10);
 	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
 	sdo.train(x_tr, x0, y_tr, h);
 
@@ -443,17 +413,7 @@ TEST(SupervisedDescentOptimiser, ExpConvergenceCascade) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors;
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
+	vector<LinearRegressor<>> regressors(10);
 	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
 	sdo.train(x_tr, x0, y_tr, h);
 
@@ -530,17 +490,7 @@ TEST(SupervisedDescentOptimiser, SinErfConvergenceCascadeMultiY) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 2, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors;
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
-	regressors.emplace_back(LinearRegressor<>());
+	vector<LinearRegressor<>> regressors(10);
 	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
 
 	sdo.train(x_tr, x0, y_tr, h);
