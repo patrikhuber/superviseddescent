@@ -104,9 +104,9 @@ int main(int argc, char *argv[])
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); 
 
 	// Create 10 linear regressors in series, default-constructed (= no regularisation):
-	vector<LinearRegressor> regressors(10);
+	vector<LinearRegressor<>> regressors(10);
 	
-	SupervisedDescentOptimiser<LinearRegressor> supervisedDescentModel(regressors);
+	SupervisedDescentOptimiser<LinearRegressor<>> supervisedDescentModel(regressors);
 	
 	// Train the model. We'll also specify an optional callback function:
 	std::cout << "Training the model, printing the residual after each learned regressor: " << std::endl;

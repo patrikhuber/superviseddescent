@@ -172,40 +172,23 @@ private:
 	}
 };
 
+
 /**
- * A simple LinearRegressor that learns coefficients x for the linear relationship
- * \f$ Ax = b \f$. This class handles learning, testing, and predicting single examples.
+ * A solver that the LinearRegressor uses to solve its system of linear
+ * equations. It needs a solve function with the following signature:
+ * \c cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
  *
- * A Regulariser can be specified to make the least squares problem more
- * well-behaved (or invertible, in case it is not).
- *
- * Works with multi-dimensional label data. In that case, the coefficients for
- * each label will be learned independently.
+ * The \c ColPivHouseholderQRSolver can check for invertibility, but it is much
+ * slower than a \c PartialPivLUSolver.
  */
-class LinearRegressor : public Regressor
+class ColPivHouseholderQRSolver
 {
-
 public:
-	/**
-	 * Creates a LinearRegressor with no regularisation.
-	 *
-	 * @param[in] regulariser A Regulariser to regularise the data matrix. Default means no regularisation.
-	 */
-	LinearRegressor(Regulariser regulariser = Regulariser()) : x(), regulariser(regulariser)
-	{
-	};
-
-	/**
-	 * Learns a linear predictor from the given data and labels.
-	 *
-	 * In case the problem is not invertible, the function will return false
-	 * and will most likely have learned garbage.
-	 *
-	 * @param[in] data Training data matrix, one example per row.
-	 * @param[in] labels Labels corresponding to the training data.
-	 * @return Returns whether \f$ \text{data}^t * \text{data} \f$ was invertible.
-	 */
-	bool learn(cv::Mat data, cv::Mat labels) override
+	// Note: we should leave the choice of inverting A or AtA to the solver.
+	// But this also means we need to pass through the regularisation params.
+	// We can't just pass a cv::Mat regularisation because the dimensions for
+	// regularising A and AtA are different.
+	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
 	{
 		using cv::Mat;
 		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
@@ -214,7 +197,7 @@ public:
 		Eigen::Map<RowMajorMatrixXf> labels_Eigen(labels.ptr<float>(), labels.rows, labels.cols);
 
 		RowMajorMatrixXf AtA_Eigen = A_Eigen.transpose() * A_Eigen;
-		
+
 		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
 		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
 		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
@@ -236,17 +219,61 @@ public:
 			std::cout << "The regularised AtA is not invertible. We continued learning, but Eigen may return garbage (their docu is not very specific). (The rank is " << std::to_string(rankOfAtA) << ", full rank would be " << std::to_string(AtA_Eigen.rows()) << "). Increase lambda." << std::endl;
 		}
 		RowMajorMatrixXf AtAInv_Eigen = qrOfAtA.inverse();
-		
+
 		// x = (AtAReg)^-1 * At * b:
 		RowMajorMatrixXf x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;
 
 		// Map the resulting x back to a cv::Mat by creating a Mat header:
 		Mat x(static_cast<int>(x_Eigen.rows()), static_cast<int>(x_Eigen.cols()), CV_32FC1, x_Eigen.data());
-		
+
 		// We have to copy the data because the underlying data is managed by Eigen::Matrix x_Eigen, which will go out of scope after we leave this function:
-		this->x = x.clone();
-		
-		return qrOfAtA.isInvertible();
+		return x.clone();
+		//return qrOfAtA.isInvertible();
+	};
+};
+
+/**
+ * A simple LinearRegressor that learns coefficients x for the linear relationship
+ * \f$ Ax = b \f$. This class handles learning, testing, and predicting single examples.
+ *
+ * A Regulariser can be specified to make the least squares problem more
+ * well-behaved (or invertible, in case it is not).
+ *
+ * Works with multi-dimensional label data. In that case, the coefficients for
+ * each label will be learned independently.
+ */
+template<class Solver = ColPivHouseholderQRSolver>
+class LinearRegressor : public Regressor
+{
+
+public:
+	/**
+	 * Creates a LinearRegressor with no regularisation.
+	 *
+	 * @param[in] regulariser A Regulariser to regularise the data matrix. Default means no regularisation.
+	 */
+	LinearRegressor(Regulariser regulariser = Regulariser()) : x(), regulariser(regulariser)
+	{
+	};
+
+	/**
+	 * Learns a linear predictor from the given data and labels.
+	 *
+	 * In case the problem is not invertible, the function will return false
+	 * and will most likely have learned garbage.
+	 *
+	 * Note/Todo: We probably want to change the interface to return void. Not
+	 * all solvers can return a bool, it's kind of optional, so we can't rely on it.
+	 *
+	 * @param[in] data Training data matrix, one example per row.
+	 * @param[in] labels Labels corresponding to the training data.
+	 * @return Returns whether \f$ \text{data}^t * \text{data} \f$ was invertible. (Note: Always returns true at the moment.)
+	 */
+	bool learn(cv::Mat data, cv::Mat labels) override
+	{
+		cv::Mat x = solver.solve(data, labels, regulariser);
+		this->x = x;
+		return true; // see todo above
 	};
 
 	/**
@@ -284,6 +311,7 @@ public:
 
 private:
 	Regulariser regulariser; ///< Holding information about how to regularise.
+	Solver solver; ///< The type of solver used to solve the regressors linear system of equations.
 
 	friend class boost::serialization::access;
 	/**
