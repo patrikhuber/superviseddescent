@@ -10,9 +10,9 @@
 # Eigen3:
 # -------
 # Windows: Set to the path of the unzipped Eigen3 file.
-#set(EIGEN3_INCLUDE_DIR "C:\\eigen\\eigen-ffa86ffb5570\\" CACHE PATH "Directory of the Eigen3 headers" FORCE)
+#set(EIGEN3_INCLUDE_DIR "C:\\eigen\\eigen-10219c95fe65\\" CACHE PATH "Directory of the Eigen3 headers" FORCE)
 # Linux: Can be left empty when installed system-wide. (Note/Todo: Doesnt work with Eigen 3.0.5 from Ubuntu 12.04). Otherwise, set the path manually.
-#set(EIGEN3_INCLUDE_DIR "/home/user/eigen-ffa86ffb5570/" CACHE PATH "Directory of the Eigen3 headers" FORCE)
+#set(EIGEN3_INCLUDE_DIR "/home/user/eigen-10219c95fe65/" CACHE PATH "Directory of the Eigen3 headers" FORCE)
 
 
 # Mechanism via ConfigLIB.cmake in 3rd party library directory
