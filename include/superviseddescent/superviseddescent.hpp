@@ -56,6 +56,17 @@ inline void noEval(const cv::Mat& currentPredictions)
 {
 };
 
+/**
+ * Todo. Function object.
+ * This is the default function that performs nothing.
+ */
+class NoNormalisation
+{
+public:
+	inline cv::Mat operator()(cv::Mat params) {
+		return cv::Mat::ones(1, params.cols, params.type());
+	};
+};
 
 /**
  * The heart of the library: The main class that performs learning of the
@@ -66,7 +77,7 @@ inline void noEval(const cv::Mat& currentPredictions)
  * regressors.hpp. To use your own learning algorithm, implement the
  * functions of the abstract class Regressor.
  */
-template<class RegressorType>
+template<class RegressorType, class NormalisationStrategy = NoNormalisation>
 class SupervisedDescentOptimiser
 {
 public:
@@ -178,14 +189,23 @@ public:
 			else { // known template
 				observedValues = features - templates;
 			}
-			Mat b = currentX - parameters; // currentX - x;
+			//Mat b = currentX - parameters; // currentX - x;
+			Mat b; // Todo: reserve() for speedup. Also below with x_k.
+			// Apply the normalisation strategy to each sample in b:
+			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
+				cv::Mat update_step = currentX.row(sampleIndex) - parameters.row(sampleIndex);
+				update_step = update_step.mul(normalisationStrategy(currentX.row(sampleIndex)));
+				b.push_back(update_step);
+			}
 			// 2) Learn using that data:
 			regressors[regressorLevel].learn(observedValues, b);
 			// 3) Apply the learned regressor and use the predictions to learn the next regressor in next loop iteration:
 			Mat x_k; // x_k = currentX - R * (h(currentX) - y):
 			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
 				// No need to re-extract the features, we already did so in step 1)
-				x_k.push_back(Mat(currentX.row(sampleIndex) - regressors[regressorLevel].predict(observedValues.row(sampleIndex))));
+				cv::Mat update_step = regressors[regressorLevel].predict(observedValues.row(sampleIndex));
+				update_step = update_step.mul(1 / normalisationStrategy(currentX.row(sampleIndex))); // Need to multiply the regressor prediction with the IED of the current prediction
+				x_k.push_back(Mat(currentX.row(sampleIndex) - update_step));
 			}
 			currentX = x_k;
 			onTrainingEpochCallback(currentX);
@@ -268,7 +288,10 @@ public:
 			Mat x_k;
 			// Calculate x_k = currentX - R * (h(currentX) - y):
 			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
-				x_k.push_back(Mat(currentX.row(sampleIndex) - regressors[regressorLevel].predict(observedValues.row(sampleIndex)))); // we need Mat() because the subtraction yields a (non-persistent) MatExpr
+				cv::Mat update_step = regressors[regressorLevel].predict(observedValues.row(sampleIndex));
+				update_step = update_step.mul(1 / normalisationStrategy(currentX.row(sampleIndex))); // Need to multiply the regressor prediction with the IED of the current prediction
+				x_k.push_back(Mat(currentX.row(sampleIndex) - update_step));
+				//x_k.push_back(Mat(currentX.row(sampleIndex) - regressors[regressorLevel].predict(observedValues.row(sampleIndex)))); // we need Mat() because the subtraction yields a (non-persistent) MatExpr
 			}
 			currentX = x_k;
 			onRegressorIterationCallback(currentX);
@@ -305,7 +328,10 @@ public:
 			else { // known template
 				observedValues = projection(currentX, r) - templates;
 			}
-			Mat x_k = currentX - regressors[r].predict(observedValues);
+			cv::Mat update_step = regressors[r].predict(observedValues);
+			update_step = update_step.mul(1 / normalisationStrategy(currentX)); // Need to multiply the regressor prediction with the IED of the current prediction
+			Mat x_k = currentX - update_step;
+			//Mat x_k = currentX - regressors[r].predict(observedValues);
 			currentX = x_k;
 		}
 		return currentX;
@@ -313,6 +339,7 @@ public:
 
 private:
 	std::vector<RegressorType> regressors; ///< A series of learned regressors.
+	NormalisationStrategy normalisationStrategy; ///< Todo.
 
 	friend class boost::serialization::access;
 	/**
