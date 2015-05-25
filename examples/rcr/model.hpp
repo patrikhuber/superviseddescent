@@ -71,16 +71,36 @@ Mat alignMean(Mat mean, cv::Rect faceBox, float scalingX=1.0f, float scalingY=1.
 class InterEyeDistanceNormalisation
 {
 public:
+	InterEyeDistanceNormalisation() = default;
+
+	InterEyeDistanceNormalisation(std::vector<std::string> modelLandmarksList, std::vector<std::string> rightEyeIdentifiers, std::vector<std::string> leftEyeIdentifiers) : modelLandmarksList(modelLandmarksList), rightEyeIdentifiers(rightEyeIdentifiers), leftEyeIdentifiers(leftEyeIdentifiers)
+	{
+	};
+
 	// params: The current landmark estimate
 	inline cv::Mat operator()(cv::Mat params) {
-		//getIed() // No access to the eye-identifiers here to normalise.
-		vector<string> rightEyeIdentifiers{ "37", "40" };
-		vector<string> leftEyeIdentifiers{ "43", "46" };
-		vector<string> modelLandmarksList{ "37", "40", "43", "46", "49", "55", "58" };
 		auto lmc = toLandmarkCollection(params, modelLandmarksList);
 		auto ied = getIed(lmc, rightEyeIdentifiers, leftEyeIdentifiers);
 		return Mat::ones(1, params.cols, params.type()) / ied;
 	};
+
+private:
+	std::vector<std::string> modelLandmarksList;
+	std::vector<std::string> rightEyeIdentifiers;
+	std::vector<std::string> leftEyeIdentifiers;
+
+	friend class boost::serialization::access;
+	/**
+	 * Serialises this class using boost::serialization.
+	 *
+	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] version An optional version argument.
+	 */
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & modelLandmarksList & rightEyeIdentifiers & leftEyeIdentifiers;
+	}
 };
 
 } /* namespace rcr */

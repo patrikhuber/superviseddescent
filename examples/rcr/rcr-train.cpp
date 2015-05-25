@@ -309,11 +309,11 @@ public:
 private:
 	friend class boost::serialization::access;
 	/**
-	* Serialises this class using boost::serialization.
-	*
-	* @param[in] ar The archive to serialise to (or to serialise from).
-	* @param[in] version An optional version argument.
-	*/
+	 * Serialises this class using boost::serialization.
+	 *
+	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] version An optional version argument.
+	 */
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
@@ -488,13 +488,11 @@ int main(int argc, char *argv[])
 	regressors.emplace_back(LinearRegressor<PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 0.5f, false)));
 	//regressors.emplace_back(LinearRegressor<PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 0.3f, true)));
 	
-	SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervisedDescentModel(regressors);
+	SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervisedDescentModel(regressors, rcr::InterEyeDistanceNormalisation(modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers));
 	//SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>> supervisedDescentModel(regressors);
 	
-	std::vector<rcr::HoGParam> hog_params{ {4, 12, 4, 48}, {3, 12, 4, 36}, {3, 6, 4, 18} }; // 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/
-	rcr::HogTransform hog(trainingImages, VlHogVariant::VlHogVariantUoctti, hog_params);
-	//OpenCVHogTransform hog(trainingImages, 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/); // params unused
-	//SiftTransform hog(trainingImages, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers);
+	std::vector<rcr::HoGParam> hog_params{ { VlHogVariant::VlHogVariantUoctti, 4, 12, 4, 48 }, { VlHogVariant::VlHogVariantUoctti, 3, 12, 4, 36 }, { VlHogVariant::VlHogVariantUoctti, 3, 6, 4, 18 } }; // 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/
+	rcr::HogTransform hog(trainingImages, hog_params, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers);
 
 	// Train the model. We'll also specify an optional callback function:
 	cout << "Training the model, printing the residual after each learned regressor: " << endl;
@@ -515,7 +513,7 @@ int main(int argc, char *argv[])
 	learned_model.rightEyeIdentifiers = rightEyeIdentifiers;
 	learned_model.leftEyeIdentifiers = leftEyeIdentifiers;
 	learned_model.model_mean = modelMean;
-
+	
 	// Save the learned model:
 	{
 		std::ofstream learnedModelFile(outputfile.string());
@@ -571,7 +569,7 @@ int main(int argc, char *argv[])
 	Mat normalisedErrorInit = calculateNormalisedLandmarkErrors(x_ts_0, x_ts_gt, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers);
 	cout << "Normalised LM-error test from mean init: " << cv::mean(normalisedErrorInit)[0] << endl;
 	
-	Mat result = supervisedDescentModel.test(x_ts_0, Mat(), rcr::HogTransform(testImages, VlHogVariant::VlHogVariantUoctti, hog_params));
+	Mat result = supervisedDescentModel.test(x_ts_0, Mat(), rcr::HogTransform(testImages, hog_params, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers));
 	
 	cout << "NLSR test: " << cv::norm(result, x_ts_gt, cv::NORM_L2) / cv::norm(x_ts_gt, cv::NORM_L2) << endl;
 	Mat normalisedError = calculateNormalisedLandmarkErrors(result, x_ts_gt, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers);

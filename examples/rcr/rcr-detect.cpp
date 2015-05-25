@@ -138,11 +138,11 @@ public:
 private:
 	friend class boost::serialization::access;
 	/**
-	* Serialises this class using boost::serialization.
-	*
-	* @param[in] ar The archive to serialise to (or to serialise from).
-	* @param[in] version An optional version argument.
-	*/
+	 * Serialises this class using boost::serialization.
+	 *
+	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] version An optional version argument.
+	 */
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 	
 	cv::Mat init = rcr::alignMean(rcr_model.model_mean, cv::Rect(detectedFaces[0]));
 	rcr::drawLandmarks(image, init, {0, 0, 255});
-	rcr::HogTransform hog({ image }, VlHogVariant::VlHogVariantUoctti, rcr_model.hog_params);
+	rcr::HogTransform hog({ image }, rcr_model.hog_params, rcr_model.modelLandmarks, rcr_model.rightEyeIdentifiers, rcr_model.leftEyeIdentifiers);
 
 	auto landmarks = rcr_model.sdm_model.predict(init, cv::Mat(), hog);
 	rcr::drawLandmarks(image, landmarks);

@@ -38,21 +38,22 @@ namespace rcr {
 
 struct HoGParam
 {
+	VlHogVariant vlHogVariant;
 	int numCells; int cellSize; int numBins; int resizeTo;
 	// note: alternatively, we could dynamically vary cellSize. Guess it works if the hog features are somehow normalised.
 
 private:
 	friend class boost::serialization::access;
 	/**
-	* Serialises this class using boost::serialization.
-	*
-	* @param[in] ar The archive to serialise to (or to serialise from).
-	* @param[in] version An optional version argument.
-	*/
+	 * Serialises this class using boost::serialization.
+	 *
+	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] version An optional version argument.
+	 */
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
-		ar & numCells & cellSize & numBins & resizeTo;
+		ar & vlHogVariant & numCells & cellSize & numBins & resizeTo;
 	}
 };
 
@@ -84,7 +85,7 @@ public:
 	 * @param[in] cellSize Width of one HoG cell in pixels.
 	 * @param[in] numBins Number of orientations of a HoG cell.
 	 */
-	HogTransform(std::vector<cv::Mat> images, VlHogVariant vlHogVariant, std::vector<HoGParam> hog_params) : images(images), vlHogVariant(vlHogVariant), hog_params(hog_params)
+	HogTransform(std::vector<cv::Mat> images, std::vector<HoGParam> hog_params, std::vector<std::string> modelLandmarksList, std::vector<std::string> rightEyeIdentifiers, std::vector<std::string> leftEyeIdentifiers) : images(images), hog_params(hog_params), modelLandmarksList(modelLandmarksList), rightEyeIdentifiers(rightEyeIdentifiers), leftEyeIdentifiers(leftEyeIdentifiers)
 	{
 	};
 
@@ -113,14 +114,6 @@ public:
 		else {
 			grayImage = images[trainingIndex];
 		}
-
-		// For the IED normalisation / adaptive part:
-		std::vector<std::string> rightEyeIdentifiers{ "37", "40" };
-		std::vector<std::string> leftEyeIdentifiers{ "43", "46" };
-		std::vector<std::string> modelLandmarksList{ "37", "40", "43", "46", "49", "55", "58" };
-		
-		// Note: We could use the 'regressorLevel' to choose the window size (and
-		// other parameters adaptively). We omit this for the sake of a short example.
 
 		//int patchWidthHalf = hog_params[regressorLevel].numCells * (hog_params[regressorLevel].cellSize / 2);
 		int patchWidthHalf = std::round(getIed(toLandmarkCollection(parameters, modelLandmarksList), rightEyeIdentifiers, leftEyeIdentifiers) / 3); // Could use the formula of Zhenhua here. Well I used it somewhere in the old code?
@@ -154,7 +147,7 @@ public:
 			cv::resize(roiImg, roiImg, { hog_params[regressorLevel].resizeTo, hog_params[regressorLevel].resizeTo });
 
 			roiImg.convertTo(roiImg, CV_32FC1); // vl_hog_put_image expects a float* (values 0.0f-255.0f)
-			VlHog* hog = vl_hog_new(vlHogVariant, hog_params[regressorLevel].numBins, false); // transposed (=col-major) = false
+			VlHog* hog = vl_hog_new(hog_params[regressorLevel].vlHogVariant, hog_params[regressorLevel].numBins, false); // transposed (=col-major) = false
 			vl_hog_put_image(hog, (float*)roiImg.data, roiImg.cols, roiImg.rows, 1, hog_params[regressorLevel].cellSize); // (the '1' is numChannels)
 			int ww = static_cast<int>(vl_hog_get_width(hog)); // assert ww == hh == numCells
 			int hh = static_cast<int>(vl_hog_get_height(hog));
@@ -185,8 +178,12 @@ public:
 
 private:
 	std::vector<cv::Mat> images;
-	VlHogVariant vlHogVariant;
 	std::vector<HoGParam> hog_params;
+
+	// For the IED normalisation / adaptive part:
+	std::vector<std::string> modelLandmarksList;
+	std::vector<std::string> rightEyeIdentifiers;
+	std::vector<std::string> leftEyeIdentifiers;
 };
 
 
