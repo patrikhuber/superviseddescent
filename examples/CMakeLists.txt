@@ -39,3 +39,5 @@ install(TARGETS landmark_detection DESTINATION bin)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin)
 
 install(TARGETS pose_estimation DESTINATION bin)
+
+add_subdirectory(rcr)
