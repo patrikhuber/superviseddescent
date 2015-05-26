@@ -15,16 +15,29 @@ endif()
 
 include_directories(${superviseddescent_INCLUDE_DIR})
 
-# Robust regression copse landmark detection training:
+# Robust regression copse landmark detection
+
+# Standard training:
 add_executable(rcr-train rcr-train.cpp ../hog.c ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
 target_link_libraries(rcr-train ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
-# Robust regression copse landmark detection:
+# To train a model for tracking:
+add_executable(rcr-train-tracking rcr-train-tracking.cpp ../hog.c ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
+target_link_libraries(rcr-train-tracking ${OpenCV_LIBS} ${Boost_LIBRARIES})
+
+# Detect landmarks on an image:
 add_executable(rcr-detect rcr-detect.cpp ../hog.c ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
 target_link_libraries(rcr-detect ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
-# install targets:
+# Run landmark tracking on a video:
+add_executable(rcr-track rcr-track.cpp ../hog.c ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
+target_link_libraries(rcr-track ${OpenCV_LIBS} ${Boost_LIBRARIES})
+
+# Install targets:
 install(TARGETS rcr-train DESTINATION bin)
-#install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin)
+install(TARGETS rcr-train-tracking DESTINATION bin)
 
 install(TARGETS rcr-detect DESTINATION bin)
+install(TARGETS rcr-track DESTINATION bin)
+
+#install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin)
