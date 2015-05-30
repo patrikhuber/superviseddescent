@@ -30,6 +30,7 @@
 #endif
 #include "boost/serialization/serialization.hpp"
 #include "boost/serialization/array.hpp"
+#include "boost/serialization/nvp.hpp"
 
 /**
  * Serialisation for the OpenCV cv::Mat class. Supports text and binary serialisation.
@@ -64,19 +65,20 @@ void serialize(Archive& ar, cv::Mat& mat, const unsigned int /*version*/)
 		continuous = mat.isContinuous();
 	}
 
-	ar & rows & cols & type & continuous;
+	ar & BOOST_SERIALIZATION_NVP(rows) & BOOST_SERIALIZATION_NVP(cols) & BOOST_SERIALIZATION_NVP(type) & BOOST_SERIALIZATION_NVP(continuous);
 
 	if (Archive::is_loading::value)
 		mat.create(rows, cols, type);
 
 	if (continuous) {
 		const unsigned int data_size = rows * cols * static_cast<int>(mat.elemSize());
-		ar & boost::serialization::make_array(mat.ptr(), data_size);
+		ar & make_nvp("data", boost::serialization::make_array(mat.ptr(), data_size));
 	}
 	else {
 		const unsigned int row_size = cols * static_cast<int>(mat.elemSize());
 		for (int i = 0; i < rows; i++) {
-			ar & boost::serialization::make_array(mat.ptr(i), row_size);
+			std::string name = "data_row_" + std::to_string(i);
+			ar & make_nvp(name.c_str(), boost::serialization::make_array(mat.ptr(i), row_size));
 		}
 	}
 };
