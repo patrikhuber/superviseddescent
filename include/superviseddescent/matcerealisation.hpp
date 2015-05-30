@@ -3,7 +3,7 @@
  *                    optimisation method
  * File: superviseddescent/matcerealisation.hpp
  *
- * Copyright 2014, 2015 Patrik Huber
+ * Copyright 2015 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@
 #include "cereal/types/vector.hpp"
 
 /**
- * Serialisation for the OpenCV cv::Mat class. Supports text and binary serialisation.
- *
+ * Serialisation for OpenCV cv::Mat matrices for the serialisation
+ * library cereal (http://uscilab.github.io/cereal/index.html).
  */
 
 namespace cv {
@@ -38,8 +38,8 @@ namespace cv {
  *
  * Supports all types of matrices as well as non-contiguous ones.
  *
- * @param[in] ar The archive to serialise to (or to serialise from).
- * @param[in] mat The matrix to serialise (or deserialise).
+ * @param[in] ar The archive to serialise to.
+ * @param[in] mat The matrix to serialise.
  */
 template<class Archive>
 void save(Archive& ar, const cv::Mat& mat)
@@ -47,31 +47,35 @@ void save(Archive& ar, const cv::Mat& mat)
 	int rows, cols, type;
 	bool continuous;
 
-	// only when saving:
 	rows = mat.rows;
 	cols = mat.cols;
 	type = mat.type();
 	continuous = mat.isContinuous();
-	//
 
 	ar & rows & cols & type & continuous;
 
 	if (continuous) {
 		const int data_size = rows * cols * static_cast<int>(mat.elemSize());
-		// This copies the data. I don't think there's a solution that avoids copying the data.
-		std::vector<uchar> mat_data(mat.ptr(), mat.ptr() + data_size);
-		ar & mat_data;
+		auto mat_data_t = cereal::binary_data(mat.ptr(), data_size);
+		ar & mat_data_t;
 	}
 	else {
 		const int row_size = cols * static_cast<int>(mat.elemSize());
-		std::vector<uchar> row_data(row_size);
 		for (int i = 0; i < rows; i++) {
-			row_data.assign(mat.ptr(i), mat.ptr(i) + row_size);
-			ar & row_data;
+			auto row_data_t = cereal::binary_data(mat.ptr(i), row_size);
+			ar & row_data_t;
 		}
 	}
 };
 
+/**
+ * De-serialize a cv::Mat using cereal.
+ *
+ * Supports all types of matrices as well as non-contiguous ones.
+ *
+ * @param[in] ar The archive to deserialise from.
+ * @param[in] mat The matrix to deserialise into.
+ */
 template<class Archive>
 void load(Archive& ar, cv::Mat& mat)
 {
@@ -80,27 +84,18 @@ void load(Archive& ar, cv::Mat& mat)
 
 	ar & rows & cols & type & continuous;
 
-	// only when loading:
-	//mat.create(1, 1, type); // create a pseudo matrix to extract the elemSize() later
-	//
-
 	if (continuous) {
-		//const int data_size = rows * cols * static_cast<int>(mat.elemSize());
-		// This copies the data. I don't think there's a solution that avoids copying the data.
-		//std::vector<uchar> mat_data(mat.ptr(), mat.ptr() + data_size);
-		std::vector<uchar> mat_data;
-		ar & mat_data;
-		mat = cv::Mat(rows, cols, type, &mat_data[0]).clone(); // without clone(), the data is destroyed as soon as the vector goes out of scope.
-		// alternative: Mat(...).copyTo(mat)?
+		mat.create(rows, cols, type);
+		const int data_size = rows * cols * static_cast<int>(mat.elemSize());
+		auto mat_data_t = cereal::binary_data(mat.ptr(), data_size);
+		ar & mat_data_t;
 	}
 	else {
-		//const int row_size = cols * static_cast<int>(mat.elemSize());
-		mat = cv::Mat(rows, cols, type);
-		std::vector<uchar> row_data; // will hold the data read from the file for each row
+		mat.create(rows, cols, type);
+		const int row_size = cols * static_cast<int>(mat.elemSize());
 		for (int i = 0; i < rows; i++) {
-			ar & row_data;
-			cv::Mat(1, cols, type, &row_data[0]).copyTo(mat.row(i));
-			//row.assign(mat.ptr(i), mat.ptr(i) + row_size);
+			auto row_data_t = cereal::binary_data(mat.ptr(i), row_size);
+			ar & row_data_t;
 		}
 	}
 };
