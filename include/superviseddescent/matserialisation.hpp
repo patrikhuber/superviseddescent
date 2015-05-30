@@ -69,11 +69,11 @@ void serialize(Archive& ar, cv::Mat& mat, const unsigned int /*version*/)
 		mat.create(rows, cols, type);
 
 	if (continuous) {
-		const unsigned int data_size = rows * cols * static_cast<int>(mat.elemSize());
+		const int data_size = rows * cols * static_cast<int>(mat.elemSize());
 		ar & boost::serialization::make_array(mat.ptr(), data_size);
 	}
 	else {
-		const unsigned int row_size = cols * static_cast<int>(mat.elemSize());
+		const int row_size = cols * static_cast<int>(mat.elemSize());
 		for (int i = 0; i < rows; i++) {
 			ar & boost::serialization::make_array(mat.ptr(i), row_size);
 		}
