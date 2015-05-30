@@ -24,8 +24,6 @@
 
 #include "opencv2/core/core.hpp"
 
-#include "cereal/types/vector.hpp"
-
 /**
  * Serialisation for OpenCV cv::Mat matrices for the serialisation
  * library cereal (http://uscilab.github.io/cereal/index.html).
@@ -34,7 +32,7 @@
 namespace cv {
 
 /**
- * Serialize a cv::Mat using cereal.
+ * Serialise a cv::Mat using cereal.
  *
  * Supports all types of matrices as well as non-contiguous ones.
  *
@@ -56,20 +54,20 @@ void save(Archive& ar, const cv::Mat& mat)
 
 	if (continuous) {
 		const int data_size = rows * cols * static_cast<int>(mat.elemSize());
-		auto mat_data_t = cereal::binary_data(mat.ptr(), data_size);
-		ar & mat_data_t;
+		auto mat_data = cereal::binary_data(mat.ptr(), data_size);
+		ar & mat_data;
 	}
 	else {
 		const int row_size = cols * static_cast<int>(mat.elemSize());
 		for (int i = 0; i < rows; i++) {
-			auto row_data_t = cereal::binary_data(mat.ptr(i), row_size);
-			ar & row_data_t;
+			auto row_data = cereal::binary_data(mat.ptr(i), row_size);
+			ar & row_data;
 		}
 	}
 };
 
 /**
- * De-serialize a cv::Mat using cereal.
+ * De-serialise a cv::Mat using cereal.
  *
  * Supports all types of matrices as well as non-contiguous ones.
  *
@@ -87,15 +85,15 @@ void load(Archive& ar, cv::Mat& mat)
 	if (continuous) {
 		mat.create(rows, cols, type);
 		const int data_size = rows * cols * static_cast<int>(mat.elemSize());
-		auto mat_data_t = cereal::binary_data(mat.ptr(), data_size);
-		ar & mat_data_t;
+		auto mat_data = cereal::binary_data(mat.ptr(), data_size);
+		ar & mat_data;
 	}
 	else {
 		mat.create(rows, cols, type);
 		const int row_size = cols * static_cast<int>(mat.elemSize());
 		for (int i = 0; i < rows; i++) {
-			auto row_data_t = cereal::binary_data(mat.ptr(i), row_size);
-			ar & row_data_t;
+			auto row_data = cereal::binary_data(mat.ptr(i), row_size);
+			ar & row_data;
 		}
 	}
 };
