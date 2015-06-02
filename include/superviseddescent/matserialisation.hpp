@@ -29,10 +29,10 @@
 	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
 #endif
 #include "boost/serialization/serialization.hpp"
-#include "boost/serialization/array.hpp"
+#include "boost/serialization/binary_object.hpp"
 
 /**
- * Serialisation for the OpenCV cv::Mat class. Supports text and binary serialisation.
+ * Serialisation for the OpenCV cv::Mat class.
  *
  * Based on answer from: http://stackoverflow.com/questions/4170745/serializing-opencv-mat-vec3f 
  * Different method and tests: http://cheind.wordpress.com/2011/12/06/serialization-of-cvmat-objects-using-boost/
@@ -59,23 +59,28 @@ void serialize(Archive& ar, cv::Mat& mat, const unsigned int /*version*/)
 	bool continuous;
 
 	if (Archive::is_saving::value) {
-		rows = mat.rows; cols = mat.cols; type = mat.type();
+		rows = mat.rows;
+		cols = mat.cols;
+		type = mat.type();
 		continuous = mat.isContinuous();
 	}
 
-	ar & rows & cols & type & continuous;
+	ar & BOOST_SERIALIZATION_NVP(rows) & BOOST_SERIALIZATION_NVP(cols) & BOOST_SERIALIZATION_NVP(type) & BOOST_SERIALIZATION_NVP(continuous);
 
 	if (Archive::is_loading::value)
 		mat.create(rows, cols, type);
 
 	if (continuous) {
 		const int data_size = rows * cols * static_cast<int>(mat.elemSize());
-		ar & boost::serialization::make_array(mat.ptr(), data_size);
+		boost::serialization::binary_object mat_data(mat.data, data_size);
+		ar & BOOST_SERIALIZATION_NVP(mat_data);
 	}
 	else {
 		const int row_size = cols * static_cast<int>(mat.elemSize());
 		for (int i = 0; i < rows; i++) {
-			ar & boost::serialization::make_array(mat.ptr(i), row_size);
+			boost::serialization::binary_object row_data(mat.ptr(i), row_size);
+			std::string row_name("data_row_" + std::to_string(i));
+			ar & make_nvp(row_name.c_str(), row_data);
 		}
 	}
 };
