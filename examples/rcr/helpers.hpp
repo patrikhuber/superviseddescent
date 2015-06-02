@@ -63,7 +63,7 @@ eos::core::LandmarkCollection<cv::Vec2f> toLandmarkCollection(cv::Mat modelInsta
  * Draws the given landmarks into the image.
  *
  * @param[in] image An image to draw into.
- * @param[in] landmarks The landmarks to draw.
+ * @param[in] landmarks The landmarks to draw, in the format [x_0, ... , x_n, y_0, ... , y_n].
  * @param[in] color Color of the landmarks to be drawn.
  */
 void drawLandmarks(cv::Mat image, cv::Mat landmarks, cv::Scalar color = cv::Scalar(0.0, 255.0, 0.0))
@@ -72,6 +72,18 @@ void drawLandmarks(cv::Mat image, cv::Mat landmarks, cv::Scalar color = cv::Scal
 	for (int i = 0; i < numLandmarks; ++i) {
 		cv::circle(image, cv::Point2f(landmarks.at<float>(i), landmarks.at<float>(i + numLandmarks)), 2, color);
 	}
+}
+
+/**
+ * Draws the given landmarks into the image.
+ *
+ * @param[in] image An image to draw into.
+ * @param[in] landmarks The landmarks to draw.
+ * @param[in] color Color of the landmarks to be drawn.
+ */
+void drawLandmarks(cv::Mat image, eos::core::LandmarkCollection<cv::Vec2f> landmarks, cv::Scalar color = cv::Scalar(0.0, 255.0, 0.0))
+{
+	drawLandmarks(image, toRow(landmarks), color);
 }
 
 // checks overlap...
