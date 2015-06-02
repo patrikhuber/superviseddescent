@@ -143,6 +143,74 @@ double getIed(eos::core::LandmarkCollection<cv::Vec2f> lms, std::vector<std::str
 	return interEyeDistance[0];
 };
 
+class PartialPivLUSolveSolverDebug
+{
+public:
+	// Note: we should leave the choice of inverting A or AtA to the solver.
+	// But this also means we need to pass through the regularisation params.
+	// We can't just pass a cv::Mat regularisation because the dimensions for
+	// regularising A and AtA are different.
+	cv::Mat solve(cv::Mat data, cv::Mat labels, superviseddescent::Regulariser regulariser)
+	{
+		using cv::Mat;
+		using std::cout;
+		using std::endl;
+		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+		using namespace std::chrono;
+		time_point<system_clock> start, end;
+
+		// Map the cv::Mat data and labels to Eigen matrices:
+		Eigen::Map<RowMajorMatrixXf> A_Eigen(data.ptr<float>(), data.rows, data.cols);
+		Eigen::Map<RowMajorMatrixXf> labels_Eigen(labels.ptr<float>(), labels.rows, labels.cols);
+
+		start = system_clock::now();
+		RowMajorMatrixXf AtA_Eigen = A_Eigen.transpose() * A_Eigen;
+		end = system_clock::now();
+		cout << "At * A (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
+
+		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
+		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
+		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
+		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
+
+		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);
+		Eigen::VectorXf diagVec(regularisationMatrix.rows);
+		for (int i = 0; i < diagVec.size(); ++i) {
+			diagVec(i) = regularisationMatrix.at<float>(i, i);
+		}
+		reg_Eigen_diag.diagonal() = diagVec;
+		start = system_clock::now();
+		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
+		end = system_clock::now();
+		cout << "AtA + Reg (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
+
+		// Perform a PartialPivLU:
+		start = system_clock::now();
+		Eigen::PartialPivLU<RowMajorMatrixXf> qrOfAtA(AtA_Eigen);
+		end = system_clock::now();
+		cout << "Decomposition (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
+		start = system_clock::now();
+		//RowMajorMatrixXf AtAInv_Eigen = qrOfAtA.inverse();
+		RowMajorMatrixXf x_Eigen = qrOfAtA.solve(A_Eigen.transpose() * labels_Eigen);
+		//RowMajorMatrixXf x_Eigen = AtA_Eigen.partialPivLu.solve(A_Eigen.transpose() * labels_Eigen);
+		end = system_clock::now();
+		cout << "solve() (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
+
+		// x = (AtAReg)^-1 * At * b:
+		start = system_clock::now();
+		//RowMajorMatrixXf x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;
+		end = system_clock::now();
+		cout << "AtAInv * At * b (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
+
+		// Map the resulting x back to a cv::Mat by creating a Mat header:
+		Mat x(static_cast<int>(x_Eigen.rows()), static_cast<int>(x_Eigen.cols()), CV_32FC1, x_Eigen.data());
+
+		// We have to copy the data because the underlying data is managed by Eigen::Matrix x_Eigen, which will go out of scope after we leave this function:
+		return x.clone();
+		//return qrOfAtA.isInvertible();
+	};
+};
+
 } /* namespace rcr */
 
 #endif /* HELPERS_HPP_ */

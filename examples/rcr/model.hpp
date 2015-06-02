@@ -23,6 +23,8 @@
 #define MODEL_HPP_
 
 #include "helpers.hpp"
+#include "eos_core_landmark.hpp"
+
 #include "cereal/cereal.hpp"
 #include "cereal/types/string.hpp"
 #include "cereal/types/vector.hpp"
@@ -32,10 +34,6 @@
 
 #include <vector>
 #include <string>
-
-using cv::Mat;
-using std::vector;
-using std::string;
 
 namespace rcr {
 
@@ -58,8 +56,9 @@ namespace rcr {
  * @param[in] translationY Optional translation in y of the model.
  * @return A cv::Mat of the aligned points.
  */
-Mat alignMean(Mat mean, cv::Rect faceBox, float scalingX=1.0f, float scalingY=1.0f, float translationX=0.0f, float translationY=0.0f)
+cv::Mat alignMean(cv::Mat mean, cv::Rect faceBox, float scalingX=1.0f, float scalingY=1.0f, float translationX=0.0f, float translationY=0.0f)
 {
+	using cv::Mat;
 	// Initial estimate x_0: Center the mean face at the [-0.5, 0.5] x [-0.5, 0.5] square (assuming the face-box is that square)
 	// More precise: Take the mean as it is (assume it is in a space [-0.5, 0.5] x [-0.5, 0.5]), and just place it in the face-box as
 	// if the box is [-0.5, 0.5] x [-0.5, 0.5]. (i.e. the mean coordinates get upscaled)
@@ -85,7 +84,7 @@ public:
 	inline cv::Mat operator()(cv::Mat params) {
 		auto lmc = toLandmarkCollection(params, modelLandmarksList);
 		auto ied = getIed(lmc, rightEyeIdentifiers, leftEyeIdentifiers);
-		return Mat::ones(1, params.cols, params.type()) / ied;
+		return cv::Mat::ones(1, params.cols, params.type()) / ied;
 	};
 
 private:
@@ -95,17 +94,60 @@ private:
 
 	friend class cereal::access;
 	/**
-	 * Serialises this class using boost::serialization.
+	 * Serialises this class using cereal.
 	 *
 	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
+	void serialize(Archive& ar)
 	{
 		ar(modelLandmarksList, rightEyeIdentifiers, leftEyeIdentifiers);
 		//ar & BOOST_SERIALIZATION_NVP(modelLandmarksList) & BOOST_SERIALIZATION_NVP(rightEyeIdentifiers) & BOOST_SERIALIZATION_NVP(leftEyeIdentifiers);
 	}
+};
+
+class detection_model
+{
+public:
+	using model_type = superviseddescent::SupervisedDescentOptimiser<superviseddescent::LinearRegressor<PartialPivLUSolveSolverDebug>, InterEyeDistanceNormalisation>;
+	detection_model() = default;
+
+	detection_model(model_type optimised_model, cv::Mat mean, std::vector<std::string> landmark_ids, std::vector<rcr::HoGParam> hog_params, std::vector<std::string> right_eye_ids, std::vector<std::string> left_eye_ids) : optimised_model(optimised_model), mean(mean), landmark_ids(landmark_ids), hog_params(hog_params), right_eye_ids(right_eye_ids), left_eye_ids(left_eye_ids)
+	{};
+
+	eos::core::LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Rect facebox)
+	{
+		// Obtain the initial estimate using the mean landmarks:
+		cv::Mat mean_initialisation = rcr::alignMean(mean, facebox);
+		//rcr::drawLandmarks(image, mean_initialisation, { 0, 0, 255 });
+
+		rcr::HogTransform hog({ image }, hog_params, landmark_ids, right_eye_ids, left_eye_ids);
+
+		cv::Mat landmarks = optimised_model.predict(mean_initialisation, cv::Mat(), hog);
+
+		return toLandmarkCollection(landmarks, landmark_ids);
+	};
+
+private:
+	model_type optimised_model;
+	//std::vector<cv::Mat> regressors; // Note: vector<LinearRegressorModel> or vector<LinearRegressor::model_type> instead?
+	cv::Mat mean;						///< The mean of the model, learned and scaled from training data, given a specific face detector
+	std::vector<rcr::HoGParam> hog_params;	///< The hog parameters for each regressor level
+	std::vector<std::string> landmark_ids;			///< The landmark identifiers the model consists of
+	std::vector<std::string> right_eye_ids, left_eye_ids;	///< Holds information about which landmarks are the eyes, to calculate the IED normalisation for the adaptive update
+
+	friend class cereal::access;
+	/**
+	 * Serialises this class using cereal.
+	 *
+	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 */
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(optimised_model, mean, landmark_ids, hog_params, right_eye_ids, left_eye_ids);
+	};
+
 };
 
 } /* namespace rcr */

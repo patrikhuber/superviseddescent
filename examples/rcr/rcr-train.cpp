@@ -39,11 +39,8 @@
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
-//#include "boost/archive/text_oarchive.hpp"
-//#include "boost/archive/xml_oarchive.hpp"
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/info_parser.hpp"
-
 
 #include <vector>
 #include <iostream>
@@ -187,72 +184,6 @@ Mat calculateNormalisedLandmarkErrors(Mat currentPredictions, Mat x_gt, vector<s
 	return normalisedErrors;
 };
 
-class PartialPivLUSolveSolverDebug
-{
-public:
-	// Note: we should leave the choice of inverting A or AtA to the solver.
-	// But this also means we need to pass through the regularisation params.
-	// We can't just pass a cv::Mat regularisation because the dimensions for
-	// regularising A and AtA are different.
-	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
-	{
-		using cv::Mat;
-		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-		using namespace std::chrono;
-		time_point<system_clock> start, end;
-
-		// Map the cv::Mat data and labels to Eigen matrices:
-		Eigen::Map<RowMajorMatrixXf> A_Eigen(data.ptr<float>(), data.rows, data.cols);
-		Eigen::Map<RowMajorMatrixXf> labels_Eigen(labels.ptr<float>(), labels.rows, labels.cols);
-
-		start = system_clock::now();
-		RowMajorMatrixXf AtA_Eigen = A_Eigen.transpose() * A_Eigen;
-		end = system_clock::now();
-		cout << "At * A (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-
-		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
-		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
-		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
-		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
-
-		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);
-		Eigen::VectorXf diagVec(regularisationMatrix.rows);
-		for (int i = 0; i < diagVec.size(); ++i) {
-			diagVec(i) = regularisationMatrix.at<float>(i, i);
-		}
-		reg_Eigen_diag.diagonal() = diagVec;
-		start = system_clock::now();
-		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
-		end = system_clock::now();
-		cout << "AtA + Reg (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-
-		// Perform a PartialPivLU:
-		start = system_clock::now();
-		Eigen::PartialPivLU<RowMajorMatrixXf> qrOfAtA(AtA_Eigen);
-		end = system_clock::now();
-		cout << "Decomposition (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-		start = system_clock::now();
-		//RowMajorMatrixXf AtAInv_Eigen = qrOfAtA.inverse();
-		RowMajorMatrixXf x_Eigen = qrOfAtA.solve(A_Eigen.transpose() * labels_Eigen);
-		//RowMajorMatrixXf x_Eigen = AtA_Eigen.partialPivLu.solve(A_Eigen.transpose() * labels_Eigen);
-		end = system_clock::now();
-		cout << "solve() (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-
-		// x = (AtAReg)^-1 * At * b:
-		start = system_clock::now();
-		//RowMajorMatrixXf x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;
-		end = system_clock::now();
-		cout << "AtAInv * At * b (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-
-		// Map the resulting x back to a cv::Mat by creating a Mat header:
-		Mat x(static_cast<int>(x_Eigen.rows()), static_cast<int>(x_Eigen.cols()), CV_32FC1, x_Eigen.data());
-
-		// We have to copy the data because the underlying data is managed by Eigen::Matrix x_Eigen, which will go out of scope after we leave this function:
-		return x.clone();
-		//return qrOfAtA.isInvertible();
-	};
-};
-
 vector<string> readLandmarksListToTrain(fs::path configfile)
 {
 	pt::ptree configTree;
@@ -299,31 +230,6 @@ std::pair<vector<string>, vector<string>> readHowToCalculateTheIED(fs::path eval
 	boost::split(leftEyeIdentifiers, leftEye, boost::is_any_of(" "));
 	return std::make_pair(rightEyeIdentifiers, leftEyeIdentifiers);
 }
-
-class RCRModel
-{
-public:
-	SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> sdm_model;
-	std::vector<rcr::HoGParam> hog_params;	///< The hog parameters for each regressor level
-	vector<string> modelLandmarks;			///< The landmark identifiers the model consists of
-	vector<string> rightEyeIdentifiers, leftEyeIdentifiers;	///< Holds information about which landmarks are the eyes, to calculate the IED normalisation for the adaptive update
-	cv::Mat model_mean;						///< The mean of the model, learned and scaled from training data, given a specific face detector
-
-private:
-	friend class cereal::access;
-	/**
-	* Serialises this class using boost::serialization.
-	*
-	* @param[in] ar The archive to serialise to (or to serialise from).
-	* @param[in] version An optional version argument.
-	*/
-	template<class Archive>
-	void serialize(Archive& ar)
-	{
-		ar(sdm_model, hog_params, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers, model_mean);
-		//ar & BOOST_SERIALIZATION_NVP(sdm_model) & BOOST_SERIALIZATION_NVP(hog_params) & BOOST_SERIALIZATION_NVP(modelLandmarks) & BOOST_SERIALIZATION_NVP(rightEyeIdentifiers) & BOOST_SERIALIZATION_NVP(leftEyeIdentifiers) & BOOST_SERIALIZATION_NVP(model_mean);
-	};
-};
 
 /**
  * This app demonstrates learning of the descent direction from data for
@@ -486,13 +392,13 @@ int main(int argc, char *argv[])
 	cout << "Kept " << trainingImages.size() / (numPerturbations + 1) << " images out of " << loadedImages.size() << "." << endl;
 
 	// Create 3 regularised linear regressors in series:
-	vector<LinearRegressor<PartialPivLUSolveSolverDebug>> regressors;
-	regressors.emplace_back(LinearRegressor<PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
-	regressors.emplace_back(LinearRegressor<PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
-	regressors.emplace_back(LinearRegressor<PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
-	regressors.emplace_back(LinearRegressor<PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	vector<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>> regressors;
+	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
 	
-	SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervisedDescentModel(regressors, rcr::InterEyeDistanceNormalisation(modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers));
+	SupervisedDescentOptimiser<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervisedDescentModel(regressors, rcr::InterEyeDistanceNormalisation(modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers));
 	//SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>> supervisedDescentModel(regressors);
 	
 	std::vector<rcr::HoGParam> hog_params{ { VlHogVariant::VlHogVariantUoctti, 5, 11, 4, 55 }, { VlHogVariant::VlHogVariantUoctti, 5, 10, 4, 50 }, { VlHogVariant::VlHogVariantUoctti, 5, 8, 4, 40 },{ VlHogVariant::VlHogVariantUoctti, 5, 6, 4, 30 } }; // 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/
@@ -511,22 +417,15 @@ int main(int argc, char *argv[])
 	
 	supervisedDescentModel.train(x_gt, x_0, Mat(), hog, printResidual);
 
-	RCRModel learned_model;
-	learned_model.sdm_model = supervisedDescentModel;
-	learned_model.hog_params = hog_params;
-	learned_model.modelLandmarks = modelLandmarks;
-	learned_model.rightEyeIdentifiers = rightEyeIdentifiers;
-	learned_model.leftEyeIdentifiers = leftEyeIdentifiers;
-	learned_model.model_mean = modelMean;
-	
 	// Save the learned model:
-	{
+	rcr::detection_model learned_model(supervisedDescentModel, modelMean, modelLandmarks, hog_params, rightEyeIdentifiers, leftEyeIdentifiers);
+	try {
 		std::ofstream learnedModelFile(outputfile.string(), std::ios::binary);
-		//boost::archive::text_oarchive oa(learnedModelFile);
-//		boost::archive::xml_oarchive oa(learnedModelFile);
 		cereal::BinaryOutputArchive oar(learnedModelFile);
-//		oa << BOOST_SERIALIZATION_NVP(learned_model);
 		oar(learned_model);
+	}
+	catch (cereal::Exception& e) {
+		cout << e.what() << endl;
 	}
 
 	// ===========================
