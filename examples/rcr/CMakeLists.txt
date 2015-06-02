@@ -14,6 +14,7 @@ else(Boost_FOUND)
 endif()
 
 include_directories(${superviseddescent_INCLUDE_DIR})
+include_directories(${CEREAL_INCLUDE_DIR})
 
 # Robust regression copse landmark detection
 

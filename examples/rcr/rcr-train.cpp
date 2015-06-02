@@ -26,6 +26,8 @@
 #include "helpers.hpp"
 #include "model.hpp"
 
+#include "cereal/archives/binary.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
@@ -37,7 +39,8 @@
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
-#include "boost/archive/text_oarchive.hpp"
+//#include "boost/archive/text_oarchive.hpp"
+//#include "boost/archive/xml_oarchive.hpp"
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/info_parser.hpp"
 
@@ -307,18 +310,19 @@ public:
 	cv::Mat model_mean;						///< The mean of the model, learned and scaled from training data, given a specific face detector
 
 private:
-	friend class boost::serialization::access;
+	friend class cereal::access;
 	/**
-	 * Serialises this class using boost::serialization.
-	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 * @param[in] version An optional version argument.
-	 */
+	* Serialises this class using boost::serialization.
+	*
+	* @param[in] ar The archive to serialise to (or to serialise from).
+	* @param[in] version An optional version argument.
+	*/
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
+	void serialize(Archive& ar)
 	{
-		ar & sdm_model & hog_params & modelLandmarks & rightEyeIdentifiers & leftEyeIdentifiers & model_mean;
-	}
+		ar(sdm_model, hog_params, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers, model_mean);
+		//ar & BOOST_SERIALIZATION_NVP(sdm_model) & BOOST_SERIALIZATION_NVP(hog_params) & BOOST_SERIALIZATION_NVP(modelLandmarks) & BOOST_SERIALIZATION_NVP(rightEyeIdentifiers) & BOOST_SERIALIZATION_NVP(leftEyeIdentifiers) & BOOST_SERIALIZATION_NVP(model_mean);
+	};
 };
 
 /**
@@ -517,9 +521,12 @@ int main(int argc, char *argv[])
 	
 	// Save the learned model:
 	{
-		std::ofstream learnedModelFile(outputfile.string());
-		boost::archive::text_oarchive oa(learnedModelFile);
-		oa << learned_model;
+		std::ofstream learnedModelFile(outputfile.string(), std::ios::binary);
+		//boost::archive::text_oarchive oa(learnedModelFile);
+//		boost::archive::xml_oarchive oa(learnedModelFile);
+		cereal::BinaryOutputArchive oar(learnedModelFile);
+//		oa << BOOST_SERIALIZATION_NVP(learned_model);
+		oar(learned_model);
 	}
 
 	// ===========================

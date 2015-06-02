@@ -24,13 +24,15 @@
 
 #include "superviseddescent/utils/ThreadPool.h"
 
+#include "cereal/cereal.hpp"
+
 #include "opencv2/core/core.hpp"
 
-#ifdef WIN32
-	#define BOOST_ALL_DYN_LINK	// Link against the dynamic boost lib. Seems to be necessary because we use /MD, i.e. link to the dynamic CRT.
-	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
-#endif
-#include "boost/serialization/vector.hpp"
+// #ifdef WIN32
+// 	#define BOOST_ALL_DYN_LINK	// Link against the dynamic boost lib. Seems to be necessary because we use /MD, i.e. link to the dynamic CRT.
+// 	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
+// #endif
+//#include "boost/serialization/vector.hpp"
 
 /**
  * The main namespace of the supervised descent library.
@@ -337,11 +339,20 @@ public:
 		return currentX;
 	};
 
+	std::vector<cv::Mat> get_model()
+	{
+		std::vector<cv::Mat> model;
+		for (auto&& r : regressors) {
+			model.push_back(r.x);
+		}
+		return model;
+	};
+
 private:
 	std::vector<RegressorType> regressors; ///< A series of learned regressors.
 	NormalisationStrategy normalisationStrategy; ///< Todo.
 
-	friend class boost::serialization::access;
+	friend class cereal::access;
 	/**
 	 * Serialises this class using boost::serialization.
 	 *
@@ -349,10 +360,11 @@ private:
 	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
+	void serialize(Archive& ar)
 	{
-		ar & regressors & normalisationStrategy;
-	}
+		ar(regressors, normalisationStrategy);
+		//ar & BOOST_SERIALIZATION_NVP(regressors) & BOOST_SERIALIZATION_NVP(normalisationStrategy);
+	};
 };
 
 } /* namespace superviseddescent */

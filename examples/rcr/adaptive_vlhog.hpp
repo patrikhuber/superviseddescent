@@ -43,7 +43,7 @@ struct HoGParam
 	// note: alternatively, we could dynamically vary cellSize. Guess it works if the hog features are somehow normalised.
 
 private:
-	friend class boost::serialization::access;
+	friend class cereal::access;
 	/**
 	 * Serialises this class using boost::serialization.
 	 *
@@ -53,7 +53,8 @@ private:
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
-		ar & vlHogVariant & numCells & cellSize & numBins & resizeTo;
+		ar(vlHogVariant, numCells, cellSize, numBins, resizeTo);
+		//ar & BOOST_SERIALIZATION_NVP(vlHogVariant) & BOOST_SERIALIZATION_NVP(numCells) & BOOST_SERIALIZATION_NVP(cellSize) & BOOST_SERIALIZATION_NVP(numBins) & BOOST_SERIALIZATION_NVP(resizeTo);
 	}
 };
 

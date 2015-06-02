@@ -89,7 +89,7 @@ private:
 	std::vector<std::string> rightEyeIdentifiers;
 	std::vector<std::string> leftEyeIdentifiers;
 
-	friend class boost::serialization::access;
+	friend class cereal::access;
 	/**
 	 * Serialises this class using boost::serialization.
 	 *
@@ -99,7 +99,8 @@ private:
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
-		ar & modelLandmarksList & rightEyeIdentifiers & leftEyeIdentifiers;
+		ar(modelLandmarksList, rightEyeIdentifiers, leftEyeIdentifiers);
+		//ar & BOOST_SERIALIZATION_NVP(modelLandmarksList) & BOOST_SERIALIZATION_NVP(rightEyeIdentifiers) & BOOST_SERIALIZATION_NVP(leftEyeIdentifiers);
 	}
 };
 

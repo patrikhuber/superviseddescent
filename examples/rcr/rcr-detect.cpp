@@ -26,6 +26,8 @@
 #include "helpers.hpp"
 #include "model.hpp"
 
+#include "cereal/archives/binary.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
@@ -36,8 +38,12 @@
 #endif
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
-#include "boost/archive/text_iarchive.hpp"
-#include "boost/serialization/string.hpp"
+// #include "boost/archive/text_iarchive.hpp"
+// #include "boost/archive/xml_oarchive.hpp"
+// #include "boost/archive/xml_iarchive.hpp"
+// #include "boost/archive/binary_oarchive.hpp"
+// #include "boost/archive/binary_iarchive.hpp"
+// #include "boost/serialization/string.hpp"
 
 #include <vector>
 #include <iostream>
@@ -136,7 +142,7 @@ public:
 	cv::Mat model_mean;						///< The mean of the model, learned and scaled from training data, given a specific face detector
 
 private:
-	friend class boost::serialization::access;
+	friend class cereal::access;
 	/**
 	 * Serialises this class using boost::serialization.
 	 *
@@ -144,10 +150,10 @@ private:
 	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
+	void serialize(Archive& ar)
 	{
-		ar & sdm_model & hog_params & modelLandmarks & rightEyeIdentifiers & leftEyeIdentifiers & model_mean;
-	}
+		ar(sdm_model, hog_params, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers, model_mean);
+	};
 };
 
 /**
@@ -193,12 +199,16 @@ int main(int argc, char *argv[])
 
 	RCRModel rcr_model;
 	// Load the learned model:
-	{
-		std::ifstream learnedModelFile(modelfile.string());
-		boost::archive::text_iarchive ia(learnedModelFile);
-		ia >> rcr_model;
+	try {
+		std::ifstream oarfile(modelfile.string(), std::ios::binary);
+		cereal::BinaryInputArchive iar(oarfile);
+		iar(rcr_model);
 	}
-	
+	catch (cereal::Exception& e) {
+		cout << e.what() << endl;
+		return EXIT_FAILURE;
+	}
+
 	// Load the face detector from OpenCV:
 	cv::CascadeClassifier faceCascade;
 	if (!faceCascade.load(facedetector.string()))

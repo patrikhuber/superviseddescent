@@ -22,16 +22,17 @@
 #ifndef REGRESSORS_HPP_
 #define REGRESSORS_HPP_
 
-#include "superviseddescent/matserialisation.hpp"
+//#include "superviseddescent/matserialisation.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "Eigen/Dense"
 
-#ifdef WIN32
-	#define BOOST_ALL_DYN_LINK	// Link against the dynamic boost lib. Seems to be necessary because we use /MD, i.e. link to the dynamic CRT.
-	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
-#endif
-#include "boost/serialization/serialization.hpp"
+// #ifdef WIN32
+// 	#define BOOST_ALL_DYN_LINK	// Link against the dynamic boost lib. Seems to be necessary because we use /MD, i.e. link to the dynamic CRT.
+// 	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
+// #endif
+//#include "boost/serialization/serialization.hpp"
+#include "cereal/cereal.hpp"
 
 #include <iostream>
 
@@ -156,9 +157,12 @@ private:
 	float lambda; ///< The parameter for RegularisationType. Can be lambda directly or a factor with which the lambda from MatrixNorm will be multiplied with.
 	bool regulariseLastRow; ///< If the last row of data matrix is a bias (offset), then you might want to choose whether it should be regularised as well. Otherwise, just leave it to default (true).
 
-	friend class boost::serialization::access;
+	friend class cereal::access;
 	/**
 	 * Serialises this class using boost::serialization.
+	 *
+	 * Note: If we split the optimisation and the model, we should be able to
+	 * delete this. There shouldn't be a need to serialise the regulariser!
 	 *
 	 * @param[in] ar The archive to serialise to (or to serialise from).
 	 * @param[in] version An optional version argument.
@@ -166,9 +170,8 @@ private:
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-		ar & regularisationType;
-		ar & lambda;
-		ar & regulariseLastRow;
+		ar(regularisationType, lambda, regulariseLastRow);
+		//ar & BOOST_SERIALIZATION_NVP(regularisationType) & BOOST_SERIALIZATION_NVP(lambda) & BOOST_SERIALIZATION_NVP(regulariseLastRow);
 	}
 };
 
@@ -366,7 +369,7 @@ private:
 	Regulariser regulariser; ///< Holding information about how to regularise.
 	Solver solver; ///< The type of solver used to solve the regressors linear system of equations.
 
-	friend class boost::serialization::access;
+	friend class cereal::access;
 	/**
 	 * Serialises this class using boost::serialization.
 	 *
@@ -376,8 +379,8 @@ private:
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
-		ar & x;
-		ar & regulariser;
+		//ar & BOOST_SERIALIZATION_NVP(x) & BOOST_SERIALIZATION_NVP(regulariser);
+		ar(x, regulariser);
 	}
 };
 

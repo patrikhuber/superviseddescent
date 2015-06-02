@@ -51,6 +51,7 @@ set(HEADERS
 	include/superviseddescent/superviseddescent.hpp
 	include/superviseddescent/regressors.hpp
 	include/superviseddescent/matserialisation.hpp
+	include/superviseddescent/matcerealisation.hpp
 	include/superviseddescent/utils/ThreadPool.h
 )
 
