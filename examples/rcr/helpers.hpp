@@ -24,6 +24,8 @@
 
 #include "eos_core_landmark.hpp"
 
+#include "opencv2/core/core.hpp"
+
 #include <vector>
 
 namespace rcr {
@@ -35,9 +37,10 @@ namespace rcr {
 //template<class LandmarkType>
 cv::Mat toRow(eos::core::LandmarkCollection<cv::Vec2f> landmarks)
 {
-	auto numLandmarks = landmarks.size();
+	// landmarks.size() must be <= max_int
+	auto numLandmarks = static_cast<int>(landmarks.size());
 	cv::Mat row(1, numLandmarks * 2, CV_32FC1);
-	for (std::size_t i = 0; i < numLandmarks; ++i) {
+	for (int i = 0; i < numLandmarks; ++i) {
 		row.at<float>(i) = landmarks[i].coordinates[0];
 		row.at<float>(i + numLandmarks) = landmarks[i].coordinates[1];
 	}
