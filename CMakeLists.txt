@@ -46,6 +46,7 @@ message(STATUS "Eigen3 found: ${EIGEN3_FOUND}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
+	set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include") # CMAKE_SOURCE_DIR or CMAKE_CURRENT_SOURCE_DIR?
 # Source and header files
 set(HEADERS
 	include/superviseddescent/superviseddescent.hpp
