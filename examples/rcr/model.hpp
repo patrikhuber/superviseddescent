@@ -23,6 +23,10 @@
 #define MODEL_HPP_
 
 #include "helpers.hpp"
+#include "cereal/cereal.hpp"
+#include "cereal/types/string.hpp"
+#include "cereal/types/vector.hpp"
+#include "superviseddescent/matcerealisation.hpp"
 
 #include "opencv2/core/core.hpp"
 
