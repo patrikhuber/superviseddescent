@@ -24,6 +24,8 @@ extern "C" {
 	#include "hog.h" // From the VLFeat C library
 }
 
+#include "cereal/archives/binary.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -36,7 +38,6 @@ extern "C" {
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
-#include "boost/archive/text_oarchive.hpp"
 
 #include <vector>
 #include <iostream>
@@ -444,9 +445,9 @@ int main(int argc, char *argv[])
 	cv::imwrite("out.png", image);
 
 	// Save the learned model:
-	std::ofstream learnedModelFile("landmark_regressor_ibug_68lms.txt");
-	boost::archive::text_oarchive oa(learnedModelFile);
-	oa << supervisedDescentModel;
+	std::ofstream learnedModelFile("landmark_regressor_ibug_68lms.txt", std::ios::binary);
+	cereal::BinaryOutputArchive output_archive(learnedModelFile);
+	output_archive(supervisedDescentModel);
 
 	return EXIT_SUCCESS;
 }

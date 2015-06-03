@@ -22,17 +22,12 @@
 #ifndef REGRESSORS_HPP_
 #define REGRESSORS_HPP_
 
-//#include "superviseddescent/matserialisation.hpp"
+#include "cereal/cereal.hpp"
+#include "superviseddescent/matcerealisation.hpp"
 
-#include "opencv2/core/core.hpp"
 #include "Eigen/Dense"
 
-// #ifdef WIN32
-// 	#define BOOST_ALL_DYN_LINK	// Link against the dynamic boost lib. Seems to be necessary because we use /MD, i.e. link to the dynamic CRT.
-// 	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
-// #endif
-//#include "boost/serialization/serialization.hpp"
-#include "cereal/cereal.hpp"
+#include "opencv2/core/core.hpp"
 
 #include <iostream>
 
