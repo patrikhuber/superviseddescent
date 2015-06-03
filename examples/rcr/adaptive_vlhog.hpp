@@ -45,16 +45,14 @@ struct HoGParam
 private:
 	friend class cereal::access;
 	/**
-	 * Serialises this class using boost::serialization.
+	 * Serialises this class using cereal.
 	 *
 	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
+	void serialize(Archive& ar)
 	{
 		ar(vlHogVariant, numCells, cellSize, numBins, resizeTo);
-		//ar & BOOST_SERIALIZATION_NVP(vlHogVariant) & BOOST_SERIALIZATION_NVP(numCells) & BOOST_SERIALIZATION_NVP(cellSize) & BOOST_SERIALIZATION_NVP(numBins) & BOOST_SERIALIZATION_NVP(resizeTo);
 	}
 };
 

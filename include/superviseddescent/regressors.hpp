@@ -154,19 +154,17 @@ private:
 
 	friend class cereal::access;
 	/**
-	 * Serialises this class using boost::serialization.
+	 * Serialises this class using cereal.
 	 *
 	 * Note: If we split the optimisation and the model, we should be able to
 	 * delete this. There shouldn't be a need to serialise the regulariser!
 	 *
 	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version)
+	void serialize(Archive& ar)
 	{
 		ar(regularisationType, lambda, regulariseLastRow);
-		//ar & BOOST_SERIALIZATION_NVP(regularisationType) & BOOST_SERIALIZATION_NVP(lambda) & BOOST_SERIALIZATION_NVP(regulariseLastRow);
 	}
 };
 
@@ -366,15 +364,13 @@ private:
 
 	friend class cereal::access;
 	/**
-	 * Serialises this class using boost::serialization.
+	 * Serialises this class using cereal.
 	 *
 	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
+	void serialize(Archive& ar)
 	{
-		//ar & BOOST_SERIALIZATION_NVP(x) & BOOST_SERIALIZATION_NVP(regulariser);
 		ar(x, regulariser);
 	}
 };

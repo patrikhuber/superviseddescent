@@ -103,7 +103,6 @@ private:
 	void serialize(Archive& ar)
 	{
 		ar(modelLandmarksList, rightEyeIdentifiers, leftEyeIdentifiers);
-		//ar & BOOST_SERIALIZATION_NVP(modelLandmarksList) & BOOST_SERIALIZATION_NVP(rightEyeIdentifiers) & BOOST_SERIALIZATION_NVP(leftEyeIdentifiers);
 	}
 };
 

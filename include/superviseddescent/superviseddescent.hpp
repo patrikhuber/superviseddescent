@@ -349,16 +349,14 @@ private:
 
 	friend class cereal::access;
 	/**
-	 * Serialises this class using boost::serialization.
+	 * Serialises this class using cereal.
 	 *
 	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
 	void serialize(Archive& ar)
 	{
 		ar(regressors, normalisationStrategy);
-		//ar & BOOST_SERIALIZATION_NVP(regressors) & BOOST_SERIALIZATION_NVP(normalisationStrategy);
 	};
 };
 
