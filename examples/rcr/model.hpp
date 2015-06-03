@@ -28,7 +28,7 @@
 #include "cereal/cereal.hpp"
 #include "cereal/types/string.hpp"
 #include "cereal/types/vector.hpp"
-#include "superviseddescent/matcerealisation.hpp"
+#include "superviseddescent/utils/mat_cerealisation.hpp"
 
 #include "opencv2/core/core.hpp"
 
@@ -91,7 +91,7 @@ private:
 	std::vector<std::string> modelLandmarksList;
 	std::vector<std::string> rightEyeIdentifiers;
 	std::vector<std::string> leftEyeIdentifiers;
-
+	
 	friend class cereal::access;
 	/**
 	 * Serialises this class using cereal.

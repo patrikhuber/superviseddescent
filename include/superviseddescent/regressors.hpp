@@ -23,7 +23,7 @@
 #define REGRESSORS_HPP_
 
 #include "cereal/cereal.hpp"
-#include "superviseddescent/matcerealisation.hpp"
+#include "superviseddescent/utils/mat_cerealisation.hpp"
 
 #include "Eigen/Dense"
 
