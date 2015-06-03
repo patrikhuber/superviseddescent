@@ -232,14 +232,22 @@ std::pair<vector<string>, vector<string>> readHowToCalculateTheIED(fs::path eval
 }
 
 /**
- * This app demonstrates learning of the descent direction from data for
- * a simple facial landmark detection sample app.
+ * This app implements the training of a robust cascaded regression landmark
+ * detection model, similar to the one proposed in the paper:
+ * "Random Cascaded-Regression Copse for Robust Facial Landmark Detection",
+ * Z. Feng, P. Huber, J. Kittler, W. Christmas, X.J. Wu,
+ * IEEE Signal Processing Letters, Vol:22(1), 2015.
+ * 
+ * The RCR landmark detection is one of the prime examples and motivation for
+ * the supervised descent library.
  *
  * First, we detect a face using OpenCV's face detector, and put the mean
  * landmarks into the face box. Then, the update step of the landmark coordinates
  * is learned using cascaded regression. HoG features are extracted around the
  * landmark positions, and from that, the update step towards the ground truth
  * positions is learned.
+ * The training data, or more precisely the training face boxes, are perturbed,
+ * to create a more robust model.
  *
  * This is an example of the library when a known template \c y is not available
  * during testing (because the HoG features are different for every subject).
