@@ -54,8 +54,8 @@ inline void noEval(const cv::Mat& currentPredictions)
 };
 
 /**
- * Todo. Function object.
- * This is the default function that performs nothing.
+ * The default normalisation strategy the optimiser uses.
+ * This strategy does not perform any normalisation.
  */
 class NoNormalisation
 {
@@ -91,7 +91,7 @@ public:
 	 *
 	 * @param[in] regressors One or several regressors.
 	 */
-	SupervisedDescentOptimiser(std::vector<RegressorType> regressors, NormalisationStrategy normalisation) : regressors(std::move(regressors)), normalisationStrategy(std::move(normalisation))
+	SupervisedDescentOptimiser(std::vector<RegressorType> regressors, NormalisationStrategy normalisation = NoNormalisation()) : regressors(std::move(regressors)), normalisationStrategy(std::move(normalisation))
 	{
 	};
 
