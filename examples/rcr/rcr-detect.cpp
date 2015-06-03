@@ -26,7 +26,7 @@
 #include "helpers.hpp"
 #include "model.hpp"
 
-#include "cereal/archives/binary.hpp"
+#include "cereal/cereal.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -95,9 +95,7 @@ int main(int argc, char *argv[])
 
 	// Load the learned model:
 	try {
-		std::ifstream oarfile(modelfile.string(), std::ios::binary);
-		cereal::BinaryInputArchive iar(oarfile);
-		iar(rcr_model);
+		rcr_model = rcr::load_detection_model(modelfile.string());
 	}
 	catch (cereal::Exception& e) {
 		cout << e.what() << endl;

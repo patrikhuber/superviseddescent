@@ -26,7 +26,7 @@
 #include "helpers.hpp"
 #include "model.hpp"
 
-#include "cereal/archives/binary.hpp"
+#include "cereal/cereal.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -420,9 +420,7 @@ int main(int argc, char *argv[])
 	// Save the learned model:
 	rcr::detection_model learned_model(supervisedDescentModel, modelMean, modelLandmarks, hog_params, rightEyeIdentifiers, leftEyeIdentifiers);
 	try {
-		std::ofstream learnedModelFile(outputfile.string(), std::ios::binary);
-		cereal::BinaryOutputArchive oar(learnedModelFile);
-		oar(learned_model);
+		rcr::save_detection_model(learned_model, outputfile.string());
 	}
 	catch (cereal::Exception& e) {
 		cout << e.what() << endl;

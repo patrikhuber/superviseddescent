@@ -28,6 +28,7 @@
 #include "cereal/cereal.hpp"
 #include "cereal/types/string.hpp"
 #include "cereal/types/vector.hpp"
+#include "cereal/archives/binary.hpp"
 #include "superviseddescent/utils/mat_cerealisation.hpp"
 
 #include "opencv2/core/core.hpp"
@@ -149,6 +150,25 @@ private:
 	};
 
 };
+
+detection_model load_detection_model(std::string filename)
+{
+	detection_model rcr_model;
+	
+	std::ifstream file(filename, std::ios::binary);
+	cereal::BinaryInputArchive input_archive(file);
+	input_archive(rcr_model);
+
+	return rcr_model;
+};
+
+void save_detection_model(detection_model model, std::string filename)
+{
+	std::ofstream file(filename, std::ios::binary);
+	cereal::BinaryOutputArchive output_archive(file);
+	output_archive(model);
+};
+
 
 } /* namespace rcr */
 
