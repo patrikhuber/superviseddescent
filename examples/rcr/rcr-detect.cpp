@@ -22,7 +22,6 @@
 
 #include "eos_core_landmark.hpp"
 #include "eos_io_landmarks.hpp"
-#include "adaptive_vlhog.hpp"
 #include "helpers.hpp"
 #include "model.hpp"
 

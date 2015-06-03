@@ -23,6 +23,7 @@
 #define MODEL_HPP_
 
 #include "helpers.hpp"
+#include "adaptive_vlhog.hpp"
 #include "eos_core_landmark.hpp"
 
 #include "cereal/cereal.hpp"
