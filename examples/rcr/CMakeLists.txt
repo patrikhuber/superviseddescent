@@ -6,15 +6,15 @@ message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
 set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 
-find_package(Boost 1.48.0 COMPONENTS system filesystem program_options serialization REQUIRED)
+find_package(Boost 1.48.0 COMPONENTS system filesystem program_options REQUIRED)
 if(Boost_FOUND)
   message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
-include_directories(${superviseddescent_INCLUDE_DIR})
-include_directories(${CEREAL_INCLUDE_DIR})
+#include_directories(${superviseddescent_INCLUDE_DIR})
+#include_directories(${CEREAL_INCLUDE_DIR})
 
 # Robust regression copse landmark detection
 

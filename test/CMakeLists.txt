@@ -5,7 +5,15 @@ find_package(OpenCV 2.4.3 REQUIRED core)
 message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
 
+find_package(Boost 1.48.0 REQUIRED) # we only need the headers here
+if(Boost_FOUND)
+  message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
+else(Boost_FOUND)
+  message(FATAL_ERROR "Boost not found")
+endif()
+
 include_directories(${gtest_SOURCE_DIR}/include)
+include_directories(${Boost_INCLUDE_DIRS}) # for erf.hpp
 
 set(TEST_LINREG1D test_LinearRegressor1D)
 add_executable(${TEST_LINREG1D} test_LinearRegressor1D.cpp)

@@ -33,20 +33,14 @@ find_package(OpenCV 2.4.3 REQUIRED core)
 message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
 
-find_package(Boost 1.48.0 COMPONENTS system serialization REQUIRED)
-if(Boost_FOUND)
-  message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
-else(Boost_FOUND)
-  message(FATAL_ERROR "Boost not found")
-endif()
-
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Eigen3 REQUIRED)
 message(STATUS "Eigen3 found: ${EIGEN3_FOUND}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
-	set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include") # CMAKE_SOURCE_DIR or CMAKE_CURRENT_SOURCE_DIR?
+set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
+
 # Source and header files
 set(HEADERS
 	include/superviseddescent/superviseddescent.hpp
@@ -58,12 +52,14 @@ set(HEADERS
 
 # Add header includes:
 include_directories("include")
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${CEREAL_INCLUDE_DIR})
+#include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 # The install target:
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include/ DESTINATION 3rdparty/cereal-1.1.1/include) # cereal headers
 
 if(BUILD_TESTS)
 	message(STATUS "Configuring gtest-1.7.0...")
