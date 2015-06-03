@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 	// Detect the landmarks:
 	auto landmarks = rcr_model.detect(image, detectedFaces[0]);
 
-	rcr::drawLandmarks(image, landmarks);
+	rcr::draw_landmarks(image, landmarks);
 	cv::imwrite(outputfile.string(), image);
 
 	return EXIT_SUCCESS;

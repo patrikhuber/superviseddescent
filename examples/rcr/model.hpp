@@ -57,7 +57,7 @@ namespace rcr {
  * @param[in] translationY Optional translation in y of the model.
  * @return A cv::Mat of the aligned points.
  */
-cv::Mat alignMean(cv::Mat mean, cv::Rect faceBox, float scalingX=1.0f, float scalingY=1.0f, float translationX=0.0f, float translationY=0.0f)
+cv::Mat align_mean(cv::Mat mean, cv::Rect faceBox, float scalingX=1.0f, float scalingY=1.0f, float translationX=0.0f, float translationY=0.0f)
 {
 	using cv::Mat;
 	// Initial estimate x_0: Center the mean face at the [-0.5, 0.5] x [-0.5, 0.5] square (assuming the face-box is that square)
@@ -83,8 +83,8 @@ public:
 
 	// params: The current landmark estimate
 	inline cv::Mat operator()(cv::Mat params) {
-		auto lmc = toLandmarkCollection(params, modelLandmarksList);
-		auto ied = getIed(lmc, rightEyeIdentifiers, leftEyeIdentifiers);
+		auto lmc = to_landmark_collection(params, modelLandmarksList);
+		auto ied = get_ied(lmc, rightEyeIdentifiers, leftEyeIdentifiers);
 		return cv::Mat::ones(1, params.cols, params.type()) / ied;
 	};
 
@@ -119,14 +119,14 @@ public:
 	eos::core::LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Rect facebox)
 	{
 		// Obtain the initial estimate using the mean landmarks:
-		cv::Mat mean_initialisation = rcr::alignMean(mean, facebox);
+		cv::Mat mean_initialisation = rcr::align_mean(mean, facebox);
 		//rcr::drawLandmarks(image, mean_initialisation, { 0, 0, 255 });
 
 		rcr::HogTransform hog({ image }, hog_params, landmark_ids, right_eye_ids, left_eye_ids);
 
 		cv::Mat landmarks = optimised_model.predict(mean_initialisation, cv::Mat(), hog);
 
-		return toLandmarkCollection(landmarks, landmark_ids);
+		return to_landmark_collection(landmarks, landmark_ids);
 	};
 
 private:

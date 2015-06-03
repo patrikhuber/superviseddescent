@@ -117,7 +117,7 @@ public:
 		}
 
 		//int patchWidthHalf = hog_params[regressorLevel].numCells * (hog_params[regressorLevel].cellSize / 2);
-		int patchWidthHalf = std::round(getIed(toLandmarkCollection(parameters, modelLandmarksList), rightEyeIdentifiers, leftEyeIdentifiers) / 3); // Could use the formula of Zhenhua here. Well I used it somewhere in the old code?
+		int patchWidthHalf = std::round(get_ied(to_landmark_collection(parameters, modelLandmarksList), rightEyeIdentifiers, leftEyeIdentifiers) / 3); // Could use the formula of Zhenhua here. Well I used it somewhere in the old code?
 
 		Mat hogDescriptors; // We'll get the dimensions later from vl_hog_get_*
 

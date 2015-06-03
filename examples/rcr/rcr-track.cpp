@@ -157,8 +157,8 @@ int main(int argc, char *argv[])
 			end = system_clock::now();
 			auto t_fit = duration_cast<milliseconds>(end - start).count();
 
-			current_landmarks = rcr::toRow(landmarks);
-			rcr::drawLandmarks(image, current_landmarks);
+			current_landmarks = rcr::to_row(landmarks);
+			rcr::draw_landmarks(image, current_landmarks);
 			//have_face = true;
 
 			cout << "FD:" << t_fd << "\tLM: " << t_fit << endl;

@@ -176,9 +176,9 @@ Mat calculateNormalisedLandmarkErrors(Mat currentPredictions, Mat x_gt, vector<s
 {
 	Mat normalisedErrors;
 	for (int row = 0; row < currentPredictions.rows; ++row) {
-		auto predc = rcr::toLandmarkCollection(currentPredictions.row(row), modelLandmarks);
-		auto grc = rcr::toLandmarkCollection(x_gt.row(row), modelLandmarks);
-		Mat err = elementwiseNorm(predc, grc).mul(1.0f / rcr::getIed(predc, rightEyeIdentifiers, leftEyeIdentifiers));
+		auto predc = rcr::to_landmark_collection(currentPredictions.row(row), modelLandmarks);
+		auto grc = rcr::to_landmark_collection(x_gt.row(row), modelLandmarks);
+		Mat err = elementwiseNorm(predc, grc).mul(1.0f / rcr::get_ied(predc, rightEyeIdentifiers, leftEyeIdentifiers));
 		normalisedErrors.push_back(err);
 	}
 	return normalisedErrors;
@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
 	for (int ibugId = 1; ibugId <= 68; ++ibugId) {
 		ibugLandmarkIds.emplace_back(std::to_string(ibugId));
 	}
-	modelMean = rcr::toRow(eos::core::filter(rcr::toLandmarkCollection(modelMean, ibugLandmarkIds), modelLandmarks));
+	modelMean = rcr::to_row(eos::core::filter(rcr::to_landmark_collection(modelMean, ibugLandmarkIds), modelLandmarks));
 
 	// Read the evaluation information from the config:
 	vector<string> rightEyeIdentifiers, leftEyeIdentifiers; // for ied calc. One or several.
@@ -373,13 +373,13 @@ int main(int argc, char *argv[])
 			vector<cv::Rect> detectedFaces;
 			faceCascade.detectMultiScale(loadedImages[i], detectedFaces, 1.2, 2, 0, cv::Size(50, 50));
 			// Verify that the detected face is not a false positive:
-			bool isTruePositive = rcr::checkFace(detectedFaces, loadedLandmarks[i]); // reduced landmarks. Meaning the check will vary.
+			bool isTruePositive = rcr::check_face(detectedFaces, loadedLandmarks[i]); // reduced landmarks. Meaning the check will vary.
 			if (isTruePositive) {
 				// The initialisation values:
 				// alignMean actually just transforms from [0.5...]-space to inside the facebox in img-coords.
-				x_0.push_back(rcr::alignMean(modelMean, cv::Rect(detectedFaces[0])));
+				x_0.push_back(rcr::align_mean(modelMean, cv::Rect(detectedFaces[0])));
 				// Also copy the ground truth landmarks to one big data matrix:
-				x_gt.push_back(rcr::toRow(loadedLandmarks[i]));
+				x_gt.push_back(rcr::to_row(loadedLandmarks[i]));
 				// And the images:
 				trainingImages.emplace_back(loadedImages[i]);
 				for (auto p = 0; p < numPerturbations; ++p) {
@@ -389,8 +389,8 @@ int main(int argc, char *argv[])
 					cv::Rect tmp_pert = perturb(cv::Rect(detectedFaces[0]), dist_t(gen), dist_t(gen), dist_s(gen));
 					// Note: FBox could be (partly) outside of image, but we check later during feature extraction, right?
 					cv::rectangle(tmp, tmp_pert, { 255.0f, 0.0f, 0.0f });
-					x_0.push_back(rcr::alignMean(modelMean, tmp_pert)); // tx, ty, s
-					x_gt.push_back(rcr::toRow(loadedLandmarks[i]));
+					x_0.push_back(rcr::align_mean(modelMean, tmp_pert)); // tx, ty, s
+					x_gt.push_back(rcr::to_row(loadedLandmarks[i]));
 					trainingImages.emplace_back(loadedImages[i]);
 				}
 			}
@@ -466,12 +466,12 @@ int main(int argc, char *argv[])
 			vector<cv::Rect> detectedFaces;
 			faceCascade.detectMultiScale(loadedTestImages[i], detectedFaces, 1.2, 2, 0, cv::Size(50, 50));
 			// Verify that the detected face is not a false positive:
-			bool isTruePositive = rcr::checkFace(detectedFaces, loadedTestLandmarks[i]);
+			bool isTruePositive = rcr::check_face(detectedFaces, loadedTestLandmarks[i]);
 			if (isTruePositive) {
 				// The initialisation values:
-				x_ts_0.push_back(rcr::alignMean(modelMean, cv::Rect(detectedFaces[0])));
+				x_ts_0.push_back(rcr::align_mean(modelMean, cv::Rect(detectedFaces[0])));
 				// Also copy the ground truth landmarks to one big data matrix:
-				x_ts_gt.push_back(rcr::toRow(loadedTestLandmarks[i]));
+				x_ts_gt.push_back(rcr::to_row(loadedTestLandmarks[i]));
 				// And the images:
 				testImages.emplace_back(loadedTestImages[i]);
 			}

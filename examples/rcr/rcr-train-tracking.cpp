@@ -176,9 +176,9 @@ Mat calculateNormalisedLandmarkErrors(Mat currentPredictions, Mat x_gt, vector<s
 {
 	Mat normalisedErrors;
 	for (int row = 0; row < currentPredictions.rows; ++row) {
-		auto predc = rcr::toLandmarkCollection(currentPredictions.row(row), modelLandmarks);
-		auto grc = rcr::toLandmarkCollection(x_gt.row(row), modelLandmarks);
-		Mat err = elementwiseNorm(predc, grc).mul(1.0f / rcr::getIed(predc, rightEyeIdentifiers, leftEyeIdentifiers));
+		auto predc = rcr::to_landmark_collection(currentPredictions.row(row), modelLandmarks);
+		auto grc = rcr::to_landmark_collection(x_gt.row(row), modelLandmarks);
+		Mat err = elementwiseNorm(predc, grc).mul(1.0f / rcr::get_ied(predc, rightEyeIdentifiers, leftEyeIdentifiers));
 		normalisedErrors.push_back(err);
 	}
 	return normalisedErrors;
