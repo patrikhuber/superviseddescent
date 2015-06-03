@@ -26,6 +26,8 @@
 #include "helpers.hpp"
 #include "model.hpp"
 
+#include "cereal/cereal.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
@@ -36,126 +38,35 @@
 #endif
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
-#include "boost/archive/text_iarchive.hpp"
-#include "boost/serialization/string.hpp"
 
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <utility>
-#include <random>
-#include <cassert>
-#include <chrono>
 
 using namespace superviseddescent;
-using namespace eos;
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 using cv::Mat;
-using cv::Vec2f;
 using std::vector;
-using std::string;
 using std::cout;
 using std::endl;
-using std::size_t;
 
-// Duplicate from rcr-train.cpp, not needed here at all!
-class PartialPivLUSolveSolverDebug
+cv::Rect get_enclosing_bbox(cv::Mat landmarks)
 {
-public:
-	// Note: we should leave the choice of inverting A or AtA to the solver.
-	// But this also means we need to pass through the regularisation params.
-	// We can't just pass a cv::Mat regularisation because the dimensions for
-	// regularising A and AtA are different.
-	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
-	{
-		using cv::Mat;
-		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-		using namespace std::chrono;
-		time_point<system_clock> start, end;
-
-		// Map the cv::Mat data and labels to Eigen matrices:
-		Eigen::Map<RowMajorMatrixXf> A_Eigen(data.ptr<float>(), data.rows, data.cols);
-		Eigen::Map<RowMajorMatrixXf> labels_Eigen(labels.ptr<float>(), labels.rows, labels.cols);
-
-		start = system_clock::now();
-		RowMajorMatrixXf AtA_Eigen = A_Eigen.transpose() * A_Eigen;
-		end = system_clock::now();
-		cout << "At * A (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-
-		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
-		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
-		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
-		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
-
-		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);
-		Eigen::VectorXf diagVec(regularisationMatrix.rows);
-		for (int i = 0; i < diagVec.size(); ++i) {
-			diagVec(i) = regularisationMatrix.at<float>(i, i);
-		}
-		reg_Eigen_diag.diagonal() = diagVec;
-		start = system_clock::now();
-		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
-		end = system_clock::now();
-		cout << "AtA + Reg (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-
-		// Perform a PartialPivLU:
-		start = system_clock::now();
-		Eigen::PartialPivLU<RowMajorMatrixXf> qrOfAtA(AtA_Eigen);
-		end = system_clock::now();
-		cout << "Decomposition (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-		start = system_clock::now();
-		//RowMajorMatrixXf AtAInv_Eigen = qrOfAtA.inverse();
-		RowMajorMatrixXf x_Eigen = qrOfAtA.solve(A_Eigen.transpose() * labels_Eigen);
-		//RowMajorMatrixXf x_Eigen = AtA_Eigen.partialPivLu.solve(A_Eigen.transpose() * labels_Eigen);
-		end = system_clock::now();
-		cout << "solve() (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-
-		// x = (AtAReg)^-1 * At * b:
-		start = system_clock::now();
-		//RowMajorMatrixXf x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;
-		end = system_clock::now();
-		cout << "AtAInv * At * b (ms): " << duration_cast<milliseconds>(end - start).count() << endl;
-
-		// Map the resulting x back to a cv::Mat by creating a Mat header:
-		Mat x(static_cast<int>(x_Eigen.rows()), static_cast<int>(x_Eigen.cols()), CV_32FC1, x_Eigen.data());
-
-		// We have to copy the data because the underlying data is managed by Eigen::Matrix x_Eigen, which will go out of scope after we leave this function:
-		return x.clone();
-		//return qrOfAtA.isInvertible();
-	};
-};
-
-// Duplicate from rcr-train.cpp
-class RCRModel
-{
-public:
-	SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> sdm_model;
-	std::vector<rcr::HoGParam> hog_params;	///< The hog parameters for each regressor level
-	vector<string> modelLandmarks;			///< The landmark identifiers the model consists of
-	vector<string> rightEyeIdentifiers, leftEyeIdentifiers;	///< Holds information about which landmarks are the eyes, to calculate the IED normalisation for the adaptive update
-	cv::Mat model_mean;						///< The mean of the model, learned and scaled from training data, given a specific face detector
-
-private:
-	friend class boost::serialization::access;
-	/**
-	 * Serialises this class using boost::serialization.
-	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 * @param[in] version An optional version argument.
-	 */
-	template<class Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
-	{
-		ar & sdm_model & hog_params & modelLandmarks & rightEyeIdentifiers & leftEyeIdentifiers & model_mean;
-	}
+	cv::Rect enclosing_bbox;
+	auto num_landmarks = landmarks.cols / 2;
+	double min_x_val, max_x_val, min_y_val, max_y_val;
+	cv::minMaxLoc(landmarks.colRange(0, num_landmarks), &min_x_val, &max_x_val);
+	cv::minMaxLoc(landmarks.colRange(num_landmarks, landmarks.cols), &min_y_val, &max_y_val);
+	return cv::Rect(min_x_val, min_y_val, max_x_val - min_x_val, max_y_val - min_y_val);
 };
 
 /**
- * This app demonstrates the robust cascaded regression landmark detection from
+ * This app builds upon the robust cascaded regression landmark detection from
  * "Random Cascaded-Regression Copse for Robust Facial Landmark Detection", 
  * Z. Feng, P. Huber, J. Kittler, W. Christmas, X.J. Wu,
  * IEEE Signal Processing Letters, Vol:22(1), 2015.
+ * It modifies the approach to track a face in a video.
  *
  * It loads a model trained with rcr-train, detects a face using OpenCV's face
  * detector, and then runs the landmark detection.
@@ -192,12 +103,15 @@ int main(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	RCRModel rcr_model;
+	rcr::detection_model rcr_model;
+
 	// Load the learned model:
-	{
-		std::ifstream learnedModelFile(modelfile.string());
-		boost::archive::text_iarchive ia(learnedModelFile);
-		ia >> rcr_model;
+	try {
+		rcr_model = rcr::load_detection_model(modelfile.string());
+	}
+	catch (cereal::Exception& e) {
+		cout << e.what() << endl;
+		return EXIT_FAILURE;
 	}
 	
 	// Load the face detector from OpenCV:
@@ -217,50 +131,52 @@ int main(int argc, char *argv[])
 	using namespace std::chrono;
 	time_point<system_clock> start, end;
 
+	bool have_face = false;
+	Mat current_landmarks;
+
 	for (;;)
 	{
 		cap >> image; // get a new frame from camera
 		
-		// Run the face detector and obtain the initial estimate using the mean landmarks:
-		start = system_clock::now();
-		vector<cv::Rect> detectedFaces;
-		faceCascade.detectMultiScale(image, detectedFaces, 1.2, 2, 0, cv::Size(50, 50));
-		end = system_clock::now();
-		auto t_fd = duration_cast<milliseconds>(end - start).count();
-		if (detectedFaces.empty()) {
-			cv::imshow("camera", image);
-			cv::waitKey(30);
-			continue;
+		if (!have_face) {
+			// Run the face detector and obtain the initial estimate using the mean landmarks:
+			start = system_clock::now();
+			vector<cv::Rect> detectedFaces;
+			faceCascade.detectMultiScale(image, detectedFaces, 1.2, 2, 0, cv::Size(50, 50));
+			end = system_clock::now();
+			auto t_fd = duration_cast<milliseconds>(end - start).count();
+			if (detectedFaces.empty()) {
+				cv::imshow("camera", image);
+				cv::waitKey(30);
+				continue;
+			}
+			cv::rectangle(image, detectedFaces[0], { 255, 0, 0 });
+			
+			start = system_clock::now();
+			auto landmarks = rcr_model.detect(image, detectedFaces[0]);
+			end = system_clock::now();
+			auto t_fit = duration_cast<milliseconds>(end - start).count();
+
+			current_landmarks = rcr::toRow(landmarks);
+			rcr::drawLandmarks(image, current_landmarks);
+			//have_face = true;
+
+			cout << "FD:" << t_fd << "\tLM: " << t_fit << endl;
 		}
-		cv::rectangle(image, detectedFaces[0], { 255, 0, 0 });
-		start = system_clock::now();
-		cv::Mat init = rcr::alignMean(rcr_model.model_mean, cv::Rect(detectedFaces[0]));
-		end = system_clock::now();
-		auto t_ini = duration_cast<milliseconds>(end - start).count();
+		else {
+			// We already have a face. Do Zhenhua's magic:
+			// current_landmarks are the estimate from the last frame
+		/*	auto bbox = get_enclosing_bbox(current_landmarks);
+			float scaling_x = get_enclosing_bbox(rcr_model.model_mean).width;
+			float scaling_y = get_enclosing_bbox(rcr_model.model_mean).height;
+			rcr::alignMean(current_landmarks, bbox, scaling_x, scaling_y);
+		*/
+			// have some condition to set have_face = false
+		}
 
-		rcr::drawLandmarks(image, init, { 0, 0, 255 });
-
-		start = system_clock::now();
-		rcr::HogTransform hog({ image }, rcr_model.hog_params, rcr_model.modelLandmarks, rcr_model.rightEyeIdentifiers, rcr_model.leftEyeIdentifiers);
-		end = system_clock::now();
-		auto t_hog = duration_cast<milliseconds>(end - start).count();
-
-		start = system_clock::now();
-		auto landmarks = rcr_model.sdm_model.predict(init, cv::Mat(), hog);
-		end = system_clock::now();
-		auto t_fit = duration_cast<milliseconds>(end - start).count();
-		
-		rcr::drawLandmarks(image, landmarks);
-		
-		cout << "FD :" << t_fd << "\tINI:" << t_ini << "\tHOG:" << t_hog << "\tFIT: " << t_fit << endl;
 		cv::imshow("camera", image);
 		if (cv::waitKey(30) >= 0) break;
 	}
-
-	//cv::Mat image = cv::imread(inputimage.string());
-
-
-	//cv::imwrite(outputfile.string(), image);
 
 	return EXIT_SUCCESS;
 }
