@@ -21,6 +21,8 @@ endif()
 # Standard training:
 add_executable(rcr-train rcr-train.cpp ../hog.c ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
 target_link_libraries(rcr-train ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:/openmp>") # adds /openmp on MSVC
+target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:GNU>:-fopenmp>") # same for gcc. clang doesn't parallelise Eigen's functions yet.
 
 # To train a model for tracking:
 add_executable(rcr-train-tracking rcr-train-tracking.cpp ../hog.c ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
