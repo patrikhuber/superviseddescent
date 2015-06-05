@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 		rcr_model = rcr::load_detection_model(modelfile.string());
 	}
 	catch (cereal::Exception& e) {
-		cout << e.what() << endl;
+		cout << "Error reading the RCR model " << modelfile << ": " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 	cv::CascadeClassifier faceCascade;
 	if (!faceCascade.load(facedetector.string()))
 	{
-		cout << "Error loading face detection model." << endl;
+		cout << "Error loading the face detector " << facedetector << "." << endl;
 		return EXIT_FAILURE;
 	}
 
