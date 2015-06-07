@@ -411,12 +411,12 @@ int main(int argc, char *argv[])
 	// initialisations, which we skip here.
 
 	// Create 3 regularised linear regressors in series:
-	vector<linear_regressor<>> regressors;
-	regressors.emplace_back(linear_regressor<>(regulariser(regulariser::regularisation_type::MatrixNorm, 2.0f, true)));
-	regressors.emplace_back(linear_regressor<>(regulariser(regulariser::regularisation_type::MatrixNorm, 2.0f, true)));
-	regressors.emplace_back(linear_regressor<>(regulariser(regulariser::regularisation_type::MatrixNorm, 2.0f, true)));
+	vector<LinearRegressor<>> regressors;
+	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
+	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
+	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
 	
-	SupervisedDescentOptimiser<linear_regressor<>> supervisedDescentModel(regressors);
+	SupervisedDescentOptimiser<LinearRegressor<>> supervisedDescentModel(regressors);
 	
 	HogTransform hog(trainingImages, VlHogVariant::VlHogVariantUoctti, 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/);
 

@@ -400,13 +400,13 @@ int main(int argc, char *argv[])
 	cout << "Kept " << trainingImages.size() / (numPerturbations + 1) << " images out of " << loadedImages.size() << "." << endl;
 
 	// Create 3 regularised linear regressors in series:
-	vector<linear_regressor<rcr::PartialPivLUSolveSolverDebug>> regressors;
-	regressors.emplace_back(linear_regressor<rcr::PartialPivLUSolveSolverDebug>(regulariser(regulariser::regularisation_type::MatrixNorm, 1.5f, false)));
-	regressors.emplace_back(linear_regressor<rcr::PartialPivLUSolveSolverDebug>(regulariser(regulariser::regularisation_type::MatrixNorm, 1.5f, false)));
-	regressors.emplace_back(linear_regressor<rcr::PartialPivLUSolveSolverDebug>(regulariser(regulariser::regularisation_type::MatrixNorm, 1.5f, false)));
-	regressors.emplace_back(linear_regressor<rcr::PartialPivLUSolveSolverDebug>(regulariser(regulariser::regularisation_type::MatrixNorm, 1.5f, false)));
+	vector<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>> regressors;
+	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
 	
-	SupervisedDescentOptimiser<linear_regressor<rcr::PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervisedDescentModel(regressors, rcr::InterEyeDistanceNormalisation(modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers));
+	SupervisedDescentOptimiser<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervisedDescentModel(regressors, rcr::InterEyeDistanceNormalisation(modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers));
 	//SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>> supervisedDescentModel(regressors);
 	
 	std::vector<rcr::HoGParam> hog_params{ { VlHogVariant::VlHogVariantUoctti, 5, 11, 4, 55 }, { VlHogVariant::VlHogVariantUoctti, 5, 10, 4, 50 }, { VlHogVariant::VlHogVariantUoctti, 5, 8, 4, 40 },{ VlHogVariant::VlHogVariantUoctti, 5, 6, 4, 30 } }; // 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/

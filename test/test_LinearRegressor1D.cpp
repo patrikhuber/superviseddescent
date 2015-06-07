@@ -10,7 +10,7 @@ TEST(LinearRegressor, OneDimOneExampleNoBiasLearning0) {
 	using cv::Mat;
 	Mat data = Mat::ones(1, 1, CV_32FC1);
 	Mat labels = Mat::ones(1, 1, CV_32FC1);
-	linear_regressor<> lr;
+	LinearRegressor<> lr;
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 	ASSERT_FLOAT_EQ(1.0f, lr.x.at<float>(0)) << "Expected the learned x to be 1.0f";
@@ -20,7 +20,7 @@ TEST(LinearRegressor, OneDimOneExampleNoBiasLearning1) {
 	using cv::Mat;
 	Mat data = Mat::ones(1, 1, CV_32FC1);
 	Mat labels = 0.5f * Mat::ones(1, 1, CV_32FC1);
-	linear_regressor<> lr;
+	LinearRegressor<> lr;
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 	ASSERT_FLOAT_EQ(0.5f, lr.x.at<float>(0)) << "Expected the learned x to be 0.5f";
@@ -31,7 +31,7 @@ TEST(LinearRegressor, OneDimOneExampleNoBiasLearningNotInvertible) {
 	using cv::Mat;
 	Mat data = Mat::zeros(1, 1, CV_32FC1);
 	Mat labels = Mat::ones(1, 1, CV_32FC1);
-	linear_regressor<> lr;
+	LinearRegressor<> lr;
 	bool isInvertible = lr.learn(data, labels);
 	ASSERT_EQ(false, isInvertible);
 }
@@ -42,7 +42,7 @@ TEST(LinearRegressor, OneDimOneExampleNoBiasPrediction) {
 	// Note/Todo: Load from filesystem, or from memory-bytes?
 	Mat data = Mat::ones(1, 1, CV_32FC1);
 	Mat labels = Mat::ones(1, 1, CV_32FC1);
-	linear_regressor<> lr;
+	LinearRegressor<> lr;
 	lr.learn(data, labels);
 
 	// Test starts here:
@@ -65,7 +65,7 @@ TEST(LinearRegressor, OneDimOneExampleNoBiasTestingNoResidual) {
 	// Note/Todo: Load from filesystem, or from memory-bytes?
 	Mat data = Mat::ones(1, 1, CV_32FC1);
 	Mat labels = Mat::ones(1, 1, CV_32FC1);
-	linear_regressor<> lr;
+	LinearRegressor<> lr;
 	lr.learn(data, labels);
 
 	// Test starts here:
@@ -86,7 +86,7 @@ TEST(LinearRegressor, OneDimOneExampleNoBiasTestingResidual) {
 	// Note/Todo: Load from filesystem, or from memory-bytes?
 	Mat data = Mat::ones(1, 1, CV_32FC1);
 	Mat labels = Mat::ones(1, 1, CV_32FC1);
-	linear_regressor<> lr;
+	LinearRegressor<> lr;
 	lr.learn(data, labels);
 
 	// Test starts here:
