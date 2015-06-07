@@ -170,7 +170,7 @@ public:
 
 		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
 		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
-		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
+		Mat regularisationMatrix = regulariser.get_matrix(AtA_Map, data.rows);
 		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
 
 		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);

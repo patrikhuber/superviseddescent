@@ -68,22 +68,22 @@ using std::size_t;
  * @param[in] directory A directory with .png images and ibug .pts files.
  * @return A pair with the loaded images and their landmarks (all in one cv::Mat TODO update).
  */
-std::pair<vector<Mat>, vector<eos::core::LandmarkCollection<Vec2f>>> loadIbugData(fs::path directory)
+std::pair<vector<Mat>, vector<eos::core::LandmarkCollection<Vec2f>>> load_ibug_data(fs::path directory)
 {
 	vector<Mat> images;
 	vector<eos::core::LandmarkCollection<Vec2f>> landmarks;
 
 	// Get all the filenames in the given directory:
-	vector<fs::path> imageFilenames;
+	vector<fs::path> image_filenames;
 	fs::directory_iterator end_itr;
 	for (fs::directory_iterator i(directory); i != end_itr; ++i)
 	{
 		if (fs::is_regular_file(i->status()) && i->path().extension() == ".png")
-			imageFilenames.emplace_back(i->path());
+			image_filenames.emplace_back(i->path());
 	}
 
 	// Load each image and its landmarks into memory:
-	for (auto file : imageFilenames)
+	for (auto file : image_filenames)
 	{
 		images.emplace_back(cv::imread(file.string()));
 		// We load the landmarks and convert them into [x_0, ..., x_n, y_0, ..., y_n] format:
@@ -100,7 +100,7 @@ std::pair<vector<Mat>, vector<eos::core::LandmarkCollection<Vec2f>>> loadIbugDat
  * @param[in] filename Path to a file with mean landmarks.
  * @return A cv::Mat of the loaded mean model.
  */
-cv::Mat loadMean(fs::path filename)
+cv::Mat load_mean(fs::path filename)
 {
 	std::ifstream file(filename.string());
 	if (!file.is_open()) {
@@ -113,9 +113,9 @@ cv::Mat loadMean(fs::path filename)
 	vector<string> values;
 	boost::split(values, line, boost::is_any_of(","));
 
-	int twiceNumLandmarks = static_cast<int>(values.size());
-	Mat mean(1, twiceNumLandmarks, CV_32FC1);
-	for (int i = 0; i < twiceNumLandmarks; ++i) {
+	int twice_num_landmarks = static_cast<int>(values.size());
+	Mat mean(1, twice_num_landmarks, CV_32FC1);
+	for (int i = 0; i < twice_num_landmarks; ++i) {
 		mean.at<float>(i) = std::stof(values[i]);
 	}
 
@@ -133,11 +133,11 @@ cv::Mat loadMean(fs::path filename)
  * @param[in] scaling Optional scale factor of the box.
  * @return A perturbed cv::Rect.
  */
-cv::Rect perturb(cv::Rect facebox, float translationX, float translationY, float scaling = 1.0f)
+cv::Rect perturb(cv::Rect facebox, float translation_x, float translation_y, float scaling = 1.0f)
 {
 	
-	auto tx_pixel = translationX * facebox.width;
-	auto ty_pixel = translationY * facebox.height;
+	auto tx_pixel = translation_x * facebox.width;
+	auto ty_pixel = translation_y * facebox.height;
 	// Because the reference point is on the top left and not in the center, we
 	// need to temporarily store the new width and calculate half of the offset.
 	// We need to move it further to compensate for the scaling, i.e. keep the center the center.
@@ -146,9 +146,9 @@ cv::Rect perturb(cv::Rect facebox, float translationX, float translationY, float
 	//auto perturbed_width_diff = facebox.width - perturbed_width;
 	//auto perturbed_height_diff = facebox.height - perturbed_height;
 	// Note: Rounding?
-	cv::Rect perturbedBox(facebox.x + (facebox.width - perturbed_width) / 2.0f + tx_pixel, facebox.y + (facebox.height - perturbed_height) / 2.0f + ty_pixel, perturbed_width, perturbed_height);
+	cv::Rect perturbed_box(facebox.x + (facebox.width - perturbed_width) / 2.0f + tx_pixel, facebox.y + (facebox.height - perturbed_height) / 2.0f + ty_pixel, perturbed_width, perturbed_height);
 
-	return perturbedBox;
+	return perturbed_box;
 }
 
 // Error evaluation (average pixel distance (L2 norm) of all LMs, normalised by IED):
@@ -159,7 +159,7 @@ double norm(const eos::core::Landmark<Vec2f>& prediction, const eos::core::Landm
 	return cv::norm(prediction.coordinates, groundtruth.coordinates, cv::NORM_L2);
 };
 
-Mat elementwiseNorm(const eos::core::LandmarkCollection<Vec2f>& prediction, const eos::core::LandmarkCollection<Vec2f>& groundtruth)
+Mat elementwise_norm(const eos::core::LandmarkCollection<Vec2f>& prediction, const eos::core::LandmarkCollection<Vec2f>& groundtruth)
 {
 	assert(prediction.size() == groundtruth.size());
 	Mat result(1, prediction.size(), CV_32FC1); // a row with each entry a norm...
@@ -172,63 +172,63 @@ Mat elementwiseNorm(const eos::core::LandmarkCollection<Vec2f>& prediction, cons
 // After:
 //double meanError = cv::mean(normalisedErrors)[0]; // = the mean over all, identical to simple case
 //cv::reduce(normalisedErrors, normalisedErrors, 0, CV_REDUCE_AVG); // reduce to one row
-Mat calculateNormalisedLandmarkErrors(Mat currentPredictions, Mat x_gt, vector<string> modelLandmarks, vector<string> rightEyeIdentifiers, vector<string> leftEyeIdentifiers)
+Mat calculate_normalised_landmark_errors(Mat current_predictions, Mat x_gt, vector<string> model_landmarks, vector<string> right_eye_identifiers, vector<string> left_eye_identifiers)
 {
-	Mat normalisedErrors;
-	for (int row = 0; row < currentPredictions.rows; ++row) {
-		auto predc = rcr::to_landmark_collection(currentPredictions.row(row), modelLandmarks);
-		auto grc = rcr::to_landmark_collection(x_gt.row(row), modelLandmarks);
-		Mat err = elementwiseNorm(predc, grc).mul(1.0f / rcr::get_ied(predc, rightEyeIdentifiers, leftEyeIdentifiers));
-		normalisedErrors.push_back(err);
+	Mat normalised_errors;
+	for (int row = 0; row < current_predictions.rows; ++row) {
+		auto predc = rcr::to_landmark_collection(current_predictions.row(row), model_landmarks);
+		auto grc = rcr::to_landmark_collection(x_gt.row(row), model_landmarks);
+		Mat err = elementwise_norm(predc, grc).mul(1.0f / rcr::get_ied(predc, right_eye_identifiers, left_eye_identifiers));
+		normalised_errors.push_back(err);
 	}
-	return normalisedErrors;
+	return normalised_errors;
 };
 
-vector<string> readLandmarksListToTrain(fs::path configfile)
+vector<string> read_landmarks_list_to_train(fs::path configfile)
 {
-	pt::ptree configTree;
-	pt::read_info(configfile.string(), configTree); // Can throw a pt::ptree_error, maybe try/catch
+	pt::ptree config_tree;
+	pt::read_info(configfile.string(), config_tree); // Can throw a pt::ptree_error, maybe try/catch
 	
-	vector<string> modelLandmarks;
+	vector<string> model_landmarks;
 	// Get stuff from the modelLandmarks subtree:
-	pt::ptree ptModelLandmarks = configTree.get_child("modelLandmarks");
-	string modelLandmarksUsage = ptModelLandmarks.get<string>("landmarks");
-	if (modelLandmarksUsage.empty()) {
+	pt::ptree pt_model_landmarks = config_tree.get_child("modelLandmarks");
+	string model_landmarks_usage = pt_model_landmarks.get<string>("landmarks");
+	if (model_landmarks_usage.empty()) {
 		// value is empty, meaning it's a node and the user should specify a list of 'landmarks'
-		pt::ptree ptModelLandmarksList = ptModelLandmarks.get_child("landmarks");
-		for (const auto& kv : ptModelLandmarksList) {
-			modelLandmarks.push_back(kv.first);
+		pt::ptree pt_model_landmarks_list = pt_model_landmarks.get_child("landmarks");
+		for (const auto& kv : pt_model_landmarks_list) {
+			model_landmarks.push_back(kv.first);
 		}
-		cout << "Loaded a list of " << modelLandmarks.size() << " landmarks to train the model." << endl;
+		cout << "Loaded a list of " << model_landmarks.size() << " landmarks to train the model." << endl;
 	}
-	else if (modelLandmarksUsage == "all") {
+	else if (model_landmarks_usage == "all") {
 		throw std::logic_error("Using 'all' modelLandmarks is not implemented yet - specify a list for now.");
 	}
 	else {
 		throw std::logic_error("Error reading the models 'landmarks' key, should either provide a node with a list of landmarks or specify 'all'.");
 	}
-	return modelLandmarks;
+	return model_landmarks;
 }
 
 // Returns a pair of (vector<string> rightEyeIdentifiers, vector<string> leftEyeIdentifiers)
 // throws ptree, logic? error
-std::pair<vector<string>, vector<string>> readHowToCalculateTheIED(fs::path evaluationfile)
+std::pair<vector<string>, vector<string>> read_how_to_calculate_the_IED(fs::path evaluationfile)
 {
-	vector<string> rightEyeIdentifiers, leftEyeIdentifiers;
+	vector<string> right_eye_identifiers, left_eye_identifiers;
 
-	pt::ptree evalConfigTree;
-	string rightEye;
-	string leftEye;
-	pt::read_info(evaluationfile.string(), evalConfigTree); // could throw a boost::property_tree::ptree_error, maybe try/catch
+	pt::ptree eval_config_tree;
+	string right_eye;
+	string left_eye;
+	pt::read_info(evaluationfile.string(), eval_config_tree); // could throw a boost::property_tree::ptree_error, maybe try/catch
 
-	pt::ptree ptParameters = evalConfigTree.get_child("interEyeDistance");
-	rightEye = ptParameters.get<string>("rightEye");
-	leftEye = ptParameters.get<string>("leftEye");
+	pt::ptree pt_parameters = eval_config_tree.get_child("interEyeDistance");
+	right_eye = pt_parameters.get<string>("rightEye");
+	left_eye = pt_parameters.get<string>("leftEye");
 	
 	// Process the interEyeDistance landmarks - one or two identifiers might be given
-	boost::split(rightEyeIdentifiers, rightEye, boost::is_any_of(" "));
-	boost::split(leftEyeIdentifiers, leftEye, boost::is_any_of(" "));
-	return std::make_pair(rightEyeIdentifiers, leftEyeIdentifiers);
+	boost::split(right_eye_identifiers, right_eye, boost::is_any_of(" "));
+	boost::split(left_eye_identifiers, left_eye, boost::is_any_of(" "));
+	return std::make_pair(right_eye_identifiers, left_eye_identifiers);
 }
 
 /**
@@ -285,33 +285,33 @@ int main(int argc, char *argv[])
 		}
 		po::notify(vm);
 	}
-	catch (po::error& e) {
+	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_SUCCESS;
 	}
 
-	vector<Mat> loadedImages;
-	vector<eos::core::LandmarkCollection<Vec2f>> loadedLandmarks;
+	vector<Mat> loaded_images;
+	vector<eos::core::LandmarkCollection<Vec2f>> loaded_landmarks;
 	try	{
-		std::tie(loadedImages, loadedLandmarks) = loadIbugData(trainingset);
+		std::tie(loaded_images, loaded_landmarks) = load_ibug_data(trainingset);
 	}
-	catch (const fs::filesystem_error& ex)
+	catch (const fs::filesystem_error& e)
 	{
-		cout << ex.what() << endl;
+		cout << e.what() << endl;
 		return EXIT_FAILURE;
 	}
 
 	// Load the pre-calculated (and scaled) mean of all landmarks:
-	Mat modelMean = loadMean(meanfile);
+	Mat model_mean = load_mean(meanfile);
 	
 	// Read the information on which model landmarks to train on from the config:
-	vector<string> modelLandmarks; // list read from the files, might be 68 or less
+	vector<string> model_landmarks; // list read from the files, might be 68 or less
 	try {
-		modelLandmarks = readLandmarksListToTrain(configfile);
+		model_landmarks = read_landmarks_list_to_train(configfile);
 	}
-	catch (const pt::ptree_error& error) {
-		cout << "Error reading the training config: " << error.what() << endl;
+	catch (const pt::ptree_error& e) {
+		cout << "Error reading the training config: " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
 	catch (const std::logic_error& e) {
@@ -319,21 +319,21 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 	// Filter the landmarks:
-	std::for_each(begin(loadedLandmarks), end(loadedLandmarks), [&modelLandmarks](eos::core::LandmarkCollection<Vec2f>& lm) { lm = eos::core::filter(lm, modelLandmarks); });
+	std::for_each(begin(loaded_landmarks), end(loaded_landmarks), [&model_landmarks](eos::core::LandmarkCollection<Vec2f>& lm) { lm = eos::core::filter(lm, model_landmarks); });
 	// Reduce the mean:
-	vector<string> ibugLandmarkIds; // full 68 point list
-	for (int ibugId = 1; ibugId <= 68; ++ibugId) {
-		ibugLandmarkIds.emplace_back(std::to_string(ibugId));
+	vector<string> ibug_landmark_ids; // full 68 point list
+	for (int ibug_id = 1; ibug_id <= 68; ++ibug_id) {
+		ibug_landmark_ids.emplace_back(std::to_string(ibug_id));
 	}
-	modelMean = rcr::to_row(eos::core::filter(rcr::to_landmark_collection(modelMean, ibugLandmarkIds), modelLandmarks));
+	model_mean = rcr::to_row(eos::core::filter(rcr::to_landmark_collection(model_mean, ibug_landmark_ids), model_landmarks));
 
 	// Read the evaluation information from the config:
-	vector<string> rightEyeIdentifiers, leftEyeIdentifiers; // for ied calc. One or several.
+	vector<string> right_eye_identifiers, left_eye_identifiers; // for ied calc. One or several.
 	try {
-		std::tie(rightEyeIdentifiers, leftEyeIdentifiers) =	readHowToCalculateTheIED(evaluationfile);
+		std::tie(right_eye_identifiers, left_eye_identifiers) =	read_how_to_calculate_the_IED(evaluationfile);
 	}
-	catch (const pt::ptree_error& error) {
-		cout << "Error reading the evaluation config: " << error.what() << endl;
+	catch (const pt::ptree_error& e) {
+		cout << "Error reading the evaluation config: " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
 	catch (const std::logic_error& e) {
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
 	}
 
 	// First, we detect the faces in the images and discard the false detections:
-	vector<Mat> trainingImages;
+	vector<Mat> training_images;
 	Mat x_gt, x_0;
 	// If init with FDet and align to FB:
 	// Each image, we add the original and perturb the fbox p times.
@@ -358,46 +358,46 @@ int main(int argc, char *argv[])
 	std::mt19937 gen(rd());
 	std::normal_distribution<> dist_t(perturb_t_mu, perturb_t_sigma); // TODO: If perturb_t_mu != 0, then we want plus and minus the value! handle this somehow.
 	std::normal_distribution<> dist_s(perturb_s_mu, perturb_s_sigma);
-	auto numPerturbations = 10; // = 2 perturbs + orig = 3 total
+	auto num_perturbations = 10; // = 10 perturbs + orig = 11 total
 	{
 		// Load the face detector from OpenCV:
-		cv::CascadeClassifier faceCascade;
-		if (!faceCascade.load(facedetector.string()))
+		cv::CascadeClassifier face_cascade;
+		if (!face_cascade.load(facedetector.string()))
 		{
 			cout << "Error loading face detection model." << endl;
 			return EXIT_FAILURE;
 		}
 	
 		// Run the face detector and obtain the initial estimate x_0 using the mean landmarks:
-		for (size_t i = 0; i < loadedImages.size(); ++i) {
-			vector<cv::Rect> detectedFaces;
-			faceCascade.detectMultiScale(loadedImages[i], detectedFaces, 1.2, 2, 0, cv::Size(50, 50));
+		for (size_t i = 0; i < loaded_images.size(); ++i) {
+			vector<cv::Rect> detected_faces;
+			face_cascade.detectMultiScale(loaded_images[i], detected_faces, 1.2, 2, 0, cv::Size(50, 50));
 			// Verify that the detected face is not a false positive:
-			bool isTruePositive = rcr::check_face(detectedFaces, loadedLandmarks[i]); // reduced landmarks. Meaning the check will vary.
-			if (isTruePositive) {
+			bool is_true_positive = rcr::check_face(detected_faces, loaded_landmarks[i]); // reduced landmarks. Meaning the check will vary.
+			if (is_true_positive) {
 				// The initialisation values:
 				// alignMean actually just transforms from [0.5...]-space to inside the facebox in img-coords.
-				x_0.push_back(rcr::align_mean(modelMean, cv::Rect(detectedFaces[0])));
+				x_0.push_back(rcr::align_mean(model_mean, cv::Rect(detected_faces[0])));
 				// Also copy the ground truth landmarks to one big data matrix:
-				x_gt.push_back(rcr::to_row(loadedLandmarks[i]));
+				x_gt.push_back(rcr::to_row(loaded_landmarks[i]));
 				// And the images:
-				trainingImages.emplace_back(loadedImages[i]);
-				for (auto p = 0; p < numPerturbations; ++p) {
+				training_images.emplace_back(loaded_images[i]);
+				for (auto p = 0; p < num_perturbations; ++p) {
 					// Same again but create perturbations:
-					Mat tmp = loadedImages[i].clone();
-					cv::rectangle(tmp, detectedFaces[0], { 0.0f, 0.0f, 255.0f });
-					cv::Rect tmp_pert = perturb(cv::Rect(detectedFaces[0]), dist_t(gen), dist_t(gen), dist_s(gen));
+					Mat tmp = loaded_images[i].clone();
+					cv::rectangle(tmp, detected_faces[0], { 0.0f, 0.0f, 255.0f });
+					cv::Rect tmp_pert = perturb(cv::Rect(detected_faces[0]), dist_t(gen), dist_t(gen), dist_s(gen));
 					// Note: FBox could be (partly) outside of image, but we check later during feature extraction, right?
 					cv::rectangle(tmp, tmp_pert, { 255.0f, 0.0f, 0.0f });
-					x_0.push_back(rcr::align_mean(modelMean, tmp_pert)); // tx, ty, s
-					x_gt.push_back(rcr::to_row(loadedLandmarks[i]));
-					trainingImages.emplace_back(loadedImages[i]);
+					x_0.push_back(rcr::align_mean(model_mean, tmp_pert)); // tx, ty, s
+					x_gt.push_back(rcr::to_row(loaded_landmarks[i]));
+					training_images.emplace_back(loaded_images[i]);
 				}
 			}
 		}
 	}
 	// Else init with tracking and GT-LMs?
-	cout << "Kept " << trainingImages.size() / (numPerturbations + 1) << " images out of " << loadedImages.size() << "." << endl;
+	cout << "Kept " << training_images.size() / (num_perturbations + 1) << " images out of " << loaded_images.size() << "." << endl;
 
 	// Create 3 regularised linear regressors in series:
 	vector<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>> regressors;
@@ -406,27 +406,27 @@ int main(int argc, char *argv[])
 	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
 	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
 	
-	SupervisedDescentOptimiser<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervisedDescentModel(regressors, rcr::InterEyeDistanceNormalisation(modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers));
+	SupervisedDescentOptimiser<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervised_descent_model(regressors, rcr::InterEyeDistanceNormalisation(model_landmarks, right_eye_identifiers, left_eye_identifiers));
 	//SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>> supervisedDescentModel(regressors);
 	
 	std::vector<rcr::HoGParam> hog_params{ { VlHogVariant::VlHogVariantUoctti, 5, 11, 4, 55 }, { VlHogVariant::VlHogVariantUoctti, 5, 10, 4, 50 }, { VlHogVariant::VlHogVariantUoctti, 5, 8, 4, 40 },{ VlHogVariant::VlHogVariantUoctti, 5, 6, 4, 30 } }; // 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/
 	assert(hog_params.size() == regressors.size());
-	rcr::HogTransform hog(trainingImages, hog_params, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers);
+	rcr::HogTransform hog(training_images, hog_params, model_landmarks, right_eye_identifiers, left_eye_identifiers);
 
 	// Train the model. We'll also specify an optional callback function:
 	cout << "Training the model, printing the residual after each learned regressor: " << endl;
 	// Rename to landmarkErrorCallback and put in the library?
-	auto printResidual = [&x_gt, &modelLandmarks, &rightEyeIdentifiers, &leftEyeIdentifiers](const cv::Mat& currentPredictions) {
-		cout << "NLSR train: " << cv::norm(currentPredictions, x_gt, cv::NORM_L2) / cv::norm(x_gt, cv::NORM_L2) << endl;
+	auto print_residual = [&x_gt, &model_landmarks, &right_eye_identifiers, &left_eye_identifiers](const cv::Mat& current_predictions) {
+		cout << "NLSR train: " << cv::norm(current_predictions, x_gt, cv::NORM_L2) / cv::norm(x_gt, cv::NORM_L2) << endl;
 		
-		Mat normalisedError = calculateNormalisedLandmarkErrors(currentPredictions, x_gt, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers);
-		cout << "Normalised LM-error train: " << cv::mean(normalisedError)[0] << endl;
+		Mat normalised_error = calculate_normalised_landmark_errors(current_predictions, x_gt, model_landmarks, right_eye_identifiers, left_eye_identifiers);
+		cout << "Normalised LM-error train: " << cv::mean(normalised_error)[0] << endl;
 	};
 	
-	supervisedDescentModel.train(x_gt, x_0, Mat(), hog, printResidual);
+	supervised_descent_model.train(x_gt, x_0, Mat(), hog, print_residual);
 
 	// Save the learned model:
-	rcr::detection_model learned_model(supervisedDescentModel, modelMean, modelLandmarks, hog_params, rightEyeIdentifiers, leftEyeIdentifiers);
+	rcr::detection_model learned_model(supervised_descent_model, model_mean, model_landmarks, hog_params, right_eye_identifiers, left_eye_identifiers);
 	try {
 		rcr::save_detection_model(learned_model, outputfile.string());
 	}
@@ -436,66 +436,66 @@ int main(int argc, char *argv[])
 
 	// ===========================
 	// Evaluation on the test set:
-	vector<Mat> loadedTestImages;
-	vector<eos::core::LandmarkCollection<Vec2f>> loadedTestLandmarks;
+	vector<Mat> loaded_test_images;
+	vector<eos::core::LandmarkCollection<Vec2f>> loaded_test_landmarks;
 	try	{
-		std::tie(loadedTestImages, loadedTestLandmarks) = loadIbugData(testset);
+		std::tie(loaded_test_images, loaded_test_landmarks) = load_ibug_data(testset);
 	}
-	catch (const fs::filesystem_error& ex)
+	catch (const fs::filesystem_error& e)
 	{
-		cout << ex.what() << endl;
+		cout << e.what() << endl;
 		return EXIT_FAILURE;
 	}
 	// Filter the landmarks:
-	std::for_each(begin(loadedTestLandmarks), end(loadedTestLandmarks), [&modelLandmarks](eos::core::LandmarkCollection<Vec2f>& lm) { lm = eos::core::filter(lm, modelLandmarks); });
+	std::for_each(begin(loaded_test_landmarks), end(loaded_test_landmarks), [&model_landmarks](eos::core::LandmarkCollection<Vec2f>& lm) { lm = eos::core::filter(lm, model_landmarks); });
 
 	// First, we detect the faces in the images and discard the false detections:
-	vector<Mat> testImages;
+	vector<Mat> test_images;
 	Mat x_ts_gt, x_ts_0;
 	{
 		// Load the face detector from OpenCV:
-		cv::CascadeClassifier faceCascade;
-		if (!faceCascade.load(facedetector.string()))
+		cv::CascadeClassifier face_cascade;
+		if (!face_cascade.load(facedetector.string()))
 		{
 			cout << "Error loading face detection model." << endl;
 			return EXIT_FAILURE;
 		}
 
 		// Run the face detector and obtain the initial estimate x_0 using the mean landmarks:
-		for (size_t i = 0; i < loadedTestImages.size(); ++i) {
-			vector<cv::Rect> detectedFaces;
-			faceCascade.detectMultiScale(loadedTestImages[i], detectedFaces, 1.2, 2, 0, cv::Size(50, 50));
+		for (size_t i = 0; i < loaded_test_images.size(); ++i) {
+			vector<cv::Rect> detected_faces;
+			face_cascade.detectMultiScale(loaded_test_images[i], detected_faces, 1.2, 2, 0, cv::Size(50, 50));
 			// Verify that the detected face is not a false positive:
-			bool isTruePositive = rcr::check_face(detectedFaces, loadedTestLandmarks[i]);
-			if (isTruePositive) {
+			bool is_true_positive = rcr::check_face(detected_faces, loaded_test_landmarks[i]);
+			if (is_true_positive) {
 				// The initialisation values:
-				x_ts_0.push_back(rcr::align_mean(modelMean, cv::Rect(detectedFaces[0])));
+				x_ts_0.push_back(rcr::align_mean(model_mean, cv::Rect(detected_faces[0])));
 				// Also copy the ground truth landmarks to one big data matrix:
-				x_ts_gt.push_back(rcr::to_row(loadedTestLandmarks[i]));
+				x_ts_gt.push_back(rcr::to_row(loaded_test_landmarks[i]));
 				// And the images:
-				testImages.emplace_back(loadedTestImages[i]);
+				test_images.emplace_back(loaded_test_images[i]);
 			}
 		}
 	}
-	cout << "Kept " << testImages.size() << " images out of " << loadedTestImages.size() << "." << endl;
+	cout << "Kept " << test_images.size() << " images out of " << loaded_test_images.size() << "." << endl;
 
-	Mat normalisedErrorInit = calculateNormalisedLandmarkErrors(x_ts_0, x_ts_gt, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers);
-	cout << "Normalised LM-error test from mean init: " << cv::mean(normalisedErrorInit)[0] << endl;
+	Mat normalised_error_init = calculate_normalised_landmark_errors(x_ts_0, x_ts_gt, model_landmarks, right_eye_identifiers, left_eye_identifiers);
+	cout << "Normalised LM-error test from mean init: " << cv::mean(normalised_error_init)[0] << endl;
 	
-	Mat result = supervisedDescentModel.test(x_ts_0, Mat(), rcr::HogTransform(testImages, hog_params, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers));
+	Mat result = supervised_descent_model.test(x_ts_0, Mat(), rcr::HogTransform(test_images, hog_params, model_landmarks, right_eye_identifiers, left_eye_identifiers));
 	
 	cout << "NLSR test: " << cv::norm(result, x_ts_gt, cv::NORM_L2) / cv::norm(x_ts_gt, cv::NORM_L2) << endl;
-	Mat normalisedError = calculateNormalisedLandmarkErrors(result, x_ts_gt, modelLandmarks, rightEyeIdentifiers, leftEyeIdentifiers);
-	cout << "Normalised LM-error test: " << cv::mean(normalisedError)[0] << endl;
+	Mat normalised_error = calculate_normalised_landmark_errors(result, x_ts_gt, model_landmarks, right_eye_identifiers, left_eye_identifiers);
+	cout << "Normalised LM-error test: " << cv::mean(normalised_error)[0] << endl;
 	
-	Mat perLandmarkError;
-	cv::reduce(normalisedError, perLandmarkError, 0, CV_REDUCE_AVG); // reduce to one row
+	Mat per_landmark_error;
+	cv::reduce(normalised_error, per_landmark_error, 0, CV_REDUCE_AVG); // reduce to one row
 	
 	outputfile.replace_extension("error.txt");
 	std::ofstream file(outputfile.string());
-	for (int i = 0; i < perLandmarkError.cols; ++i) {
-		file << perLandmarkError.at<float>(i);
-		if (i != perLandmarkError.cols - 1) {
+	for (int i = 0; i < per_landmark_error.cols; ++i) {
+		file << per_landmark_error.at<float>(i);
+		if (i != per_landmark_error.cols - 1) {
 			file << ", ";
 		}
 	}
