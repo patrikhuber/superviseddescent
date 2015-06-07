@@ -55,7 +55,7 @@ TEST(SupervisedDescentOptimiser, SinConvergence) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	SupervisedDescentOptimiser<LinearRegressor<>> sdo({ LinearRegressor<>() });
+	SupervisedDescentOptimiser<linear_regressor<>> sdo({ linear_regressor<>() });
 	
 	// Test the callback mechanism as well: (better move to a separate unit test?)
 	auto checkResidual = [&](const Mat& currentX) {
@@ -116,8 +116,8 @@ TEST(SupervisedDescentOptimiser, SinConvergenceCascade) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors(10);
-	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
+	vector<linear_regressor<>> regressors(10);
+	SupervisedDescentOptimiser<linear_regressor<>> sdo(regressors);
 	sdo.train(x_tr, x0, y_tr, h);
 
 	// Make sure the training converges, i.e. the residual is correct on the training data:
@@ -166,7 +166,7 @@ TEST(SupervisedDescentOptimiser, XCubeConvergence) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	SupervisedDescentOptimiser<LinearRegressor<>> sdo({ LinearRegressor<>() });
+	SupervisedDescentOptimiser<linear_regressor<>> sdo({ linear_regressor<>() });
 	sdo.train(x_tr, x0, y_tr, h);
 
 	// Make sure the training converges, i.e. the residual is correct on the training data:
@@ -215,8 +215,8 @@ TEST(SupervisedDescentOptimiser, XCubeConvergenceCascade) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors(10);
-	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
+	vector<linear_regressor<>> regressors(10);
+	SupervisedDescentOptimiser<linear_regressor<>> sdo(regressors);
 	sdo.train(x_tr, x0, y_tr, h);
 
 	// Make sure the training converges, i.e. the residual is correct on the training data:
@@ -265,7 +265,7 @@ TEST(SupervisedDescentOptimiser, ErfConvergence) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	SupervisedDescentOptimiser<LinearRegressor<>> sdo({ LinearRegressor<>() });
+	SupervisedDescentOptimiser<linear_regressor<>> sdo({ linear_regressor<>() });
 	sdo.train(x_tr, x0, y_tr, h);
 
 	// Make sure the training converges, i.e. the residual is correct on the training data:
@@ -314,8 +314,8 @@ TEST(SupervisedDescentOptimiser, ErfConvergenceCascade) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors(10);
-	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
+	vector<linear_regressor<>> regressors(10);
+	SupervisedDescentOptimiser<linear_regressor<>> sdo(regressors);
 	sdo.train(x_tr, x0, y_tr, h);
 
 	// Make sure the training converges, i.e. the residual is correct on the training data:
@@ -364,7 +364,7 @@ TEST(SupervisedDescentOptimiser, ExpConvergence) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	SupervisedDescentOptimiser<LinearRegressor<>> sdo({ LinearRegressor<>() });
+	SupervisedDescentOptimiser<linear_regressor<>> sdo({ linear_regressor<>() });
 	sdo.train(x_tr, x0, y_tr, h);
 
 	// Make sure the training converges, i.e. the residual is correct on the training data:
@@ -413,8 +413,8 @@ TEST(SupervisedDescentOptimiser, ExpConvergenceCascade) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors(10);
-	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
+	vector<linear_regressor<>> regressors(10);
+	SupervisedDescentOptimiser<linear_regressor<>> sdo(regressors);
 	sdo.train(x_tr, x0, y_tr, h);
 
 	// Make sure the training converges, i.e. the residual is correct on the training data:
@@ -490,8 +490,8 @@ TEST(SupervisedDescentOptimiser, SinErfConvergenceCascadeMultiY) {
 
 	Mat x0 = 0.5f * Mat::ones(numValues, 2, CV_32FC1); // fixed initialization x0 = c = 0.5.
 
-	vector<LinearRegressor<>> regressors(10);
-	SupervisedDescentOptimiser<LinearRegressor<>> sdo(regressors);
+	vector<linear_regressor<>> regressors(10);
+	SupervisedDescentOptimiser<linear_regressor<>> sdo(regressors);
 
 	sdo.train(x_tr, x0, y_tr, h);
 	Mat predictions = sdo.test(x0, y_tr, h);

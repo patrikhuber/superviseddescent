@@ -150,7 +150,7 @@ public:
 	// But this also means we need to pass through the regularisation params.
 	// We can't just pass a cv::Mat regularisation because the dimensions for
 	// regularising A and AtA are different.
-	cv::Mat solve(cv::Mat data, cv::Mat labels, superviseddescent::Regulariser regulariser)
+	cv::Mat solve(cv::Mat data, cv::Mat labels, superviseddescent::regulariser regulariser)
 	{
 		using cv::Mat;
 		using std::cout;

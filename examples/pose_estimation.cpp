@@ -282,12 +282,12 @@ int main(int argc, char *argv[])
 	float ty = 0.0f;
 	float tz = -2000.0f;
 
-	vector<LinearRegressor<>> regressors;
-	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
-	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
-	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
+	vector<linear_regressor<>> regressors;
+	regressors.emplace_back(linear_regressor<>(regulariser(regulariser::regularisation_type::MatrixNorm, 2.0f, true)));
+	regressors.emplace_back(linear_regressor<>(regulariser(regulariser::regularisation_type::MatrixNorm, 2.0f, true)));
+	regressors.emplace_back(linear_regressor<>(regulariser(regulariser::regularisation_type::MatrixNorm, 2.0f, true)));
 
-	SupervisedDescentOptimiser<LinearRegressor<>> supervisedDescentModel(regressors);
+	SupervisedDescentOptimiser<linear_regressor<>> supervisedDescentModel(regressors);
 
 	ModelProjection projection(facemodel);
 

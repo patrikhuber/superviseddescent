@@ -40,10 +40,10 @@ namespace superviseddescent {
  * Classes that implement this minimal set of functions can be used with the
  * SupervisedDescentOptimiser.
  */
-class Regressor
+class regressor
 {
 public:
-	virtual ~Regressor() {};
+	virtual ~regressor() {};
 
 	/**
 	 * Learning function that takes a matrix of data, with one example per
@@ -84,13 +84,13 @@ public:
  * or calculated from the data matrix.
  *
  */
-class Regulariser
+class regulariser
 {
 public:
 	/**
 	 * The method to calculate the regularisation factor lambda.
 	 */
-	enum class RegularisationType
+	enum class regularisation_type
 	{
 		Manual, ///< Use the given param value as lambda.
 		MatrixNorm, ///< Use \f$ \text{lambda} = \text{param} * \frac{\|\text{data}\|_2}{\text{numTrainingElements}} \f$ A suitable default for _param_ suggested by the SDM authors is 0.5.
@@ -110,7 +110,7 @@ public:
 	 * @param[in] param Lambda, or a factor, depending on regularisationType.
 	 * @param[in] regulariseLastRow Specifies if the last row should be regularised.
 	 */
-	Regulariser(RegularisationType regularisationType = RegularisationType::Manual, float param = 0.0f, bool regulariseLastRow = true) : regularisationType(regularisationType), lambda(param), regulariseLastRow(regulariseLastRow)
+	regulariser(regularisation_type regularisationType = regularisation_type::Manual, float param = 0.0f, bool regulariseLastRow = true) : regularisationType(regularisationType), lambda(param), regulariseLastRow(regulariseLastRow)
 	{
 	};
 
@@ -127,10 +127,10 @@ public:
 	{
 		switch (regularisationType)
 		{
-		case RegularisationType::Manual:
+		case regularisation_type::Manual:
 			// We just take lambda as it was given, no calculation necessary.
 			break;
-		case RegularisationType::MatrixNorm:
+		case regularisation_type::MatrixNorm:
 			// The given lambda is the factor we have to multiply the automatic value with:
 			lambda = lambda * static_cast<float>(cv::norm(data)) / static_cast<float>(numTrainingElements);
 			break;
@@ -148,7 +148,7 @@ public:
 	};
 
 private:
-	RegularisationType regularisationType; ///< The type of regularisation this regulariser is using.
+	regularisation_type regularisationType; ///< The type of regularisation this regulariser is using.
 	float lambda; ///< The parameter for RegularisationType. Can be lambda directly or a factor with which the lambda from MatrixNorm will be multiplied with.
 	bool regulariseLastRow; ///< If the last row of data matrix is a bias (offset), then you might want to choose whether it should be regularised as well. Otherwise, just leave it to default (true).
 
@@ -184,7 +184,7 @@ public:
 	// But this also means we need to pass through the regularisation params.
 	// We can't just pass a cv::Mat regularisation because the dimensions for
 	// regularising A and AtA are different.
-	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
+	cv::Mat solve(cv::Mat data, cv::Mat labels, regulariser regulariser)
 	{
 		using cv::Mat;
 		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
@@ -237,7 +237,7 @@ public:
 	// But this also means we need to pass through the regularisation params.
 	// We can't just pass a cv::Mat regularisation because the dimensions for
 	// regularising A and AtA are different.
-	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
+	cv::Mat solve(cv::Mat data, cv::Mat labels, regulariser regulariser)
 	{
 		using cv::Mat;
 		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
@@ -292,7 +292,7 @@ public:
  * each label will be learned independently.
  */
 template<class Solver = PartialPivLUSolver>
-class LinearRegressor : public Regressor
+class linear_regressor : public regressor
 {
 
 public:
@@ -301,7 +301,7 @@ public:
 	 *
 	 * @param[in] regulariser A Regulariser to regularise the data matrix. Default means no regularisation.
 	 */
-	LinearRegressor(Regulariser regulariser = Regulariser()) : x(), regulariser(regulariser)
+	linear_regressor(regulariser r = regulariser()) : x(), r(r)
 	{
 	};
 
@@ -320,7 +320,7 @@ public:
 	 */
 	bool learn(cv::Mat data, cv::Mat labels) override
 	{
-		cv::Mat x = solver.solve(data, labels, regulariser);
+		cv::Mat x = solver.solve(data, labels, r);
 		this->x = x;
 		return true; // see todo above
 	};
@@ -359,7 +359,7 @@ public:
 	cv::Mat x; ///< The linear model we learn (\f$A*x = b\f$). TODO: Make private member variable
 
 private:
-	Regulariser regulariser; ///< Holding information about how to regularise.
+	regulariser r; ///< Holding information about how to regularise.
 	Solver solver; ///< The type of solver used to solve the regressors linear system of equations.
 
 	friend class cereal::access;
@@ -371,7 +371,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& ar)
 	{
-		ar(x, regulariser);
+		ar(x, r);
 	}
 };
 

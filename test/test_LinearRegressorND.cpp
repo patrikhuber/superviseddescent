@@ -12,7 +12,7 @@ TEST(LinearRegressor, NDimOneExampleLearningNotInvertible) {
 	Mat data = Mat::ones(1, 2, CV_32FC1);
 	Mat labels = Mat::ones(1, 1, CV_32FC1);
 	// A simple case of a singular matrix. Yields infinitely many possible results.
-	LinearRegressor<> lr;
+	linear_regressor<> lr;
 	bool isInvertible = lr.learn(data, labels);
 	ASSERT_EQ(false, isInvertible);
 }
@@ -20,11 +20,11 @@ TEST(LinearRegressor, NDimOneExampleLearningNotInvertible) {
 
 TEST(LinearRegressor, NDimOneExampleLearningRegularisation) {
 	using cv::Mat;
-	Regulariser r(Regulariser::RegularisationType::Manual, 1.0f, true); // no bias, so regularise every data-row
+	regulariser r(regulariser::regularisation_type::Manual, 1.0f, true); // no bias, so regularise every data-row
 	Mat data = Mat::ones(1, 2, CV_32FC1);
 	Mat labels = Mat::ones(1, 1, CV_32FC1);
 	// This case becomes solvable with regularisation
-	LinearRegressor<> lr(r);
+	linear_regressor<> lr(r);
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_FLOAT_EQ(1.0f/3.0f, lr.x.at<float>(0)) << "Expected the learned x_0 to be 1.0f/3.0f";
 	EXPECT_FLOAT_EQ(1.0f/3.0f, lr.x.at<float>(1)) << "Expected the learned x_1 to be 1.0f/3.0f";
@@ -38,7 +38,7 @@ TEST(LinearRegressor, NDimTwoExamplesLearning) {
 	data.at<float>(0) = 0.0f; // data = [0 1; 1 1]
 	Mat labels = Mat::ones(2, 1, CV_32FC1); // The label can also be multi-dim. More test cases?
 	labels.at<float>(0) = 0.0f; // labels = [0; 1]
-	LinearRegressor<> lr;
+	linear_regressor<> lr;
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 	EXPECT_FLOAT_EQ(1.0f, lr.x.at<float>(0)) << "Expected the learned x_0 to be 1.0f";
@@ -52,7 +52,7 @@ TEST(LinearRegressor, NDimTwoExamplesPrediction) {
 	data.at<float>(0) = 0.0f; // data = [0 1; 1 1]
 	Mat labels = Mat::ones(2, 1, CV_32FC1); // The label can also be multi-dim. More test cases?
 	labels.at<float>(0) = 0.0f; // labels = [0; 1]
-	LinearRegressor<> lr;
+	linear_regressor<> lr;
 	lr.learn(data, labels);
 
 	// Test starts here:
@@ -68,7 +68,7 @@ TEST(LinearRegressor, NDimTwoExamplesTestingResidual) {
 	data.at<float>(0) = 0.0f; // data = [0 1; 1 1]
 	Mat labels = Mat::ones(2, 1, CV_32FC1); // The label can also be multi-dim. More test cases?
 	labels.at<float>(0) = 0.0f; // labels = [0; 1]
-	LinearRegressor<> lr;
+	linear_regressor<> lr;
 	lr.learn(data, labels);
 
 	// Test starts here:
@@ -93,7 +93,7 @@ TEST(LinearRegressor, NDimTwoExamplesNDimYLearning) {
 	data.at<float>(0) = 0.0f; // data = [0 1; 1 1]
 	Mat labels = Mat::ones(2, 2, CV_32FC1); // The label can also be multi-dim. More test cases?
 	labels.at<float>(0) = 0.0f; // labels = [0 1; 1 1]
-	LinearRegressor<> lr;
+	linear_regressor<> lr;
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 	EXPECT_FLOAT_EQ(1.0f, lr.x.at<float>(0, 0)) << "Expected the learned x_0_0 to be 1.0f"; // Every col is a learned regressor for a label
@@ -108,7 +108,7 @@ TEST(LinearRegressor, NDimTwoExamplesNDimYPrediction) {
 	data.at<float>(0) = 0.0f; // data = [0 1; 1 1]
 	Mat labels = Mat::ones(2, 2, CV_32FC1); // The label can also be multi-dim. More test cases?
 	labels.at<float>(0) = 0.0f; // labels = [0 1; 1 1]
-	LinearRegressor<> lr;
+	linear_regressor<> lr;
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 
@@ -126,7 +126,7 @@ TEST(LinearRegressor, NDimTwoExamplesNDimYTestingResidual) {
 	data.at<float>(0) = 0.0f; // data = [0 1; 1 1]
 	Mat labels = Mat::ones(2, 2, CV_32FC1); // The label can also be multi-dim. More test cases?
 	labels.at<float>(0) = 0.0f; // labels = [0 1; 1 1]
-	LinearRegressor<> lr;
+	linear_regressor<> lr;
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 
@@ -154,7 +154,7 @@ TEST(LinearRegressor, NDimManyExamplesNDimY) {
 	// An invertible example, constructed from Matlab
 	Mat data = (cv::Mat_<float>(5, 3) << 1.0f, 4.0f, 2.0f, 4.0f, 9.0f, 1.0f, 6.0f, 5.0f, 2.0f, 0.0f, 6.0f, 2.0f, 6.0f, 1.0f, 9.0f);
 	Mat labels = (cv::Mat_<float>(5, 2) << 1.0f, 1.0f, 2.0f, 5.0f, 3.0f, -2.0f, 0.0f, 5.0f, 6.0f, 3.0f);
-	LinearRegressor<> lr;
+	linear_regressor<> lr;
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 	EXPECT_NEAR(0.489539f, lr.x.at<float>(0, 0), 0.000002); // Every col is a learned regressor for a label
@@ -176,8 +176,8 @@ TEST(LinearRegressor, NDimManyExamplesNDimYRegularisation) {
 	// An invertible example, constructed from Matlab
 	Mat data = (cv::Mat_<float>(5, 3) << 1.0f, 4.0f, 2.0f, 4.0f, 9.0f, 1.0f, 6.0f, 5.0f, 2.0f, 0.0f, 6.0f, 2.0f, 6.0f, 1.0f, 9.0f);
 	Mat labels = (cv::Mat_<float>(5, 2) << 1.0f, 1.0f, 2.0f, 5.0f, 3.0f, -2.0f, 0.0f, 5.0f, 6.0f, 3.0f);
-	Regulariser r(Regulariser::RegularisationType::Manual, 50.0f, true); // no bias, so regularise every data-row
-	LinearRegressor<> lr(r);
+	regulariser r(regulariser::regularisation_type::Manual, 50.0f, true); // no bias, so regularise every data-row
+	linear_regressor<> lr(r);
 	bool isInvertible = lr.learn(data, labels);
 	EXPECT_EQ(true, isInvertible);
 	EXPECT_FLOAT_EQ(0.282755911f, lr.x.at<float>(0, 0)) << "Expected the learned x_0_0 to be different"; // Every col is a learned regressor for a label
@@ -199,7 +199,7 @@ TEST(LinearRegressor, NDimManyExamplesNDimYBias) {
 	// An invertible example, constructed from Matlab
 	Mat data = (cv::Mat_<float>(5, 3) << 1.0f, 4.0f, 2.0f, 4.0f, 9.0f, 1.0f, 6.0f, 5.0f, 2.0f, 0.0f, 6.0f, 2.0f, 6.0f, 1.0f, 9.0f);
 	Mat labels = (cv::Mat_<float>(5, 2) << 1.0f, 1.0f, 2.0f, 5.0f, 3.0f, -2.0f, 0.0f, 5.0f, 6.0f, 3.0f);
-	LinearRegressor<> lr;
+	linear_regressor<> lr;
 	Mat biasColumn = Mat::ones(data.rows, 1, CV_32FC1);
 	cv::hconcat(data, biasColumn, data);
 	bool isInvertible = lr.learn(data, labels);
@@ -228,8 +228,8 @@ TEST(LinearRegressor, NDimManyExamplesNDimYBiasRegularisation) {
 	// An invertible example, constructed from Matlab
 	Mat data = (cv::Mat_<float>(5, 3) << 1.0f, 4.0f, 2.0f, 4.0f, 9.0f, 1.0f, 6.0f, 5.0f, 2.0f, 0.0f, 6.0f, 2.0f, 6.0f, 1.0f, 9.0f);
 	Mat labels = (cv::Mat_<float>(5, 2) << 1.0f, 1.0f, 2.0f, 5.0f, 3.0f, -2.0f, 0.0f, 5.0f, 6.0f, 3.0f);
-	Regulariser r(Regulariser::RegularisationType::Manual, 50.0f, true); // regularise the bias as well
-	LinearRegressor<> lr(r);
+	regulariser r(regulariser::regularisation_type::Manual, 50.0f, true); // regularise the bias as well
+	linear_regressor<> lr(r);
 	Mat biasColumn = Mat::ones(data.rows, 1, CV_32FC1);
 	cv::hconcat(data, biasColumn, data);
 	bool isInvertible = lr.learn(data, labels);
@@ -257,8 +257,8 @@ TEST(LinearRegressor, NDimManyExamplesNDimYBiasRegularisationButNotBias) {
 	// An invertible example, constructed from Matlab
 	Mat data = (cv::Mat_<float>(5, 3) << 1.0f, 4.0f, 2.0f, 4.0f, 9.0f, 1.0f, 6.0f, 5.0f, 2.0f, 0.0f, 6.0f, 2.0f, 6.0f, 1.0f, 9.0f);
 	Mat labels = (cv::Mat_<float>(5, 2) << 1.0f, 1.0f, 2.0f, 5.0f, 3.0f, -2.0f, 0.0f, 5.0f, 6.0f, 3.0f);
-	Regulariser r(Regulariser::RegularisationType::Manual, 50.0f, false); // don't regularise the bias
-	LinearRegressor<> lr(r);
+	regulariser r(regulariser::regularisation_type::Manual, 50.0f, false); // don't regularise the bias
+	linear_regressor<> lr(r);
 	Mat biasColumn = Mat::ones(data.rows, 1, CV_32FC1);
 	cv::hconcat(data, biasColumn, data);
 	bool isInvertible = lr.learn(data, labels);
