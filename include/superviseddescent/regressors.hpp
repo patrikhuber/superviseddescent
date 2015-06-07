@@ -110,7 +110,7 @@ public:
 	 * @param[in] param Lambda, or a factor, depending on regularisationType.
 	 * @param[in] regulariseLastRow Specifies if the last row should be regularised.
 	 */
-	Regulariser(RegularisationType regularisationType = RegularisationType::Manual, float param = 0.0f, bool regulariseLastRow = true) : regularisationType(regularisationType), lambda(param), regulariseLastRow(regulariseLastRow)
+	Regulariser(RegularisationType regularisation_type = RegularisationType::Manual, float param = 0.0f, bool regularise_last_row = true) : regularisation_type(regularisation_type), lambda(param), regularise_last_row(regularise_last_row)
 	{
 	};
 
@@ -123,16 +123,16 @@ public:
 	 * @param[in] numTrainingElements Number of training elements.
 	 * @return Returns a diagonal regularisation matrix with the same dimensions as the given data matrix.
 	 */
-	cv::Mat getMatrix(cv::Mat data, int numTrainingElements)
+	cv::Mat get_matrix(cv::Mat data, int num_training_elements)
 	{
-		switch (regularisationType)
+		switch (regularisation_type)
 		{
 		case RegularisationType::Manual:
 			// We just take lambda as it was given, no calculation necessary.
 			break;
 		case RegularisationType::MatrixNorm:
 			// The given lambda is the factor we have to multiply the automatic value with:
-			lambda = lambda * static_cast<float>(cv::norm(data)) / static_cast<float>(numTrainingElements);
+			lambda = lambda * static_cast<float>(cv::norm(data)) / static_cast<float>(num_training_elements);
 			break;
 		default:
 			break;
@@ -140,7 +140,7 @@ public:
 
 		cv::Mat regulariser = cv::Mat::eye(data.rows, data.cols, CV_32FC1) * lambda;
 
-		if (!regulariseLastRow) {
+		if (!regularise_last_row) {
 			// no lambda for the bias:
 			regulariser.at<float>(regulariser.rows - 1, regulariser.cols - 1) = 0.0f;
 		}
@@ -148,9 +148,9 @@ public:
 	};
 
 private:
-	RegularisationType regularisationType; ///< The type of regularisation this regulariser is using.
+	RegularisationType regularisation_type; ///< The type of regularisation this regulariser is using.
 	float lambda; ///< The parameter for RegularisationType. Can be lambda directly or a factor with which the lambda from MatrixNorm will be multiplied with.
-	bool regulariseLastRow; ///< If the last row of data matrix is a bias (offset), then you might want to choose whether it should be regularised as well. Otherwise, just leave it to default (true).
+	bool regularise_last_row; ///< If the last row of data matrix is a bias (offset), then you might want to choose whether it should be regularised as well. Otherwise, just leave it to default (true).
 
 	friend class cereal::access;
 	/**
@@ -164,7 +164,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& ar)
 	{
-		ar(regularisationType, lambda, regulariseLastRow);
+		ar(regularisation_type, lambda, regularise_last_row);
 	}
 };
 
@@ -197,20 +197,20 @@ public:
 
 		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
 		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
-		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
-		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
+		Mat regularisation_matrix = regulariser.get_matrix(AtA_Map, data.rows);
+		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisation_matrix.ptr<float>(), regularisation_matrix.rows, regularisation_matrix.cols);
 
-		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);
-		Eigen::VectorXf diagVec(regularisationMatrix.rows);
+		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisation_matrix.rows);
+		Eigen::VectorXf diagVec(regularisation_matrix.rows);
 		for (int i = 0; i < diagVec.size(); ++i) {
-			diagVec(i) = regularisationMatrix.at<float>(i, i);
+			diagVec(i) = regularisation_matrix.at<float>(i, i);
 		}
 		reg_Eigen_diag.diagonal() = diagVec;
 		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
 
 		// Perform a fast PartialPivLU and use luOfAtA.solve() (better than inverting):
-		Eigen::PartialPivLU<RowMajorMatrixXf> luOfAtA(AtA_Eigen);
-		RowMajorMatrixXf x_Eigen = luOfAtA.solve(A_Eigen.transpose() * labels_Eigen);
+		Eigen::PartialPivLU<RowMajorMatrixXf> lu_of_AtA(AtA_Eigen);
+		RowMajorMatrixXf x_Eigen = lu_of_AtA.solve(A_Eigen.transpose() * labels_Eigen);
 		//RowMajorMatrixXf x_Eigen = AtA_Eigen.partialPivLu.solve(A_Eigen.transpose() * labels_Eigen);
 
 		// Map the resulting x back to a cv::Mat by creating a Mat header:
@@ -249,25 +249,25 @@ public:
 
 		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
 		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
-		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
-		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
+		Mat regularisation_matrix = regulariser.get_matrix(AtA_Map, data.rows);
+		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisation_matrix.ptr<float>(), regularisation_matrix.rows, regularisation_matrix.cols);
 
-		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);
-		Eigen::VectorXf diagVec(regularisationMatrix.rows);
+		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisation_matrix.rows);
+		Eigen::VectorXf diagVec(regularisation_matrix.rows);
 		for (int i = 0; i < diagVec.size(); ++i) {
-			diagVec(i) = regularisationMatrix.at<float>(i, i);
+			diagVec(i) = regularisation_matrix.at<float>(i, i);
 		}
 		reg_Eigen_diag.diagonal() = diagVec;
 		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
 
 		// Perform a ColPivHouseholderQR (faster than FullPivLU) that allows to check for invertibility:
-		Eigen::ColPivHouseholderQR<RowMajorMatrixXf> qrOfAtA(AtA_Eigen);
-		auto rankOfAtA = qrOfAtA.rank();
-		if (!qrOfAtA.isInvertible()) {
+		Eigen::ColPivHouseholderQR<RowMajorMatrixXf> qr_of_AtA(AtA_Eigen);
+		auto rankOfAtA = qr_of_AtA.rank();
+		if (!qr_of_AtA.isInvertible()) {
 			// Eigen may return garbage (their docu is not very specific). Best option is to increase regularisation.
 			std::cout << "The regularised AtA is not invertible. We continued learning, but Eigen may return garbage (their docu is not very specific). (The rank is " << std::to_string(rankOfAtA) << ", full rank would be " << std::to_string(AtA_Eigen.rows()) << "). Increase lambda." << std::endl;
 		}
-		RowMajorMatrixXf AtAInv_Eigen = qrOfAtA.inverse();
+		RowMajorMatrixXf AtAInv_Eigen = qr_of_AtA.inverse();
 
 		// x = (AtAReg)^-1 * At * b:
 		RowMajorMatrixXf x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;

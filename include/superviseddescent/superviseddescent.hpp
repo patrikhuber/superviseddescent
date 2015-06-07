@@ -49,7 +49,7 @@ namespace superviseddescent {
  *
  * @param[in] currentPredictions Predictions of the current regressor.
  */
-inline void noEval(const cv::Mat& currentPredictions)
+inline void no_eval(const cv::Mat& current_predictions)
 {
 };
 
@@ -91,7 +91,7 @@ public:
 	 *
 	 * @param[in] regressors One or several regressors.
 	 */
-	SupervisedDescentOptimiser(std::vector<RegressorType> regressors, NormalisationStrategy normalisation = NoNormalisation()) : regressors(std::move(regressors)), normalisationStrategy(std::move(normalisation))
+	SupervisedDescentOptimiser(std::vector<RegressorType> regressors, NormalisationStrategy normalisation = NoNormalisation()) : regressors(std::move(regressors)), normalisation_strategy(std::move(normalisation))
 	{
 	};
 
@@ -131,7 +131,7 @@ public:
 	template<class ProjectionFunction>
 	void train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)
 	{
-		return train(parameters, initialisations, templates, projection, noEval);
+		return train(parameters, initialisations, templates, projection, no_eval);
 	};
 
 	/**
@@ -154,23 +154,23 @@ public:
 	 * @param[in] onTrainingEpochCallback A callback function that gets called after the training of each individual regressor.
 	 */
 	template<class ProjectionFunction, class OnTrainingEpochCallback>
-	void train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnTrainingEpochCallback onTrainingEpochCallback)
+	void train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnTrainingEpochCallback on_training_epoch_callback)
 	{
 		using cv::Mat;
-		Mat currentX = initialisations;
-		for (size_t regressorLevel = 0; regressorLevel < regressors.size(); ++regressorLevel) {
+		Mat current_x = initialisations;
+		for (size_t regressor_level = 0; regressor_level < regressors.size(); ++regressor_level) {
 			// 1) Project current parameters x to feature space:
 			// Enqueue all tasks in a thread pool:
-			auto concurentThreadsSupported = std::thread::hardware_concurrency();
-			if (concurentThreadsSupported == 0) {
-				concurentThreadsSupported = 4;
+			auto concurent_threads_supported = std::thread::hardware_concurrency();
+			if (concurent_threads_supported == 0) {
+				concurent_threads_supported = 4;
 			}
-			utils::ThreadPool threadPool(concurentThreadsSupported);
+			utils::ThreadPool thread_pool(concurent_threads_supported);
 			std::vector<std::future<typename std::result_of<ProjectionFunction(Mat, size_t, int)>::type>> results; // will be float or Mat. I might remove float for the sake of code clarity, as it's only useful for very simple examples.
-			results.reserve(currentX.rows);
-			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
+			results.reserve(current_x.rows);
+			for (int sample_index = 0; sample_index < current_x.rows; ++sample_index) {
 				results.emplace_back(
-					threadPool.enqueue(projection, currentX.row(sampleIndex), regressorLevel, sampleIndex)
+					thread_pool.enqueue(projection, current_x.row(sample_index), regressor_level, sample_index)
 				);
 			}
 			// Gather the results from all threads and store the features:
@@ -179,33 +179,33 @@ public:
 				features.push_back(result.get());
 			}
 			// Set the observed values, depending on if a template y is used:
-			Mat observedValues;
+			Mat observed_values;
 			if (templates.empty()) { // unknown template training case
-				observedValues = features;
+				observed_values = features;
 			}
 			else { // known template
-				observedValues = features - templates;
+				observed_values = features - templates;
 			}
 			//Mat b = currentX - parameters; // currentX - x;
 			Mat b; // Todo: reserve() for speedup. Also below with x_k.
 			// Apply the normalisation strategy to each sample in b:
-			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
-				cv::Mat update_step = currentX.row(sampleIndex) - parameters.row(sampleIndex);
-				update_step = update_step.mul(normalisationStrategy(currentX.row(sampleIndex)));
+			for (int sample_index = 0; sample_index < current_x.rows; ++sample_index) {
+				cv::Mat update_step = current_x.row(sample_index) - parameters.row(sample_index);
+				update_step = update_step.mul(normalisation_strategy(current_x.row(sample_index)));
 				b.push_back(update_step);
 			}
 			// 2) Learn using that data:
-			regressors[regressorLevel].learn(observedValues, b);
+			regressors[regressor_level].learn(observed_values, b);
 			// 3) Apply the learned regressor and use the predictions to learn the next regressor in next loop iteration:
 			Mat x_k; // x_k = currentX - R * (h(currentX) - y):
-			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
+			for (int sample_index = 0; sample_index < current_x.rows; ++sample_index) {
 				// No need to re-extract the features, we already did so in step 1)
-				cv::Mat update_step = regressors[regressorLevel].predict(observedValues.row(sampleIndex));
-				update_step = update_step.mul(1 / normalisationStrategy(currentX.row(sampleIndex))); // Need to multiply the regressor prediction with the IED of the current prediction
-				x_k.push_back(Mat(currentX.row(sampleIndex) - update_step));
+				cv::Mat update_step = regressors[regressor_level].predict(observed_values.row(sample_index));
+				update_step = update_step.mul(1 / normalisation_strategy(current_x.row(sample_index))); // Need to multiply the regressor prediction with the IED of the current prediction
+				x_k.push_back(Mat(current_x.row(sample_index) - update_step));
 			}
-			currentX = x_k;
-			onTrainingEpochCallback(currentX);
+			current_x = x_k;
+			on_training_epoch_callback(current_x);
 		}
 	};
 
@@ -228,7 +228,7 @@ public:
 	template<class ProjectionFunction>
 	cv::Mat test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)
 	{
-		return test(initialisations, templates, projection, noEval);
+		return test(initialisations, templates, projection, no_eval);
 	};
 
 	/**
@@ -251,22 +251,22 @@ public:
 	 * @param[in] onRegressorIterationCallback A callback function that gets called after each applied regressor, with the current prediction result.
 	 */
 	template<class ProjectionFunction, class OnRegressorIterationCallback>
-	cv::Mat test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnRegressorIterationCallback onRegressorIterationCallback)
+	cv::Mat test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnRegressorIterationCallback on_regressor_iteration_callback)
 	{
 		using cv::Mat;
-		Mat currentX = initialisations;
-		for (size_t regressorLevel = 0; regressorLevel < regressors.size(); ++regressorLevel) {
+		Mat current_x = initialisations;
+		for (size_t regressor_level = 0; regressor_level < regressors.size(); ++regressor_level) {
 			// Enqueue all tasks in a thread pool:
-			auto concurentThreadsSupported = std::thread::hardware_concurrency();
-			if (concurentThreadsSupported == 0) {
-				concurentThreadsSupported = 4;
+			auto concurent_threads_supported = std::thread::hardware_concurrency();
+			if (concurent_threads_supported == 0) {
+				concurent_threads_supported = 4;
 			}
-			utils::ThreadPool threadPool(concurentThreadsSupported);
+			utils::ThreadPool thread_pool(concurent_threads_supported);
 			std::vector<std::future<typename std::result_of<ProjectionFunction(Mat, size_t, int)>::type>> results; // will be float or Mat. I might remove float for the sake of code clarity, as it's only useful for very simple examples.
-			results.reserve(currentX.rows);
-			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
+			results.reserve(current_x.rows);
+			for (int sample_index = 0; sample_index < current_x.rows; ++sample_index) {
 				results.emplace_back(
-					threadPool.enqueue(projection, currentX.row(sampleIndex), regressorLevel, sampleIndex)
+					thread_pool.enqueue(projection, current_x.row(sample_index), regressor_level, sample_index)
 					);
 			}
 			// Gather the results from all threads and store the features:
@@ -275,25 +275,25 @@ public:
 				features.push_back(result.get());
 			}
 
-			Mat observedValues;
+			Mat observed_values;
 			if (templates.empty()) { // unknown template training case
-				observedValues = features;
+				observed_values = features;
 			}
 			else { // known template
-				observedValues = features - templates;
+				observed_values = features - templates;
 			}
 			Mat x_k;
 			// Calculate x_k = currentX - R * (h(currentX) - y):
-			for (int sampleIndex = 0; sampleIndex < currentX.rows; ++sampleIndex) {
-				cv::Mat update_step = regressors[regressorLevel].predict(observedValues.row(sampleIndex));
-				update_step = update_step.mul(1 / normalisationStrategy(currentX.row(sampleIndex))); // Need to multiply the regressor prediction with the IED of the current prediction
-				x_k.push_back(Mat(currentX.row(sampleIndex) - update_step));
+			for (int sample_index = 0; sample_index < current_x.rows; ++sample_index) {
+				cv::Mat update_step = regressors[regressor_level].predict(observed_values.row(sample_index));
+				update_step = update_step.mul(1 / normalisation_strategy(current_x.row(sample_index))); // Need to multiply the regressor prediction with the IED of the current prediction
+				x_k.push_back(Mat(current_x.row(sample_index) - update_step));
 				//x_k.push_back(Mat(currentX.row(sampleIndex) - regressors[regressorLevel].predict(observedValues.row(sampleIndex)))); // we need Mat() because the subtraction yields a (non-persistent) MatExpr
 			}
-			currentX = x_k;
-			onRegressorIterationCallback(currentX);
+			current_x = x_k;
+			on_regressor_iteration_callback(current_x);
 		}
-		return currentX; // Return the final predictions
+		return current_x; // Return the final predictions
 	};
 
 	/**
@@ -315,23 +315,23 @@ public:
 	cv::Mat predict(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)
 	{
 		using cv::Mat;
-		Mat currentX = initialisations;
+		Mat current_x = initialisations;
 		for (size_t r = 0; r < regressors.size(); ++r) {
 			// calculate x_k = currentX - R * (h(currentX) - y):
-			Mat observedValues;
+			Mat observed_values;
 			if (templates.empty()) { // unknown template training case
-				observedValues = projection(currentX, r);
+				observed_values = projection(current_x, r);
 			}
 			else { // known template
-				observedValues = projection(currentX, r) - templates;
+				observed_values = projection(current_x, r) - templates;
 			}
-			cv::Mat update_step = regressors[r].predict(observedValues);
-			update_step = update_step.mul(1 / normalisationStrategy(currentX)); // Need to multiply the regressor prediction with the IED of the current prediction
-			Mat x_k = currentX - update_step;
+			cv::Mat update_step = regressors[r].predict(observed_values);
+			update_step = update_step.mul(1 / normalisation_strategy(current_x)); // Need to multiply the regressor prediction with the IED of the current prediction
+			Mat x_k = current_x - update_step;
 			//Mat x_k = currentX - regressors[r].predict(observedValues);
-			currentX = x_k;
+			current_x = x_k;
 		}
-		return currentX;
+		return current_x;
 	};
 
 	std::vector<cv::Mat> get_model()
@@ -345,7 +345,7 @@ public:
 
 private:
 	std::vector<RegressorType> regressors; ///< A series of learned regressors.
-	NormalisationStrategy normalisationStrategy; ///< Todo.
+	NormalisationStrategy normalisation_strategy; ///< Todo.
 
 	friend class cereal::access;
 	/**
@@ -356,7 +356,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& ar)
 	{
-		ar(regressors, normalisationStrategy);
+		ar(regressors, normalisation_strategy);
 	};
 };
 
