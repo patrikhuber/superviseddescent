@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 		}
 		po::notify(vm);
 	}
-	catch (po::error& e) {
+	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_SUCCESS;
@@ -96,14 +96,14 @@ int main(int argc, char *argv[])
 	try {
 		rcr_model = rcr::load_detection_model(modelfile.string());
 	}
-	catch (cereal::Exception& e) {
+	catch (const cereal::Exception& e) {
 		cout << "Error reading the RCR model " << modelfile << ": " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
 
 	// Load the face detector from OpenCV:
-	cv::CascadeClassifier faceCascade;
-	if (!faceCascade.load(facedetector.string()))
+	cv::CascadeClassifier face_cascade;
+	if (!face_cascade.load(facedetector.string()))
 	{
 		cout << "Error loading the face detector " << facedetector << "." << endl;
 		return EXIT_FAILURE;
@@ -112,11 +112,11 @@ int main(int argc, char *argv[])
 	cv::Mat image = cv::imread(inputimage.string());
 
 	// Run the face detector:
-	vector<cv::Rect> detectedFaces;
-	faceCascade.detectMultiScale(image, detectedFaces, 1.2, 2, 0, cv::Size(50, 50));
+	vector<cv::Rect> detected_faces;
+	face_cascade.detectMultiScale(image, detected_faces, 1.2, 2, 0, cv::Size(50, 50));
 	
 	// Detect the landmarks:
-	auto landmarks = rcr_model.detect(image, detectedFaces[0]);
+	auto landmarks = rcr_model.detect(image, detected_faces[0]);
 
 	rcr::draw_landmarks(image, landmarks);
 	cv::imwrite(outputfile.string(), image);
