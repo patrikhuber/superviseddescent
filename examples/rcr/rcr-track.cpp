@@ -22,7 +22,6 @@
 
 #include "eos_core_landmark.hpp"
 #include "eos_io_landmarks.hpp"
-#include "adaptive_vlhog.hpp"
 #include "helpers.hpp"
 #include "model.hpp"
 
@@ -81,10 +80,10 @@ int main(int argc, char *argv[])
 				"display the help message")
 			("facedetector,f", po::value<fs::path>(&facedetector)->required(),
 				"full path to OpenCV's face detector (haarcascade_frontalface_alt2.xml)")
-			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("data/rcr/face_landmarks_model_rcr_tracking_29.txt"),
+			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../data/rcr/face_landmarks_model_rcr_tracking_29.txt"),
 				"learned landmark detection model")
-			("image,i", po::value<fs::path>(&inputimage)->required()->default_value("data/ibug_lfpw_trainset/bla.png"),
-				"input video file")
+			("image,i", po::value<fs::path>(&inputimage),
+				"input video file. If not specified, the camera will be used.")
 			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out.png"),
 				"filename for the result image")
 			;
@@ -97,7 +96,7 @@ int main(int argc, char *argv[])
 		}
 		po::notify(vm);
 	}
-	catch (po::error& e) {
+	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_SUCCESS;
@@ -109,24 +108,32 @@ int main(int argc, char *argv[])
 	try {
 		rcr_model = rcr::load_detection_model(modelfile.string());
 	}
-	catch (cereal::Exception& e) {
-		cout << e.what() << endl;
+	catch (const cereal::Exception& e) {
+		cout << "Error reading the RCR model " << modelfile << ": " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
 	
 	// Load the face detector from OpenCV:
-	cv::CascadeClassifier faceCascade;
-	if (!faceCascade.load(facedetector.string()))
+	cv::CascadeClassifier face_cascade;
+	if (!face_cascade.load(facedetector.string()))
 	{
-		cout << "Error loading face detection model." << endl;
+		cout << "Error loading the face detector " << facedetector << "." << endl;
 		return EXIT_FAILURE;
 	}
 
-	cv::VideoCapture cap(0); // open the default camera
-	if (!cap.isOpened())  // check if we succeeded
+	cv::VideoCapture cap;
+	if (inputimage.empty()) {
+		cap.open(0); // no file given, open the default camera
+	}
+	else {
+		cap.open(inputimage.string());
+	}
+	if (!cap.isOpened()) {  // check if we succeeded
+		cout << "Couldn't open the given file or camera 0." << endl;
 		return EXIT_FAILURE;
+	}
 
-	cv::namedWindow("camera", 1);
+	cv::namedWindow("video", 1);
 	Mat image;
 	using namespace std::chrono;
 	time_point<system_clock> start, end;
@@ -141,19 +148,19 @@ int main(int argc, char *argv[])
 		if (!have_face) {
 			// Run the face detector and obtain the initial estimate using the mean landmarks:
 			start = system_clock::now();
-			vector<cv::Rect> detectedFaces;
-			faceCascade.detectMultiScale(image, detectedFaces, 1.2, 2, 0, cv::Size(50, 50));
+			vector<cv::Rect> detected_faces;
+			face_cascade.detectMultiScale(image, detected_faces, 1.2, 2, 0, cv::Size(50, 50));
 			end = system_clock::now();
 			auto t_fd = duration_cast<milliseconds>(end - start).count();
-			if (detectedFaces.empty()) {
-				cv::imshow("camera", image);
+			if (detected_faces.empty()) {
+				cv::imshow("video", image);
 				cv::waitKey(30);
 				continue;
 			}
-			cv::rectangle(image, detectedFaces[0], { 255, 0, 0 });
+			cv::rectangle(image, detected_faces[0], { 255, 0, 0 });
 			
 			start = system_clock::now();
-			auto landmarks = rcr_model.detect(image, detectedFaces[0]);
+			auto landmarks = rcr_model.detect(image, detected_faces[0]);
 			end = system_clock::now();
 			auto t_fit = duration_cast<milliseconds>(end - start).count();
 
@@ -174,7 +181,7 @@ int main(int argc, char *argv[])
 			// have some condition to set have_face = false
 		}
 
-		cv::imshow("camera", image);
+		cv::imshow("video", image);
 		if (cv::waitKey(30) >= 0) break;
 	}
 
