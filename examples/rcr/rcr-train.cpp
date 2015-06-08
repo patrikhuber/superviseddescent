@@ -128,8 +128,8 @@ cv::Mat load_mean(fs::path filename)
  * tx, ty are in percent of the total face box width/height.
  *
  * @param[in] facebox A facebox to align the model to.
- * @param[in] translationX Translation in x of the box.
- * @param[in] translationY Translation in y of the box.
+ * @param[in] translation_x Translation in x of the box.
+ * @param[in] translation_y Translation in y of the box.
  * @param[in] scaling Optional scale factor of the box.
  * @return A perturbed cv::Rect.
  */
