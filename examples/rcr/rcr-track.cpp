@@ -50,14 +50,14 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-cv::Rect get_enclosing_bbox(cv::Mat landmarks)
+template<class T = int>
+cv::Rect_<T> get_enclosing_bbox(cv::Mat landmarks)
 {
-	cv::Rect enclosing_bbox;
 	auto num_landmarks = landmarks.cols / 2;
 	double min_x_val, max_x_val, min_y_val, max_y_val;
 	cv::minMaxLoc(landmarks.colRange(0, num_landmarks), &min_x_val, &max_x_val);
 	cv::minMaxLoc(landmarks.colRange(num_landmarks, landmarks.cols), &min_y_val, &max_y_val);
-	return cv::Rect(min_x_val, min_y_val, max_x_val - min_x_val, max_y_val - min_y_val);
+	return cv::Rect_<T>(min_x_val, min_y_val, max_x_val - min_x_val, max_y_val - min_y_val);
 };
 
 /**
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 	time_point<system_clock> start, end;
 
 	bool have_face = false;
-	Mat current_landmarks;
+	eos::core::LandmarkCollection<cv::Vec2f> current_landmarks;
 
 	for (;;)
 	{
@@ -160,11 +160,10 @@ int main(int argc, char *argv[])
 			cv::rectangle(image, detected_faces[0], { 255, 0, 0 });
 			
 			start = system_clock::now();
-			auto landmarks = rcr_model.detect(image, detected_faces[0]);
+			current_landmarks = rcr_model.detect(image, detected_faces[0]);
 			end = system_clock::now();
 			auto t_fit = duration_cast<milliseconds>(end - start).count();
 
-			current_landmarks = rcr::to_row(landmarks);
 			rcr::draw_landmarks(image, current_landmarks);
 			//have_face = true;
 
