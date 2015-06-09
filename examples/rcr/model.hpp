@@ -51,25 +51,25 @@ namespace rcr {
  * Align and perturb should really be separate - separate things.
  *
  * @param[in] mean Mean model points.
- * @param[in] faceBox A facebox to align the model to.
- * @param[in] scalingX Optional scaling in x of the model.
- * @param[in] scalingY Optional scaling in y of the model.
- * @param[in] translationX Optional translation in x of the model.
- * @param[in] translationY Optional translation in y of the model.
+ * @param[in] facebox A facebox to align the model to.
+ * @param[in] scaling_x Optional scaling in x of the model.
+ * @param[in] scaling_y Optional scaling in y of the model.
+ * @param[in] translation_x Optional translation in x of the model.
+ * @param[in] translation_y Optional translation in y of the model.
  * @return A cv::Mat of the aligned points.
  */
-cv::Mat align_mean(cv::Mat mean, cv::Rect faceBox, float scalingX=1.0f, float scalingY=1.0f, float translationX=0.0f, float translationY=0.0f)
+cv::Mat align_mean(cv::Mat mean, cv::Rect facebox, float scaling_x=1.0f, float scaling_y=1.0f, float translation_x=0.0f, float translation_y=0.0f)
 {
 	using cv::Mat;
 	// Initial estimate x_0: Center the mean face at the [-0.5, 0.5] x [-0.5, 0.5] square (assuming the face-box is that square)
 	// More precise: Take the mean as it is (assume it is in a space [-0.5, 0.5] x [-0.5, 0.5]), and just place it in the face-box as
 	// if the box is [-0.5, 0.5] x [-0.5, 0.5]. (i.e. the mean coordinates get upscaled)
-	Mat alignedMean = mean.clone();
-	Mat alignedMeanX = alignedMean.colRange(0, alignedMean.cols / 2);
-	Mat alignedMeanY = alignedMean.colRange(alignedMean.cols / 2, alignedMean.cols);
-	alignedMeanX = (alignedMeanX*scalingX + 0.5f + translationX) * faceBox.width + faceBox.x;
-	alignedMeanY = (alignedMeanY*scalingY + 0.5f + translationY) * faceBox.height + faceBox.y;
-	return alignedMean;
+	Mat aligned_mean = mean.clone();
+	Mat aligned_mean_x = aligned_mean.colRange(0, aligned_mean.cols / 2);
+	Mat aligned_mean_y = aligned_mean.colRange(aligned_mean.cols / 2, aligned_mean.cols);
+	aligned_mean_x = (aligned_mean_x*scaling_x + 0.5f + translation_x) * facebox.width + facebox.x;
+	aligned_mean_y = (aligned_mean_y*scaling_y + 0.5f + translation_y) * facebox.height + facebox.y;
+	return aligned_mean;
 }
 
 // Adaptive RCRC SDM update test
@@ -116,6 +116,7 @@ public:
 	detection_model(model_type optimised_model, cv::Mat mean, std::vector<std::string> landmark_ids, std::vector<rcr::HoGParam> hog_params, std::vector<std::string> right_eye_ids, std::vector<std::string> left_eye_ids) : optimised_model(optimised_model), mean(mean), landmark_ids(landmark_ids), hog_params(hog_params), right_eye_ids(right_eye_ids), left_eye_ids(left_eye_ids)
 	{};
 
+	// Run the model from a fbox. i.e. init using the mean, then optimise.
 	eos::core::LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Rect facebox)
 	{
 		// Obtain the initial estimate using the mean landmarks:
@@ -127,6 +128,23 @@ public:
 		cv::Mat landmarks = optimised_model.predict(mean_initialisation, cv::Mat(), hog);
 
 		return to_landmark_collection(landmarks, landmark_ids);
+	};
+
+	// Run the model from landmark init, e.g. using the previous frame's lms. I.e. do not init from the mean. Directly optimise.
+	eos::core::LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Mat initialisation)
+	{
+		//rcr::drawLandmarks(image, initialisation, { 0, 0, 255 });
+
+		rcr::HogTransform hog({ image }, hog_params, landmark_ids, right_eye_ids, left_eye_ids);
+
+		cv::Mat landmarks = optimised_model.predict(initialisation, cv::Mat(), hog);
+
+		return to_landmark_collection(landmarks, landmark_ids);
+	};
+
+	cv::Mat get_mean()
+	{
+		return mean;
 	};
 
 private:
