@@ -407,9 +407,9 @@ int main(int argc, char *argv[])
 	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
 	
 	SupervisedDescentOptimiser<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervised_descent_model(regressors, rcr::InterEyeDistanceNormalisation(model_landmarks, right_eye_identifiers, left_eye_identifiers));
-	//SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>> supervisedDescentModel(regressors);
+	//SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>> supervised_descent_model(regressors);
 	
-	std::vector<rcr::HoGParam> hog_params{ { VlHogVariant::VlHogVariantUoctti, 5, 11, 4, 55 }, { VlHogVariant::VlHogVariantUoctti, 5, 10, 4, 50 }, { VlHogVariant::VlHogVariantUoctti, 5, 8, 4, 40 },{ VlHogVariant::VlHogVariantUoctti, 5, 6, 4, 30 } }; // 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/
+	std::vector<rcr::HoGParam> hog_params{ { VlHogVariant::VlHogVariantUoctti, 5, 11, 4, 1.0f },{ VlHogVariant::VlHogVariantUoctti, 5, 10, 4, 0.7f },{ VlHogVariant::VlHogVariantUoctti, 5, 8, 4, 0.4f },{ VlHogVariant::VlHogVariantUoctti, 5, 6, 4, 0.25f } }; // 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/
 	assert(hog_params.size() == regressors.size());
 	rcr::HogTransform hog(training_images, hog_params, model_landmarks, right_eye_identifiers, left_eye_identifiers);
 
