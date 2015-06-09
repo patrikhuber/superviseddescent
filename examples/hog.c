@@ -11,7 +11,7 @@
  the terms of the BSD license (see the COPYING file).
 */
 
-#include "hog.h"
+//#include "hog.h"
 //#include "mathop.h"
 #include <string.h>
 #include <assert.h>
@@ -174,7 +174,7 @@ image edges would be oriented at 90 degrees from these.
 VlHog * vl_hog_new (VlHogVariant variant, vl_size numOrientations, vl_bool transposed)
 {
   vl_index o, k ;
-  VlHog * self = calloc(1, sizeof(VlHog)) ;
+  VlHog * self = (VlHog*)calloc(1, sizeof(VlHog)) ;
 
   assert(numOrientations >= 1) ;
 
@@ -183,8 +183,8 @@ VlHog * vl_hog_new (VlHogVariant variant, vl_size numOrientations, vl_bool trans
   self->glyphSize = 21 ;
   self->transposed = transposed ;
   self->useBilinearOrientationAssigment = VL_FALSE ;
-  self->orientationX = malloc(sizeof(float) * self->numOrientations) ;
-  self->orientationY = malloc(sizeof(float) * self->numOrientations) ;
+  self->orientationX = (float*)malloc(sizeof(float) * self->numOrientations) ;
+  self->orientationY = (float*)malloc(sizeof(float) * self->numOrientations) ;
 
   /*
    Create a vector along the center of each orientation bin. These
@@ -230,7 +230,7 @@ VlHog * vl_hog_new (VlHogVariant variant, vl_size numOrientations, vl_bool trans
    and to itself for the undirected one).
    */
 
-  self->permutation = malloc(self->dimension * sizeof(vl_index)) ;
+  self->permutation = (vl_index*)malloc(self->dimension * sizeof(vl_index)) ;
   switch (self->variant) {
     case VlHogVariantUoctti:
       for(o = 0 ; o < (signed)self->numOrientations ; ++o) {
@@ -273,7 +273,7 @@ VlHog * vl_hog_new (VlHogVariant variant, vl_size numOrientations, vl_bool trans
    image edges. If the object is configured to work on transposed image,
    the glyphs images are also stored in column-major.
    */
-  self->glyphs = calloc(self->glyphSize * self->glyphSize * self->numOrientations, sizeof(float)) ;
+  self->glyphs = (float*)calloc(self->glyphSize * self->glyphSize * self->numOrientations, sizeof(float)) ;
 #define atglyph(x,y,k) self->glyphs[(x) + self->glyphSize * (y) + self->glyphSize * self->glyphSize * (k)]
   for (o = 0 ; o < (signed)self->numOrientations ; ++o) {
     double angle = fmod(o * VL_PI / self->numOrientations + VL_PI/2, VL_PI) ;
@@ -566,8 +566,8 @@ vl_hog_prepare_buffers (VlHog * self, vl_size width, vl_size height, vl_size cel
     self->hogNorm = NULL ;
   }
 
-  self->hog = calloc(hogWidth * hogHeight * self->numOrientations * 2, sizeof(float)) ;
-  self->hogNorm = calloc(hogWidth * hogHeight, sizeof(float)) ;
+  self->hog = (float*)calloc(hogWidth * hogHeight * self->numOrientations * 2, sizeof(float)) ;
+  self->hogNorm = (float*)calloc(hogWidth * hogHeight, sizeof(float)) ;
   self->hogWidth = hogWidth ;
   self->hogHeight = hogHeight ;
 }
@@ -1061,3 +1061,4 @@ vl_hog_extract (VlHog * self, float * features)
   } /* block normalization */
 }
 
+#undef at
