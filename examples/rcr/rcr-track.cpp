@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 			// Run the face detector and obtain the initial estimate using the mean landmarks:
 			start = system_clock::now();
 			vector<cv::Rect> detected_faces;
-			face_cascade.detectMultiScale(image, detected_faces, 1.2, 2, 0, cv::Size(50, 50));
+			face_cascade.detectMultiScale(image, detected_faces, 1.1, 3, 0, cv::Size(110, 110));
 			end = system_clock::now();
 			auto t_fd = duration_cast<milliseconds>(end - start).count();
 			if (detected_faces.empty()) {
@@ -165,18 +165,37 @@ int main(int argc, char *argv[])
 			auto t_fit = duration_cast<milliseconds>(end - start).count();
 
 			rcr::draw_landmarks(image, current_landmarks);
-			//have_face = true;
+			have_face = true;
 
 			cout << "FD:" << t_fd << "\tLM: " << t_fit << endl;
 		}
 		else {
 			// We already have a face. Do Zhenhua's magic:
 			// current_landmarks are the estimate from the last frame
-		/*	auto bbox = get_enclosing_bbox(current_landmarks);
-			float scaling_x = get_enclosing_bbox(rcr_model.model_mean).width;
-			float scaling_y = get_enclosing_bbox(rcr_model.model_mean).height;
-			rcr::alignMean(current_landmarks, bbox, scaling_x, scaling_y);
-		*/
+			rcr::draw_landmarks(image, current_landmarks, { 0, 0, 255 }); // red, from last frame
+			auto enclosing_bbox = get_enclosing_bbox(rcr::to_row(current_landmarks));
+			cv::rectangle(image, enclosing_bbox, { 0, 0, 255 });
+			// we need to make the enclosing bbox square again (or correct with 1/... in align_mean)
+			float make_bbox_square_factor = std::max(enclosing_bbox.width, enclosing_bbox.height) / static_cast<float>(std::min(enclosing_bbox.width, enclosing_bbox.height));
+			if (enclosing_bbox.width > enclosing_bbox.height) {
+				auto diff = enclosing_bbox.width - enclosing_bbox.height;
+				enclosing_bbox.y -= diff / 2.0f;
+				enclosing_bbox.height = enclosing_bbox.width;
+			}
+			else {
+				auto diff = enclosing_bbox.height - enclosing_bbox.width;
+				enclosing_bbox.x -= diff / 2.0f;
+				enclosing_bbox.width = enclosing_bbox.height;
+			}
+			cv::rectangle(image, enclosing_bbox, { 0, 127, 255 });
+			float width_of_mean = get_enclosing_bbox<float>(rcr_model.get_mean()).width;
+			float height_of_mean = get_enclosing_bbox<float>(rcr_model.get_mean()).height;
+			float scaling = 1 / std::max(width_of_mean, height_of_mean); // so the model will be scaled with constant aspect ratio
+			auto aligned_mean = rcr::align_mean(rcr_model.get_mean(), enclosing_bbox, scaling, scaling, 0.0f, -0.33f);
+			rcr::draw_landmarks(image, aligned_mean, { 255, 0, 0 }); // blue, mean init from enclosing_bbox
+
+			current_landmarks = rcr_model.detect(image, aligned_mean);
+			rcr::draw_landmarks(image, current_landmarks, { 0, 255, 0 }); // green, the new optimised landmarks
 			// have some condition to set have_face = false
 		}
 
