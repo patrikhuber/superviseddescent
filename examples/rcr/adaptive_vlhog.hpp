@@ -38,9 +38,10 @@ namespace rcr {
 
 struct HoGParam
 {
-	VlHogVariant vlHogVariant;
-	int numCells; int cellSize; int numBins; int resizeTo;
-	// note: alternatively, we could dynamically vary cellSize. Guess it works if the hog features are somehow normalised.
+	VlHogVariant vlhog_variant;
+	int num_cells; int cell_size; int num_bins;
+	float relative_patch_size; // the patch size we'd like in percent of the IED of the current image
+	// note: alternatively, we could dynamically vary cell_size. Guess it works if the hog features are somehow normalised.
 
 private:
 	friend class cereal::access;
@@ -52,7 +53,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& ar)
 	{
-		ar(vlHogVariant, numCells, cellSize, numBins, resizeTo);
+		ar(vlhog_variant, num_cells, cell_size, num_bins, relative_patch_size);
 	}
 };
 
@@ -114,8 +115,11 @@ public:
 			grayImage = images[trainingIndex];
 		}
 
-		//int patchWidthHalf = hog_params[regressorLevel].numCells * (hog_params[regressorLevel].cellSize / 2);
-		int patchWidthHalf = std::round(get_ied(to_landmark_collection(parameters, modelLandmarksList), rightEyeIdentifiers, leftEyeIdentifiers) / 3); // Could use the formula of Zhenhua here. Well I used it somewhere in the old code?
+		// This is in pixels in the original image:
+		int patch_width_half = std::round(hog_params[regressorLevel].relative_patch_size * get_ied(to_landmark_collection(parameters, modelLandmarksList), rightEyeIdentifiers, leftEyeIdentifiers) / 2); // Could use the formula of Zhenhua here, but we can use it in the app if desired
+
+		// Ideally, these two values should be similar. If the second is much bigger, it's probably of not much use (we just upscale the images for nothing)
+		//std::cout << "pw: " << patch_width_half * 2 << ", rs: " << hog_params[regressorLevel].num_cells * hog_params[regressorLevel].cell_size << std::endl;
 
 		Mat hogDescriptors; // We'll get the dimensions later from vl_hog_get_*
 
@@ -125,29 +129,30 @@ public:
 			int y = cvRound(parameters.at<float>(i + numLandmarks));
 
 			Mat roiImg;
-			if (x - patchWidthHalf < 0 || y - patchWidthHalf < 0 || x + patchWidthHalf >= grayImage.cols || y + patchWidthHalf >= grayImage.rows) {
+			if (x - patch_width_half < 0 || y - patch_width_half < 0 || x + patch_width_half >= grayImage.cols || y + patch_width_half >= grayImage.rows) {
 				// The feature extraction location is too far near a border. We extend the
 				// image (add a black canvas) and then extract from this larger image.
-				int borderLeft = (x - patchWidthHalf) < 0 ? std::abs(x - patchWidthHalf) : 0; // x and y are patch-centers
-				int borderTop = (y - patchWidthHalf) < 0 ? std::abs(y - patchWidthHalf) : 0;
-				int borderRight = (x + patchWidthHalf) >= grayImage.cols ? std::abs(grayImage.cols - (x + patchWidthHalf)) : 0;
-				int borderBottom = (y + patchWidthHalf) >= grayImage.rows ? std::abs(grayImage.rows - (y + patchWidthHalf)) : 0;
+				int borderLeft = (x - patch_width_half) < 0 ? std::abs(x - patch_width_half) : 0; // x and y are patch-centers
+				int borderTop = (y - patch_width_half) < 0 ? std::abs(y - patch_width_half) : 0;
+				int borderRight = (x + patch_width_half) >= grayImage.cols ? std::abs(grayImage.cols - (x + patch_width_half)) : 0;
+				int borderBottom = (y + patch_width_half) >= grayImage.rows ? std::abs(grayImage.rows - (y + patch_width_half)) : 0;
 				Mat extendedImage = grayImage.clone();
 				cv::copyMakeBorder(extendedImage, extendedImage, borderTop, borderBottom, borderLeft, borderRight, cv::BORDER_CONSTANT, cv::Scalar(0));
-				cv::Rect roi((x - patchWidthHalf) + borderLeft, (y - patchWidthHalf) + borderTop, patchWidthHalf * 2, patchWidthHalf * 2); // Rect: x y w h. x and y are top-left corner.
+				cv::Rect roi((x - patch_width_half) + borderLeft, (y - patch_width_half) + borderTop, patch_width_half * 2, patch_width_half * 2); // Rect: x y w h. x and y are top-left corner.
 				roiImg = extendedImage(roi).clone(); // clone because we need a continuous memory block
 			}
 			else {
-				cv::Rect roi(x - patchWidthHalf, y - patchWidthHalf, patchWidthHalf * 2, patchWidthHalf * 2); // x y w h. Rect: x and y are top-left corner. Our x and y are center. Convert.
+				cv::Rect roi(x - patch_width_half, y - patch_width_half, patch_width_half * 2, patch_width_half * 2); // x y w h. Rect: x and y are top-left corner. Our x and y are center. Convert.
 				roiImg = grayImage(roi).clone(); // clone because we need a continuous memory block
 			}
 
-			// new:
-			cv::resize(roiImg, roiImg, { hog_params[regressorLevel].resizeTo, hog_params[regressorLevel].resizeTo });
+			// This has to be the same for each image, so each image's HOG descriptor will have the same dimensions, independent of the image's resolution
+			int fixed_roi_size = hog_params[regressorLevel].num_cells * hog_params[regressorLevel].cell_size;
+			cv::resize(roiImg, roiImg, { fixed_roi_size, fixed_roi_size });
 
 			roiImg.convertTo(roiImg, CV_32FC1); // vl_hog_put_image expects a float* (values 0.0f-255.0f)
-			VlHog* hog = vl_hog_new(hog_params[regressorLevel].vlHogVariant, hog_params[regressorLevel].numBins, false); // transposed (=col-major) = false
-			vl_hog_put_image(hog, (float*)roiImg.data, roiImg.cols, roiImg.rows, 1, hog_params[regressorLevel].cellSize); // (the '1' is numChannels)
+			VlHog* hog = vl_hog_new(hog_params[regressorLevel].vlhog_variant, hog_params[regressorLevel].num_bins, false); // transposed (=col-major) = false
+			vl_hog_put_image(hog, (float*)roiImg.data, roiImg.cols, roiImg.rows, 1, hog_params[regressorLevel].cell_size); // (the '1' is numChannels)
 			int ww = static_cast<int>(vl_hog_get_width(hog)); // assert ww == hh == numCells
 			int hh = static_cast<int>(vl_hog_get_height(hog));
 			int dd = static_cast<int>(vl_hog_get_dimension(hog)); // assert ww=hogDim1, hh=hogDim2, dd=hogDim3
