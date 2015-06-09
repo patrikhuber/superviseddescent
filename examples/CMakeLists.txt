@@ -22,10 +22,10 @@ target_link_libraries(simple_function ${OpenCV_LIBS})
 # Landmark detection example:
 set(SOURCE
 	landmark_detection.cpp
-	hog.c
 )
 set(HEADERS
 	hog.h
+	#hog.c # used as a header, we don't want CMake to see it as a file it has to compile
 )	
 add_executable(landmark_detection ${SOURCE} ${HEADERS})
 target_link_libraries(landmark_detection ${OpenCV_LIBS} ${Boost_LIBRARIES})
