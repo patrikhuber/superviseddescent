@@ -1,9 +1,12 @@
+project(rcr)
+cmake_minimum_required(VERSION 2.8.12)
 # Todo: Set a VS folder. See CMake talk slides C++Now, hpx-guy
 
-# The examples need a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
+# The rcr app needs a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
 find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui objdetect)
 message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
+# This allows us to compile in RelWithDebInfo. It'll use the Release-version of OpenCV:
 set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 
 find_package(Boost 1.48.0 COMPONENTS system filesystem program_options REQUIRED)
@@ -15,33 +18,32 @@ endif()
 
 #include_directories(${superviseddescent_INCLUDE_DIR})
 #include_directories(${CEREAL_INCLUDE_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
 
 # Robust regression copse landmark detection
 
 # Standard training:
-# Note: We don't include ../hog.c in all the apps below because it's used as a header, we don't want CMake to see it as a file it has to compile.
-add_executable(rcr-train rcr-train.cpp ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
+add_executable(rcr-train rcr-train.cpp)
 target_link_libraries(rcr-train ${OpenCV_LIBS} ${Boost_LIBRARIES})
 target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:/openmp>") # adds /openmp on MSVC
-target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:GNU>:-fopenmp>") # same for gcc. clang doesn't parallelise Eigen's functions yet.
+target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:GNU>:-fopenmp>") # same for gcc. We should add it to clang too.
 
 # To train a model for tracking:
-add_executable(rcr-train-tracking rcr-train-tracking.cpp ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
+add_executable(rcr-train-tracking rcr-train-tracking.cpp)
 target_link_libraries(rcr-train-tracking ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 # Detect landmarks on an image:
-add_executable(rcr-detect rcr-detect.cpp ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
+add_executable(rcr-detect rcr-detect.cpp)
 target_link_libraries(rcr-detect ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 # Run landmark tracking on a video:
-add_executable(rcr-track rcr-track.cpp ../hog.h eos_core_landmark.hpp eos_io_landmarks.hpp adaptive_vlhog.hpp helpers.hpp model.hpp)
+add_executable(rcr-track rcr-track.cpp)
 target_link_libraries(rcr-track ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 # Install targets:
 install(TARGETS rcr-train DESTINATION bin)
 install(TARGETS rcr-train-tracking DESTINATION bin)
-
 install(TARGETS rcr-detect DESTINATION bin)
 install(TARGETS rcr-track DESTINATION bin)
 
-#install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/apps/rcr/data DESTINATION bin) # maybe install to ../share/data/rcr?

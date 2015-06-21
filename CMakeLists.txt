@@ -15,8 +15,10 @@ endif()
 message(STATUS "Options:")
 option(BUILD_TESTS "Builds the unit tests." ON)
 message(STATUS "BUILD_TESTS: ${BUILD_TESTS}")
-option(BUILD_EXAMPLES "Build the example applications." ON)
+option(BUILD_EXAMPLES "Build the example hello-world applications." ON)
 message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
+option(BUILD_APPS "Build the RCR landmark detection applications." ON)
+message(STATUS "BUILD_APPS: ${BUILD_APPS}")
 option(BUILD_DOCUMENTATION "Build the library documentation." ON)
 message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
 
@@ -48,6 +50,12 @@ set(HEADERS
 	include/superviseddescent/utils/mat_cerealisation.hpp
 	include/superviseddescent/utils/mat_serialization.hpp
 	include/superviseddescent/utils/ThreadPool.h
+	include/rcr/adaptive_vlhog.hpp
+	include/rcr/eos_core_landmark.hpp
+	include/rcr/eos_io_landmarks.hpp
+	include/rcr/helpers.hpp
+	include/rcr/model.hpp
+	include/rcr/hog.h # we don't add hog.c here because we don't want CMake to see it as a file it has to compile
 )
 
 # Add header includes:
@@ -74,6 +82,10 @@ endif()
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
+endif()
+
+if(BUILD_APPS)
+	add_subdirectory(apps/rcr)
 endif()
 
 if(BUILD_DOCUMENTATION)

@@ -1,5 +1,5 @@
 project(examples)
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 2.8.7)
 
 # The examples need a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
 find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui objdetect)
@@ -38,8 +38,6 @@ target_link_libraries(pose_estimation ${OpenCV_LIBS} ${Boost_LIBRARIES})
 install(TARGETS simple_function DESTINATION bin)
 
 install(TARGETS landmark_detection DESTINATION bin)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin) # maybe install to ../share/data/examples?
 
 install(TARGETS pose_estimation DESTINATION bin)
-
-add_subdirectory(rcr)

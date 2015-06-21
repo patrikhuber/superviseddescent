@@ -28,5 +28,6 @@
 # ==============================
 
 set(BUILD_TESTS ON CACHE BOOL "Builds the unit tests." FORCE)
-set(BUILD_EXAMPLES ON CACHE BOOL "Build the example applications." FORCE)
+set(BUILD_EXAMPLES ON CACHE BOOL "Build the example hello-world applications." FORCE)
+set(BUILD_APPS ON CACHE BOOL "Build the RCR landmark detection applications." FORCE)
 set(BUILD_DOCUMENTATION ON CACHE BOOL "Build the library documentation." FORCE)
