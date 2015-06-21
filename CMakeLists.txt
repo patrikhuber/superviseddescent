@@ -4,6 +4,8 @@ set(superviseddescent_VERSION_MAJOR 0)
 set(superviseddescent_VERSION_MINOR 3)
 set(superviseddescent_VERSION_PATCH 0)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # g++ needs a compiler flag to enable C++11 support
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)

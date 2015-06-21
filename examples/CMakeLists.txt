@@ -18,6 +18,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 # Simple example:
 add_executable(simple_function simple_function.cpp)
 target_link_libraries(simple_function ${OpenCV_LIBS})
+set_target_properties(simple_function PROPERTIES FOLDER "examples")
 
 # Landmark detection example:
 set(SOURCE
@@ -29,10 +30,12 @@ set(HEADERS
 )	
 add_executable(landmark_detection ${SOURCE} ${HEADERS})
 target_link_libraries(landmark_detection ${OpenCV_LIBS} ${Boost_LIBRARIES})
+set_target_properties(landmark_detection PROPERTIES FOLDER "examples")
 
 # Pose estimation example:
 add_executable(pose_estimation pose_estimation.cpp)
 target_link_libraries(pose_estimation ${OpenCV_LIBS} ${Boost_LIBRARIES})
+set_target_properties(pose_estimation PROPERTIES FOLDER "examples")
 
 # install target:
 install(TARGETS simple_function DESTINATION bin)

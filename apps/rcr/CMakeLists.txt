@@ -1,6 +1,5 @@
 project(rcr)
 cmake_minimum_required(VERSION 2.8.12)
-# Todo: Set a VS folder. See CMake talk slides C++Now, hpx-guy
 
 # The rcr app needs a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
 find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui objdetect)
@@ -25,20 +24,24 @@ include_directories(${Boost_INCLUDE_DIRS})
 # Standard training:
 add_executable(rcr-train rcr-train.cpp)
 target_link_libraries(rcr-train ${OpenCV_LIBS} ${Boost_LIBRARIES})
+set_target_properties(rcr-train PROPERTIES FOLDER "apps/rcr")
 target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:/openmp>") # adds /openmp on MSVC
 target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:GNU>:-fopenmp>") # same for gcc. We should add it to clang too.
 
 # To train a model for tracking:
 add_executable(rcr-train-tracking rcr-train-tracking.cpp)
 target_link_libraries(rcr-train-tracking ${OpenCV_LIBS} ${Boost_LIBRARIES})
+set_target_properties(rcr-train-tracking PROPERTIES FOLDER "apps/rcr")
 
 # Detect landmarks on an image:
 add_executable(rcr-detect rcr-detect.cpp)
 target_link_libraries(rcr-detect ${OpenCV_LIBS} ${Boost_LIBRARIES})
+set_target_properties(rcr-detect PROPERTIES FOLDER "apps/rcr")
 
 # Run landmark tracking on a video:
 add_executable(rcr-track rcr-track.cpp)
 target_link_libraries(rcr-track ${OpenCV_LIBS} ${Boost_LIBRARIES})
+set_target_properties(rcr-track PROPERTIES FOLDER "apps/rcr")
 
 # Install targets:
 install(TARGETS rcr-train DESTINATION bin)
