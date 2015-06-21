@@ -79,7 +79,7 @@ if(BUILD_TESTS)
 	enable_testing() # Enables CTest
 	add_custom_target(check-dbg COMMAND ${CMAKE_CTEST_COMMAND} -V -C Debug) # to get detailed output on VS
 	add_custom_target(check-rel COMMAND ${CMAKE_CTEST_COMMAND} -V -C Release)
-	add_subdirectory(test)
+	add_subdirectory(tests)
 endif()
 
 if(BUILD_EXAMPLES)
