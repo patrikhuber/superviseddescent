@@ -23,7 +23,7 @@
 #define ADAPTIVE_VLHOG_HPP_
 
 extern "C" {
-	#include "../hog.h" // From the VLFeat C library
+	#include "hog.h" // From the VLFeat C library
 }
 
 #include "helpers.hpp"

@@ -20,10 +20,10 @@
 #include "superviseddescent/superviseddescent.hpp"
 #include "superviseddescent/regressors.hpp"
 
-#include "eos_core_landmark.hpp"
-#include "eos_io_landmarks.hpp"
-#include "helpers.hpp"
-#include "model.hpp"
+#include "rcr/eos_core_landmark.hpp"
+#include "rcr/eos_io_landmarks.hpp"
+#include "rcr/helpers.hpp"
+#include "rcr/model.hpp"
 
 #include "cereal/cereal.hpp"
 
