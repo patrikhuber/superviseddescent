@@ -144,6 +144,12 @@ int main(int argc, char *argv[])
 	for (;;)
 	{
 		cap >> image; // get a new frame from camera
+
+		// We do a quick check if the current face's width is <= 50 pixel. If it is, we re-initialise the tracking with the face detector.
+		if (have_face && get_enclosing_bbox(rcr::to_row(current_landmarks)).width <= 50) {
+			cout << "Reinit" << endl;
+			have_face = false;
+		}
 		
 		if (!have_face) {
 			// Run the face detector and obtain the initial estimate using the mean landmarks:
