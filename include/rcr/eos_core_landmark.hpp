@@ -1,7 +1,7 @@
 /*
  * superviseddescent: A C++11 implementation of the supervised descent
  *                    optimisation method
- * File: examples/rcr/eos_core_landmark.hpp
+ * File: rcr/eos_core_landmark.hpp
  *
  * Copyright 2015 Patrik Huber
  *

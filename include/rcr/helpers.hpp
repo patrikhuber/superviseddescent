@@ -1,7 +1,7 @@
 /*
  * superviseddescent: A C++11 implementation of the supervised descent
  *                    optimisation method
- * File: examples/rcr/helpers.hpp
+ * File: rcr/helpers.hpp
  *
  * Copyright 2015 Patrik Huber
  *

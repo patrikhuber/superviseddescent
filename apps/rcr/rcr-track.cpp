@@ -1,7 +1,7 @@
 /*
  * superviseddescent: A C++11 implementation of the supervised descent
  *                    optimisation method
- * File: examples/rcr/rcr-track.cpp
+ * File: apps/rcr/rcr-track.cpp
  *
  * Copyright 2015 Patrik Huber
  *

@@ -1,7 +1,7 @@
 /*
  * superviseddescent: A C++11 implementation of the supervised descent
  *                    optimisation method
- * File: examples/rcr/adaptive_vlhog.hpp
+ * File: rcr/adaptive_vlhog.hpp
  *
  * Copyright 2015 Patrik Huber
  *

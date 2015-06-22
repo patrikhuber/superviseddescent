@@ -1,7 +1,7 @@
 /*
  * superviseddescent: A C++11 implementation of the supervised descent
  *                    optimisation method
- * File: examples/rcr/model.hpp
+ * File: rcr/model.hpp
  *
  * Copyright 2015 Patrik Huber
  *
@@ -186,7 +186,6 @@ void save_detection_model(detection_model model, std::string filename)
 	cereal::BinaryOutputArchive output_archive(file);
 	output_archive(model);
 };
-
 
 } /* namespace rcr */
 
