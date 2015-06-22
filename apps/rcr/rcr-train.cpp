@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
 			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("model.txt"),
 				"model output filename")
 			("test-data,t", po::value<fs::path>(&testset)->required(),
-				"path to ibug LFPW text images and landmarks")
+				"path to ibug LFPW test images and landmarks")
 			;
 		po::variables_map vm;
 		po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
