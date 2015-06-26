@@ -22,7 +22,7 @@
 #ifndef LANDMARKS_IO_HPP_
 #define LANDMARKS_IO_HPP_
 
-#include "eos_core_landmark.hpp"
+#include "landmark.hpp"
 
 #include "opencv2/core/core.hpp"
 

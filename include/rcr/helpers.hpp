@@ -22,7 +22,7 @@
 #ifndef HELPERS_HPP_
 #define HELPERS_HPP_
 
-#include "eos_core_landmark.hpp"
+#include "landmark.hpp"
 
 #include "opencv2/core/core.hpp"
 

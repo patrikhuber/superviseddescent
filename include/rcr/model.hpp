@@ -24,7 +24,7 @@
 
 #include "helpers.hpp"
 #include "adaptive_vlhog.hpp"
-#include "eos_core_landmark.hpp"
+#include "landmark.hpp"
 
 #include "cereal/cereal.hpp"
 #include "cereal/types/string.hpp"
