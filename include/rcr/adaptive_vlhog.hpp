@@ -77,6 +77,8 @@ public:
 	 * Note: \p images can consist of only 1 image, when using the model for
 	 * prediction on new images.
 	 *
+	 * Do not call with \p images that are temporaries!
+	 *
 	 * Note: Only VlHogVariantUoctti is tested.
 	 *
 	 * @param[in] images A vector of images used for training or testing.
@@ -85,7 +87,7 @@ public:
 	 * @param[in] cellSize Width of one HoG cell in pixels.
 	 * @param[in] numBins Number of orientations of a HoG cell.
 	 */
-	HogTransform(std::vector<cv::Mat> images, std::vector<HoGParam> hog_params, std::vector<std::string> modelLandmarksList, std::vector<std::string> rightEyeIdentifiers, std::vector<std::string> leftEyeIdentifiers) : images(images), hog_params(hog_params), modelLandmarksList(modelLandmarksList), rightEyeIdentifiers(rightEyeIdentifiers), leftEyeIdentifiers(leftEyeIdentifiers)
+	HogTransform(const std::vector<cv::Mat>& images, std::vector<HoGParam> hog_params, std::vector<std::string> modelLandmarksList, std::vector<std::string> rightEyeIdentifiers, std::vector<std::string> leftEyeIdentifiers) : images(images), hog_params(hog_params), modelLandmarksList(modelLandmarksList), rightEyeIdentifiers(rightEyeIdentifiers), leftEyeIdentifiers(leftEyeIdentifiers)
 	{
 	};
 
@@ -181,7 +183,7 @@ public:
 	};
 
 private:
-	std::vector<cv::Mat> images;
+	const std::vector<cv::Mat>& images; // We store a reference so that each thread that gets spawned doesn't create a copy of this vector. An alternative might be to rethink the design and not store all images here.
 	std::vector<HoGParam> hog_params;
 
 	// For the IED normalisation / adaptive part:

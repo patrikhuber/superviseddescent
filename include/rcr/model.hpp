@@ -123,7 +123,8 @@ public:
 		cv::Mat mean_initialisation = rcr::align_mean(mean, facebox);
 		//rcr::drawLandmarks(image, mean_initialisation, { 0, 0, 255 });
 
-		rcr::HogTransform hog({ image }, hog_params, landmark_ids, right_eye_ids, left_eye_ids);
+		std::vector<cv::Mat> images{ image }; // we can't pass a temporary anymore to HogTransform
+		rcr::HogTransform hog(images, hog_params, landmark_ids, right_eye_ids, left_eye_ids);
 
 		cv::Mat landmarks = optimised_model.predict(mean_initialisation, cv::Mat(), hog);
 
@@ -135,7 +136,8 @@ public:
 	{
 		//rcr::drawLandmarks(image, initialisation, { 0, 0, 255 });
 
-		rcr::HogTransform hog({ image }, hog_params, landmark_ids, right_eye_ids, left_eye_ids);
+		std::vector<cv::Mat> images{ image };
+		rcr::HogTransform hog(images, hog_params, landmark_ids, right_eye_ids, left_eye_ids);
 
 		cv::Mat landmarks = optimised_model.predict(initialisation, cv::Mat(), hog);
 
