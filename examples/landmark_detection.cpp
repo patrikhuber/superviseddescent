@@ -103,7 +103,8 @@ vector<Vec2f> read_pts_landmarks(std::string filename)
 // Loads images and their corresponding landmarks from .pts files into memory
 /**
  * Loads all .png images and their corresponding .pts landmarks from the given
- * directory and returns them. 
+ * directory and returns them. For the sake of a simple example, the landmarks
+ * are filtered and only 5 of the 68 landmarks are kept.
  *
  * @param[in] directory A directory with .png images and ibug .pts files.
  * @return A pair with the loaded images and their landmarks (all in one cv::Mat).
@@ -129,12 +130,22 @@ std::pair<vector<Mat>, Mat> load_ibug_data(fs::path directory)
 		// We load the landmarks and convert them into [x_0, ..., x_n, y_0, ..., y_n] format:
 		file.replace_extension(".pts");
 		auto lms = read_pts_landmarks(file.string());
-		int num_landmarks = static_cast<int>(lms.size());
+		int num_landmarks = 5;
 		Mat landmarks_as_row(1, 2 * num_landmarks, CV_32FC1);
-		for (int i = 0; i < num_landmarks; ++i) {
-			landmarks_as_row.at<float>(i) = lms[i][0]; // the x coordinate
-			landmarks_as_row.at<float>(i + num_landmarks) = lms[i][1]; // y coordinate
-		}
+
+		// Store the landmarks 31, 37, 46, 49 and 55 for training:
+		// (we subtract 1 because std::vector's indexing starts at 0, ibug starts at 1)
+		landmarks_as_row.at<float>(0) = lms[30][0]; // the x coordinate
+		landmarks_as_row.at<float>(0 + num_landmarks) = lms[30][1]; // y coordinate
+		landmarks_as_row.at<float>(1) = lms[36][0];
+		landmarks_as_row.at<float>(1 + num_landmarks) = lms[36][1];
+		landmarks_as_row.at<float>(2) = lms[45][0];
+		landmarks_as_row.at<float>(2 + num_landmarks) = lms[45][1];
+		landmarks_as_row.at<float>(3) = lms[48][0];
+		landmarks_as_row.at<float>(3 + num_landmarks) = lms[48][1];
+		landmarks_as_row.at<float>(4) = lms[54][0];
+		landmarks_as_row.at<float>(4 + num_landmarks) = lms[54][1];
+	
 		landmarks.push_back(landmarks_as_row);
 	}
 	return std::make_pair(images, landmarks);
@@ -280,11 +291,23 @@ cv::Mat load_mean(fs::path filename)
 	vector<string> values;
 	boost::split(values, line, boost::is_any_of(","));
 
-	int twice_num_landmarks = static_cast<int>(values.size());
-	Mat mean(1, twice_num_landmarks, CV_32FC1);
-	for (int i = 0; i < twice_num_landmarks; ++i) {
-		mean.at<float>(i) = std::stof(values[i]);
-	}
+	//int twice_num_landmarks = static_cast<int>(values.size());
+	int num_landmarks = 5;
+	Mat mean(1, 2 * num_landmarks, CV_32FC1);
+
+	// For the sake of a brief example, we only use the
+	// landmarks 31, 37, 46, 49 and 55 for training:
+	// (we subtract 1 because std::vector's indexing starts at 0, ibug starts at 1)
+	mean.at<float>(0) = std::stof(values[30]); // the x coordinates
+	mean.at<float>(1) = std::stof(values[36]);
+	mean.at<float>(2) = std::stof(values[45]);
+	mean.at<float>(3) = std::stof(values[48]);
+	mean.at<float>(4) = std::stof(values[54]);
+	mean.at<float>(5) = std::stof(values[30 + 68]); // y coordinates
+	mean.at<float>(6) = std::stof(values[36 + 68]);
+	mean.at<float>(7) = std::stof(values[45 + 68]);
+	mean.at<float>(8) = std::stof(values[48 + 68]);
+	mean.at<float>(9) = std::stof(values[54 + 68]);
 
 	return mean;
 };
@@ -412,9 +435,9 @@ int main(int argc, char *argv[])
 
 	// Create 3 regularised linear regressors in series:
 	vector<LinearRegressor<>> regressors;
-	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
-	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
-	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
+	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 0.1f, true)));
+	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 0.1f, true)));
+	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 0.1f, true)));
 	
 	SupervisedDescentOptimiser<LinearRegressor<>> supervised_descent_model(regressors);
 	
@@ -423,6 +446,7 @@ int main(int argc, char *argv[])
 	// Train the model. We'll also specify an optional callback function:
 	cout << "Training the model, printing the residual after each learned regressor: " << endl;
 	auto print_residual = [&training_landmarks](const cv::Mat& current_predictions) {
+		cout << "Current training residual: ";
 		cout << cv::norm(current_predictions, training_landmarks, cv::NORM_L2) / cv::norm(training_landmarks, cv::NORM_L2) << endl;
 	};
 	
@@ -441,11 +465,12 @@ int main(int argc, char *argv[])
 	face_cascade.detectMultiScale(image, detected_faces, 1.2, 2, 0, cv::Size(50, 50));
 	Mat initial_alignment = align_mean(model_mean, cv::Rect(detected_faces[0]));
 	Mat prediction = supervised_descent_model.predict(initial_alignment, Mat(), HogTransform({ image }, VlHogVariant::VlHogVariantUoctti, 3, 12, 4));
-	draw_landmarks(image, prediction, { 0, 255, 255 });
+	draw_landmarks(image, prediction, { 0, 0, 255 });
 	cv::imwrite("out.png", image);
+	cout << "Ran the trained model on an image and saved the result to out.png." << endl;
 
 	// Save the learned model:
-	std::ofstream learned_model_file("landmark_regressor_ibug_68lms.txt", std::ios::binary);
+	std::ofstream learned_model_file("landmark_regressor_ibug_5lms.bin", std::ios::binary);
 	cereal::BinaryOutputArchive output_archive(learned_model_file);
 	output_archive(supervised_descent_model);
 
