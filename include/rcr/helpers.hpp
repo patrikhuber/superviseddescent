@@ -42,7 +42,7 @@ namespace rcr {
  * @param[in] landmarks The landmarks to convert to a cv::Mat row.
  * @return A cv::Mat with one row consisting of the given landmarks.
  */
-cv::Mat to_row(eos::core::LandmarkCollection<cv::Vec2f> landmarks)
+cv::Mat to_row(LandmarkCollection<cv::Vec2f> landmarks)
 {
 	// landmarks.size() must be <= max_int
 	auto num_landmarks = static_cast<int>(landmarks.size());
@@ -63,13 +63,13 @@ cv::Mat to_row(eos::core::LandmarkCollection<cv::Vec2f> landmarks)
  * @param[in] model_instance A row of 2D landmarks (e.g. an instance of a model).
  * @return A LandmarkCollection with the landmarks and their names.
  */
-eos::core::LandmarkCollection<cv::Vec2f> to_landmark_collection(cv::Mat model_instance, std::vector<std::string> model_landmarks_list)
+LandmarkCollection<cv::Vec2f> to_landmark_collection(cv::Mat model_instance, std::vector<std::string> model_landmarks_list)
 {
-	eos::core::LandmarkCollection<cv::Vec2f> collection;
+	LandmarkCollection<cv::Vec2f> collection;
 	auto num_landmarks = model_instance.cols / 2;
 	assert(num_landmarks == model_landmarks_list.size()); // shouldn't be an assert, not a programming/internal error.
 	for (int i = 0; i < num_landmarks; ++i) {
-		collection.emplace_back(eos::core::Landmark<cv::Vec2f>{ model_landmarks_list[i], cv::Vec2f{ model_instance.at<float>(i), model_instance.at<float>(i + num_landmarks) } });
+		collection.emplace_back(Landmark<cv::Vec2f>{ model_landmarks_list[i], cv::Vec2f{ model_instance.at<float>(i), model_instance.at<float>(i + num_landmarks) } });
 	}
 	return collection;
 }
@@ -96,14 +96,14 @@ void draw_landmarks(cv::Mat image, cv::Mat landmarks, cv::Scalar color = cv::Sca
  * @param[in] landmarks The landmarks to draw.
  * @param[in] color Color of the landmarks to be drawn.
  */
-void draw_landmarks(cv::Mat image, eos::core::LandmarkCollection<cv::Vec2f> landmarks, cv::Scalar color = cv::Scalar(0.0, 255.0, 0.0))
+void draw_landmarks(cv::Mat image, LandmarkCollection<cv::Vec2f> landmarks, cv::Scalar color = cv::Scalar(0.0, 255.0, 0.0))
 {
 	draw_landmarks(image, to_row(landmarks), color);
 }
 
 // checks overlap...
 // Possible better names: check_equal, check_is_true_positive, overlap...
-bool check_face(std::vector<cv::Rect> detected_faces, eos::core::LandmarkCollection<cv::Vec2f> groundtruth_landmarks)
+bool check_face(std::vector<cv::Rect> detected_faces, LandmarkCollection<cv::Vec2f> groundtruth_landmarks)
 {
 	// If no face is detected, return immediately:
 	if (detected_faces.empty()) {
@@ -133,14 +133,14 @@ bool check_face(std::vector<cv::Rect> detected_faces, eos::core::LandmarkCollect
 // Calculate the IED from one or several identifiers.
 // Several is necessary because sometimes (e.g. ibug) doesn't define the eye center.
 // throws if any of given ids not present in lms. => Todo: Think about if we should throw or use optional<>.
-double get_ied(eos::core::LandmarkCollection<cv::Vec2f> lms, std::vector<std::string> right_eye_identifiers, std::vector<std::string> left_eye_identifiers)
+double get_ied(LandmarkCollection<cv::Vec2f> lms, std::vector<std::string> right_eye_identifiers, std::vector<std::string> left_eye_identifiers)
 {
 	// Calculate the inter-eye distance. Which landmarks to take for that is specified in the config, it
 	// might be one or two, and we calculate the average of them (per eye). For example, it might be the outer eye-corners.
 	cv::Vec2f right_eye_center(0.0f, 0.0f);
 	for (const auto& right_eye_identifyer : right_eye_identifiers) {
-		eos::core::LandmarkCollection<cv::Vec2f>::const_iterator element;
-		if ((element = std::find_if(begin(lms), end(lms), [&right_eye_identifyer](const eos::core::Landmark<cv::Vec2f>& landmark) { return landmark.name == right_eye_identifyer; })) == end(lms)) {
+		LandmarkCollection<cv::Vec2f>::const_iterator element;
+		if ((element = std::find_if(begin(lms), end(lms), [&right_eye_identifyer](const Landmark<cv::Vec2f>& landmark) { return landmark.name == right_eye_identifyer; })) == end(lms)) {
 			throw std::runtime_error("one of given rightEyeIdentifiers ids not present in lms");
 		}
 		right_eye_center += element->coordinates;
@@ -148,8 +148,8 @@ double get_ied(eos::core::LandmarkCollection<cv::Vec2f> lms, std::vector<std::st
 	right_eye_center /= static_cast<float>(right_eye_identifiers.size());
 	cv::Vec2f left_eye_center(0.0f, 0.0f);
 	for (const auto& leftEyeIdentifyer : left_eye_identifiers) {
-		eos::core::LandmarkCollection<cv::Vec2f>::const_iterator element;
-		if ((element = std::find_if(begin(lms), end(lms), [&leftEyeIdentifyer](const eos::core::Landmark<cv::Vec2f>& landmark) { return landmark.name == leftEyeIdentifyer; })) == end(lms)) {
+		LandmarkCollection<cv::Vec2f>::const_iterator element;
+		if ((element = std::find_if(begin(lms), end(lms), [&leftEyeIdentifyer](const Landmark<cv::Vec2f>& landmark) { return landmark.name == leftEyeIdentifyer; })) == end(lms)) {
 			throw std::runtime_error("one of given leftEyeIdentifiers ids not present in lms");
 		}
 		left_eye_center += element->coordinates;

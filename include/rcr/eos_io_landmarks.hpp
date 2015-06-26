@@ -1,7 +1,7 @@
 /*
  * superviseddescent: A C++11 implementation of the supervised descent
  *                    optimisation method
- * File: rcr/eos_io_landmarks_cvssp.hpp
+ * File: rcr/landmarks_io.hpp
  *
  * Copyright 2015 Patrik Huber
  *
@@ -19,20 +19,19 @@
  */
 #pragma once
 
-#ifndef IO_LANDMARKS_HPP_
-#define IO_LANDMARKS_HPP_
+#ifndef LANDMARKS_IO_HPP_
+#define LANDMARKS_IO_HPP_
 
 #include "eos_core_landmark.hpp"
 
 #include "opencv2/core/core.hpp"
 
-#include "boost/algorithm/string.hpp"
+//#include "boost/algorithm/string.hpp"
 
 #include <string>
 #include <fstream>
 
-namespace eos {
-	namespace io {
+namespace rcr {
 
 /**
  * Reads an ibug .pts landmark file and returns an ordered vector with
@@ -41,13 +40,11 @@ namespace eos {
  * @param[in] filename Path to a .pts file.
  * @return An ordered vector with the 68 ibug landmarks.
  */
-core::LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
+LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
 {
 	using std::getline;
 	using cv::Vec2f;
 	using std::string;
-	using core::Landmark;
-	using core::LandmarkCollection;
 	LandmarkCollection<Vec2f> landmarks;
 	landmarks.reserve(68);
 
@@ -87,7 +84,6 @@ core::LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
 	return landmarks;
 };
 
-	} /* namespace io */
-} /* namespace eos */
+} /* namespace rcr */
 
-#endif /* IO_LANDMARKS_HPP_ */
+#endif /* LANDMARKS_IO_HPP_ */

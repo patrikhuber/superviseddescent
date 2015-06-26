@@ -117,7 +117,7 @@ public:
 	{};
 
 	// Run the model from a fbox. i.e. init using the mean, then optimise.
-	eos::core::LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Rect facebox)
+	LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Rect facebox)
 	{
 		// Obtain the initial estimate using the mean landmarks:
 		cv::Mat mean_initialisation = rcr::align_mean(mean, facebox);
@@ -132,7 +132,7 @@ public:
 	};
 
 	// Run the model from landmark init, e.g. using the previous frame's lms. I.e. do not init from the mean. Directly optimise.
-	eos::core::LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Mat initialisation)
+	LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Mat initialisation)
 	{
 		//rcr::drawLandmarks(image, initialisation, { 0, 0, 255 });
 

@@ -68,10 +68,10 @@ using std::size_t;
  * @param[in] directory A directory with .png images and ibug .pts files.
  * @return A pair with the loaded images and their landmarks (all in one cv::Mat TODO update).
  */
-std::pair<vector<Mat>, vector<eos::core::LandmarkCollection<Vec2f>>> loadIbugData(fs::path directory)
+std::pair<vector<Mat>, vector<rcr::LandmarkCollection<Vec2f>>> loadIbugData(fs::path directory)
 {
 	vector<Mat> images;
-	vector<eos::core::LandmarkCollection<Vec2f>> landmarks;
+	vector<rcr::LandmarkCollection<Vec2f>> landmarks;
 
 	// Get all the filenames in the given directory:
 	vector<fs::path> imageFilenames;
@@ -88,7 +88,7 @@ std::pair<vector<Mat>, vector<eos::core::LandmarkCollection<Vec2f>>> loadIbugDat
 		images.emplace_back(cv::imread(file.string()));
 		// We load the landmarks and convert them into [x_0, ..., x_n, y_0, ..., y_n] format:
 		file.replace_extension(".pts");
-		auto lms = eos::io::read_pts_landmarks(file.string());
+		auto lms = rcr::read_pts_landmarks(file.string());
 		landmarks.emplace_back(lms);
 	}
 	return std::make_pair(images, landmarks);
@@ -154,12 +154,12 @@ cv::Rect perturb(cv::Rect facebox, float translationX, float translationY, float
 // Error evaluation (average pixel distance (L2 norm) of all LMs, normalised by IED):
 // could make C++14 generic lambda, or templated function. Requires: cv::norm can handle the given T.
 // Todo Rename to "lm1, lm2" or similar.
-double norm(const eos::core::Landmark<Vec2f>& prediction, const eos::core::Landmark<Vec2f>& groundtruth)
+double norm(const rcr::Landmark<Vec2f>& prediction, const rcr::Landmark<Vec2f>& groundtruth)
 {
 	return cv::norm(prediction.coordinates, groundtruth.coordinates, cv::NORM_L2);
 };
 
-Mat elementwiseNorm(const eos::core::LandmarkCollection<Vec2f>& prediction, const eos::core::LandmarkCollection<Vec2f>& groundtruth)
+Mat elementwiseNorm(const rcr::LandmarkCollection<Vec2f>& prediction, const rcr::LandmarkCollection<Vec2f>& groundtruth)
 {
 	assert(prediction.size() == groundtruth.size());
 	Mat result(1, prediction.size(), CV_32FC1); // a row with each entry a norm...

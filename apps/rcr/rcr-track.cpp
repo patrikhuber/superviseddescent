@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 	time_point<system_clock> start, end;
 
 	bool have_face = false;
-	eos::core::LandmarkCollection<cv::Vec2f> current_landmarks;
+	rcr::LandmarkCollection<cv::Vec2f> current_landmarks;
 
 	for (;;)
 	{

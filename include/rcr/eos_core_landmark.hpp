@@ -1,7 +1,7 @@
 /*
  * superviseddescent: A C++11 implementation of the supervised descent
  *                    optimisation method
- * File: rcr/eos_core_landmark.hpp
+ * File: rcr/landmark.hpp
  *
  * Copyright 2015 Patrik Huber
  *
@@ -19,14 +19,13 @@
  */
 #pragma once
 
-#ifndef LANDMARKS_HPP_
-#define LANDMARKS_HPP_
+#ifndef LANDMARK_HPP_
+#define LANDMARK_HPP_
 
 #include <string>
 #include <vector>
 
-namespace eos {
-	namespace core {
+namespace rcr {
 
 /**
  * Representation of a landmark, consisting of a landmark name and
@@ -64,7 +63,6 @@ LandmarkCollection<T> filter(const LandmarkCollection<T>& landmarks, const std::
 	return filtered_landmarks;
 };
 
-	} /* namespace core */
-} /* namespace eos */
+} /* namespace rcr */
 
-#endif /* LANDMARKS_HPP_ */
+#endif /* LANDMARK_HPP_ */

@@ -68,10 +68,10 @@ using std::size_t;
  * @param[in] directory A directory with .png images and ibug .pts files.
  * @return A pair with the loaded images and their landmarks (all in one cv::Mat TODO update).
  */
-std::pair<vector<Mat>, vector<eos::core::LandmarkCollection<Vec2f>>> load_ibug_data(fs::path directory)
+std::pair<vector<Mat>, vector<rcr::LandmarkCollection<Vec2f>>> load_ibug_data(fs::path directory)
 {
 	vector<Mat> images;
-	vector<eos::core::LandmarkCollection<Vec2f>> landmarks;
+	vector<rcr::LandmarkCollection<Vec2f>> landmarks;
 
 	// Get all the filenames in the given directory:
 	vector<fs::path> image_filenames;
@@ -88,7 +88,7 @@ std::pair<vector<Mat>, vector<eos::core::LandmarkCollection<Vec2f>>> load_ibug_d
 		images.emplace_back(cv::imread(file.string()));
 		// We load the landmarks and convert them into [x_0, ..., x_n, y_0, ..., y_n] format:
 		file.replace_extension(".pts");
-		auto lms = eos::io::read_pts_landmarks(file.string());
+		auto lms = rcr::read_pts_landmarks(file.string());
 		landmarks.emplace_back(lms);
 	}
 	return std::make_pair(images, landmarks);
@@ -154,12 +154,12 @@ cv::Rect perturb(cv::Rect facebox, float translation_x, float translation_y, flo
 // Error evaluation (average pixel distance (L2 norm) of all LMs, normalised by IED):
 // could make C++14 generic lambda, or templated function. Requires: cv::norm can handle the given T.
 // Todo Rename to "lm1, lm2" or similar.
-double norm(const eos::core::Landmark<Vec2f>& prediction, const eos::core::Landmark<Vec2f>& groundtruth)
+double norm(const rcr::Landmark<Vec2f>& prediction, const rcr::Landmark<Vec2f>& groundtruth)
 {
 	return cv::norm(prediction.coordinates, groundtruth.coordinates, cv::NORM_L2);
 };
 
-Mat elementwise_norm(const eos::core::LandmarkCollection<Vec2f>& prediction, const eos::core::LandmarkCollection<Vec2f>& groundtruth)
+Mat elementwise_norm(const rcr::LandmarkCollection<Vec2f>& prediction, const rcr::LandmarkCollection<Vec2f>& groundtruth)
 {
 	assert(prediction.size() == groundtruth.size());
 	Mat result(1, prediction.size(), CV_32FC1); // a row with each entry a norm...
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
 	}
 
 	vector<Mat> loaded_images;
-	vector<eos::core::LandmarkCollection<Vec2f>> loaded_landmarks;
+	vector<rcr::LandmarkCollection<Vec2f>> loaded_landmarks;
 	try	{
 		std::tie(loaded_images, loaded_landmarks) = load_ibug_data(trainingset);
 	}
@@ -319,13 +319,13 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 	// Filter the landmarks:
-	std::for_each(begin(loaded_landmarks), end(loaded_landmarks), [&model_landmarks](eos::core::LandmarkCollection<Vec2f>& lm) { lm = eos::core::filter(lm, model_landmarks); });
+	std::for_each(begin(loaded_landmarks), end(loaded_landmarks), [&model_landmarks](rcr::LandmarkCollection<Vec2f>& lm) { lm = rcr::filter(lm, model_landmarks); });
 	// Reduce the mean:
 	vector<string> ibug_landmark_ids; // full 68 point list
 	for (int ibug_id = 1; ibug_id <= 68; ++ibug_id) {
 		ibug_landmark_ids.emplace_back(std::to_string(ibug_id));
 	}
-	model_mean = rcr::to_row(eos::core::filter(rcr::to_landmark_collection(model_mean, ibug_landmark_ids), model_landmarks));
+	model_mean = rcr::to_row(rcr::filter(rcr::to_landmark_collection(model_mean, ibug_landmark_ids), model_landmarks));
 
 	// Read the evaluation information from the config:
 	vector<string> right_eye_identifiers, left_eye_identifiers; // for ied calc. One or several.
@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
 	// ===========================
 	// Evaluation on the test set:
 	vector<Mat> loaded_test_images;
-	vector<eos::core::LandmarkCollection<Vec2f>> loaded_test_landmarks;
+	vector<rcr::LandmarkCollection<Vec2f>> loaded_test_landmarks;
 	try	{
 		std::tie(loaded_test_images, loaded_test_landmarks) = load_ibug_data(testset);
 	}
@@ -447,7 +447,7 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 	// Filter the landmarks:
-	std::for_each(begin(loaded_test_landmarks), end(loaded_test_landmarks), [&model_landmarks](eos::core::LandmarkCollection<Vec2f>& lm) { lm = eos::core::filter(lm, model_landmarks); });
+	std::for_each(begin(loaded_test_landmarks), end(loaded_test_landmarks), [&model_landmarks](rcr::LandmarkCollection<Vec2f>& lm) { lm = rcr::filter(lm, model_landmarks); });
 
 	// First, we detect the faces in the images and discard the false detections:
 	vector<Mat> test_images;
