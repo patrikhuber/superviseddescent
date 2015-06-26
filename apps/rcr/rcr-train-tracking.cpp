@@ -20,10 +20,7 @@
 #include "superviseddescent/superviseddescent.hpp"
 #include "superviseddescent/regressors.hpp"
 
-#include "rcr/landmark.hpp"
 #include "rcr/landmarks_io.hpp"
-#include "rcr/adaptive_vlhog.hpp"
-#include "rcr/helpers.hpp"
 #include "rcr/model.hpp"
 
 #include "cereal/cereal.hpp"
