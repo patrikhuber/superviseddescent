@@ -101,7 +101,7 @@ public:
 	 * do any regularisation. Regulariser::RegularisationType can be used to specify the
 	 * choice of the regularisation parameter lambda.
 	 *
-	 * _regulariseLastRow_ is useful to specify the regularisation behaviour in
+	 * \c regularise_last_row is useful to specify the regularisation behaviour in
 	 * the case the last row of the data matrix contains an affine (offset or
 	 * bias) component. In that case, you might not want to regularise it (or
 	 * maybe you do).
@@ -201,14 +201,14 @@ public:
 		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisation_matrix.ptr<float>(), regularisation_matrix.rows, regularisation_matrix.cols);
 
 		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisation_matrix.rows);
-		Eigen::VectorXf diagVec(regularisation_matrix.rows);
-		for (int i = 0; i < diagVec.size(); ++i) {
-			diagVec(i) = regularisation_matrix.at<float>(i, i);
+		Eigen::VectorXf diag_vec(regularisation_matrix.rows);
+		for (int i = 0; i < diag_vec.size(); ++i) {
+			diag_vec(i) = regularisation_matrix.at<float>(i, i);
 		}
-		reg_Eigen_diag.diagonal() = diagVec;
+		reg_Eigen_diag.diagonal() = diag_vec;
 		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
 
-		// Perform a fast PartialPivLU and use luOfAtA.solve() (better than inverting):
+		// Perform a fast PartialPivLU and use ::solve() (better than inverting):
 		Eigen::PartialPivLU<RowMajorMatrixXf> lu_of_AtA(AtA_Eigen);
 		RowMajorMatrixXf x_Eigen = lu_of_AtA.solve(A_Eigen.transpose() * labels_Eigen);
 		//RowMajorMatrixXf x_Eigen = AtA_Eigen.partialPivLu.solve(A_Eigen.transpose() * labels_Eigen);
@@ -253,11 +253,11 @@ public:
 		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisation_matrix.ptr<float>(), regularisation_matrix.rows, regularisation_matrix.cols);
 
 		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisation_matrix.rows);
-		Eigen::VectorXf diagVec(regularisation_matrix.rows);
-		for (int i = 0; i < diagVec.size(); ++i) {
-			diagVec(i) = regularisation_matrix.at<float>(i, i);
+		Eigen::VectorXf diag_vec(regularisation_matrix.rows);
+		for (int i = 0; i < diag_vec.size(); ++i) {
+			diag_vec(i) = regularisation_matrix.at<float>(i, i);
 		}
-		reg_Eigen_diag.diagonal() = diagVec;
+		reg_Eigen_diag.diagonal() = diag_vec;
 		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
 
 		// Perform a ColPivHouseholderQR (faster than FullPivLU) that allows to check for invertibility:

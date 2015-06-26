@@ -345,7 +345,7 @@ public:
 
 private:
 	std::vector<RegressorType> regressors; ///< A series of learned regressors.
-	NormalisationStrategy normalisation_strategy; ///< Todo.
+	NormalisationStrategy normalisation_strategy; ///< Strategy for normalising the data during training.
 
 	friend class cereal::access;
 	/**
