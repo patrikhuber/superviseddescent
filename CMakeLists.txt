@@ -53,8 +53,8 @@ set(HEADERS
 	include/superviseddescent/utils/mat_serialization.hpp
 	include/superviseddescent/utils/ThreadPool.h
 	include/rcr/adaptive_vlhog.hpp
-	include/rcr/eos_core_landmark.hpp
-	include/rcr/eos_io_landmarks.hpp
+	include/rcr/landmark.hpp
+	include/rcr/landmarks_io.hpp
 	include/rcr/helpers.hpp
 	include/rcr/model.hpp
 	include/rcr/hog.h # we don't add hog.c here because we don't want CMake to see it as a file it has to compile
