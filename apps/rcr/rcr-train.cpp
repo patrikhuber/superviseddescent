@@ -120,7 +120,7 @@ cv::Mat load_mean(fs::path filename)
 };
 
 /**
- * Perturb...
+ * Perturb by a certain x and y translation and an optional scaling.
  *
  * tx, ty are in percent of the total face box width/height.
  *
@@ -148,39 +148,78 @@ cv::Rect perturb(cv::Rect facebox, float translation_x, float translation_y, flo
 	return perturbed_box;
 }
 
-// Error evaluation (average pixel distance (L2 norm) of all LMs, normalised by IED):
-// could make C++14 generic lambda, or templated function. Requires: cv::norm can handle the given T.
-// Todo Rename to "lm1, lm2" or similar.
+/**
+ * Calculate the norm (L2 error, in pixel) of two landmarks.
+ *
+ * @param[in] prediction First landmark.
+ * @param[in] groundtruth Second landmark.
+ * @return The L2 norm of the two landmark's coordinates.
+ */
 double norm(const rcr::Landmark<Vec2f>& prediction, const rcr::Landmark<Vec2f>& groundtruth)
 {
 	return cv::norm(prediction.coordinates, groundtruth.coordinates, cv::NORM_L2);
 };
 
+/**
+ * Calculate the element-wise L2 norm of two sets of landmarks.
+ *
+ * Requires both LandmarkCollections to have the same size.
+ *
+ * @param[in] prediction First set of landmarks.
+ * @param[in] groundtruth Second set of landmarks.
+ * @return A row-vector with each entry being the L2 norm of the two respective landmarks.
+ */
 Mat elementwise_norm(const rcr::LandmarkCollection<Vec2f>& prediction, const rcr::LandmarkCollection<Vec2f>& groundtruth)
 {
 	assert(prediction.size() == groundtruth.size());
-	Mat result(1, prediction.size(), CV_32FC1); // a row with each entry a norm...
+	Mat result(1, prediction.size(), CV_32FC1); // a row with each entry a norm
 	for (std::size_t i = 0; i < prediction.size(); ++i) {
 		result.at<float>(i) = norm(prediction[i], groundtruth[i]);
 	}
 	return result;
 };
 
-// After:
-//double meanError = cv::mean(normalisedErrors)[0]; // = the mean over all, identical to simple case
-//cv::reduce(normalisedErrors, normalisedErrors, 0, CV_REDUCE_AVG); // reduce to one row
-Mat calculate_normalised_landmark_errors(Mat current_predictions, Mat x_gt, vector<string> model_landmarks, vector<string> right_eye_identifiers, vector<string> left_eye_identifiers)
+/**
+ * Calculate the element-wise L2 norm of two sets of landmark
+ * collections, normalised by the inter eye distance of the
+ * predictions. Each row in the given matrices should correspond
+ * to one LandmarkCollection.
+ *
+ * \c [right|left]_eye_identifiers are used to calculate the inter eye distance.
+ *
+ * Requires both LandmarkCollections to have the same size.
+ *
+ * Note:
+ *  double mean_error = cv::mean(normalised_errors)[0]; // = the mean over all, identical to simple case
+ *  cv::reduce(normalised_errors, normalised_errors, 0, CV_REDUCE_AVG); // reduce to one row
+ *
+ * @param[in] prediction First set of landmarks.
+ * @param[in] groundtruth Second set of landmarks.
+ * @param[in] model_landmarks A mapping from indices to landmark identifiers.
+ * @param[in] right_eye_identifiers A list of landmark identifiers that specifies which landmarks make up the right eye.
+ * @param[in] left_eye_identifiers A list of landmark identifiers that specifies which landmarks make up the left eye.
+ * @return A matrix where each row corresponds to a separate set of landmarks (i.e. a different image), and each column is a different landmark's L2 norm.
+ */
+Mat calculate_normalised_landmark_errors(Mat predictions, Mat groundtruth, vector<string> model_landmarks, vector<string> right_eye_identifiers, vector<string> left_eye_identifiers)
 {
+	assert(predictions.rows == groundtruth.rows && predictions.cols == groundtruth.cols);
 	Mat normalised_errors;
-	for (int row = 0; row < current_predictions.rows; ++row) {
-		auto predc = rcr::to_landmark_collection(current_predictions.row(row), model_landmarks);
-		auto grc = rcr::to_landmark_collection(x_gt.row(row), model_landmarks);
-		Mat err = elementwise_norm(predc, grc).mul(1.0f / rcr::get_ied(predc, right_eye_identifiers, left_eye_identifiers));
-		normalised_errors.push_back(err);
+	for (int r = 0; r < predictions.rows; ++r) {
+		auto pred = rcr::to_landmark_collection(predictions.row(r), model_landmarks);
+		auto gt = rcr::to_landmark_collection(groundtruth.row(r), model_landmarks);
+		// calculates the element-wise norm, normalised with the IED:
+		Mat landmark_norms = elementwise_norm(pred, gt).mul(1.0f / rcr::get_ied(pred, right_eye_identifiers, left_eye_identifiers));
+		normalised_errors.push_back(landmark_norms);
 	}
 	return normalised_errors;
 };
 
+/**
+ * Reads a list of which landmarks to train.
+ *
+ * @param[in] configfile A training config file to read.
+ * @return A list that contains all the landmark identifiers from the config that are to be used for training.
+ */
 vector<string> read_landmarks_list_to_train(fs::path configfile)
 {
 	pt::ptree config_tree;
@@ -207,8 +246,14 @@ vector<string> read_landmarks_list_to_train(fs::path configfile)
 	return model_landmarks;
 }
 
-// Returns a pair of (vector<string> rightEyeIdentifiers, vector<string> leftEyeIdentifiers)
-// throws ptree, logic? error
+/**
+ * Reads a config file ('eval.txt') that specifies which landmarks make
+ * up the eyes and are to be used to calculate the IED.
+ *
+ * @param[in] evaluationfile A training config file to read.
+ * @return A pair with the right and left eye identifiers.
+ * @throws A ptree or logic error?
+ */
 std::pair<vector<string>, vector<string>> read_how_to_calculate_the_IED(fs::path evaluationfile)
 {
 	vector<string> right_eye_identifiers, left_eye_identifiers;
@@ -341,20 +386,17 @@ int main(int argc, char *argv[])
 	// First, we detect the faces in the images and discard the false detections:
 	vector<Mat> training_images;
 	Mat x_gt, x_0;
-	// If init with FDet and align to FB:
-	// Each image, we add the original and perturb the fbox p times.
 	// Augment the training set by perturbing the initialisations:
 	auto perturb_t_mu = 0.0f; // in percent of IED or the face box? only needed in tracking?
 	auto perturb_t_sigma = 0.04f; // in percent of the face box
 	auto perturb_s_mu = 1.0f;
 	auto perturb_s_sigma = 0.04f;
-	// Do we need a flag: initialise from a) mean or b) GT? (tracking?)
-	// a): only sigma makes sense. But I think ZF/SDM use also trans...
-	// b): both makes sense in tracking! (we might set t=0)
+	// If we initialise from the mean, I thought only t_sigma makes sense and t_mu should be zero. But I think ZF/SDM use also t_mu.
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::normal_distribution<> dist_t(perturb_t_mu, perturb_t_sigma); // TODO: If perturb_t_mu != 0, then we want plus and minus the value! handle this somehow.
+	std::normal_distribution<> dist_t(perturb_t_mu, perturb_t_sigma); // Todo: If perturb_t_mu != 0, then we want plus and minus the value! handle this somehow.
 	std::normal_distribution<> dist_s(perturb_s_mu, perturb_s_sigma);
+	// Each image, we add the original and perturb the face box num_perturbations times.
 	auto num_perturbations = 10; // = 10 perturbs + orig = 11 total
 	{
 		// Load the face detector from OpenCV:
@@ -404,7 +446,6 @@ int main(int argc, char *argv[])
 	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
 	
 	SupervisedDescentOptimiser<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervised_descent_model(regressors, rcr::InterEyeDistanceNormalisation(model_landmarks, right_eye_identifiers, left_eye_identifiers));
-	//SupervisedDescentOptimiser<LinearRegressor<PartialPivLUSolveSolverDebug>> supervised_descent_model(regressors);
 	
 	std::vector<rcr::HoGParam> hog_params{ { VlHogVariant::VlHogVariantUoctti, 5, 11, 4, 1.0f },{ VlHogVariant::VlHogVariantUoctti, 5, 10, 4, 0.7f },{ VlHogVariant::VlHogVariantUoctti, 5, 8, 4, 0.4f },{ VlHogVariant::VlHogVariantUoctti, 5, 6, 4, 0.25f } }; // 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/
 	assert(hog_params.size() == regressors.size());
@@ -412,7 +453,7 @@ int main(int argc, char *argv[])
 
 	// Train the model. We'll also specify an optional callback function:
 	cout << "Training the model, printing the residual after each learned regressor: " << endl;
-	// Rename to landmarkErrorCallback and put in the library?
+	// Note: Rename to landmark_error_callback and put in the library?
 	auto print_residual = [&x_gt, &model_landmarks, &right_eye_identifiers, &left_eye_identifiers](const cv::Mat& current_predictions) {
 		cout << "NLSR train: " << cv::norm(current_predictions, x_gt, cv::NORM_L2) / cv::norm(x_gt, cv::NORM_L2) << endl;
 		
@@ -485,6 +526,7 @@ int main(int argc, char *argv[])
 	Mat normalised_error = calculate_normalised_landmark_errors(result, x_ts_gt, model_landmarks, right_eye_identifiers, left_eye_identifiers);
 	cout << "Normalised LM-error test: " << cv::mean(normalised_error)[0] << endl;
 	
+	// We write out a file modelname.error.txt to be able to plot the per-landmark error:
 	Mat per_landmark_error;
 	cv::reduce(normalised_error, per_landmark_error, 0, CV_REDUCE_AVG); // reduce to one row
 	

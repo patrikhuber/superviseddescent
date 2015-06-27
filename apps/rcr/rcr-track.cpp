@@ -66,7 +66,7 @@ cv::Rect_<T> get_enclosing_bbox(cv::Mat landmarks)
  * It modifies the approach to track a face in a video.
  *
  * It loads a model trained with rcr-train, detects a face using OpenCV's face
- * detector, and then runs the landmark detection.
+ * detector, and then runs the landmark detection in each frame separately.
  */
 int main(int argc, char *argv[])
 {
@@ -143,6 +143,7 @@ int main(int argc, char *argv[])
 	{
 		cap >> image; // get a new frame from camera
 		
+		// Note: For now, we'll just run the face detector each frame.
 		if (!have_face) {
 			// Run the face detector and obtain the initial estimate using the mean landmarks:
 			start = system_clock::now();
