@@ -28,6 +28,8 @@ set_target_properties(rcr-train PROPERTIES FOLDER "apps/rcr")
 target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:/openmp>") # adds /openmp on MSVC
 target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:GNU>:-fopenmp>") # same for gcc
 target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:Clang>:-fopenmp>") # and clang. Clang additionally needs an OpenMP runtime when running the executable.
+target_link_libraries(rcr-train "$<$<CXX_COMPILER_ID:GNU>:-fopenmp>") # gcc and clang need a linker flag as well
+target_link_libraries(rcr-train "$<$<CXX_COMPILER_ID:Clang>:-fopenmp>")
 
 # Detect landmarks on an image:
 add_executable(rcr-detect rcr-detect.cpp)
