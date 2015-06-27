@@ -28,11 +28,6 @@ set_target_properties(rcr-train PROPERTIES FOLDER "apps/rcr")
 target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:/openmp>") # adds /openmp on MSVC
 target_compile_options(rcr-train PUBLIC "$<$<CXX_COMPILER_ID:GNU>:-fopenmp>") # same for gcc. We should add it to clang too.
 
-# To train a model for tracking:
-add_executable(rcr-train-tracking rcr-train-tracking.cpp)
-target_link_libraries(rcr-train-tracking ${OpenCV_LIBS} ${Boost_LIBRARIES})
-set_target_properties(rcr-train-tracking PROPERTIES FOLDER "apps/rcr")
-
 # Detect landmarks on an image:
 add_executable(rcr-detect rcr-detect.cpp)
 target_link_libraries(rcr-detect ${OpenCV_LIBS} ${Boost_LIBRARIES})
@@ -45,7 +40,6 @@ set_target_properties(rcr-track PROPERTIES FOLDER "apps/rcr")
 
 # Install targets:
 install(TARGETS rcr-train DESTINATION bin)
-install(TARGETS rcr-train-tracking DESTINATION bin)
 install(TARGETS rcr-detect DESTINATION bin)
 install(TARGETS rcr-track DESTINATION bin)
 
