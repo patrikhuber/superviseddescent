@@ -44,4 +44,4 @@ install(TARGETS rcr-train DESTINATION bin)
 install(TARGETS rcr-detect DESTINATION bin)
 install(TARGETS rcr-track DESTINATION bin)
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/apps/rcr/data DESTINATION bin) # maybe install to ../share/data/rcr?
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/apps/rcr/data/ DESTINATION bin/data/rcr)

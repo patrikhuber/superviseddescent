@@ -41,6 +41,6 @@ set_target_properties(pose_estimation PROPERTIES FOLDER "examples")
 install(TARGETS simple_function DESTINATION bin)
 
 install(TARGETS landmark_detection DESTINATION bin)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin) # maybe install to ../share/data/examples?
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data/ DESTINATION bin/data/examples)
 
 install(TARGETS pose_estimation DESTINATION bin)

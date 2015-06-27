@@ -303,17 +303,17 @@ int main(int argc, char *argv[])
 		desc.add_options()
 			("help,h",
 				"display the help message")
-			("data,d", po::value<fs::path>(&trainingset)->required()->default_value("data/ibug_lfpw_trainset"),
+			("data,d", po::value<fs::path>(&trainingset)->required(),
 				"path to ibug LFPW example images and landmarks")
-			("mean,m", po::value<fs::path>(&meanfile)->required()->default_value("data/mean_ibug_lfpw_68.txt"),
+			("mean,m", po::value<fs::path>(&meanfile)->required()->default_value("data/rcr/mean_ibug_lfpw_68.txt"),
 				"pre-calculated mean from ibug LFPW")
 			("facedetector,f", po::value<fs::path>(&facedetector)->required(),
 				"full path to OpenCV's face detector (haarcascade_frontalface_alt2.xml)")
-			("config,c", po::value<fs::path>(&configfile)->required(),
+			("config,c", po::value<fs::path>(&configfile)->required()->default_value("data/rcr/rcr_training_22.cfg"),
 				"a model config file - specifies the training parameters of the model")
-			("evaluation,e", po::value<fs::path>(&evaluationfile)->required(),
+			("evaluation,e", po::value<fs::path>(&evaluationfile)->required()->default_value("data/rcr/rcr_eval.cfg"),
 				"an evaluation config file - specifies how to evaluate the model (e.g. normalise by IED)")
-			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("model.txt"),
+			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("model.bin"),
 				"model output filename")
 			("test-data,t", po::value<fs::path>(&testset)->required(),
 				"path to ibug LFPW test images and landmarks")

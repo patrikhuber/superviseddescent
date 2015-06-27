@@ -377,9 +377,9 @@ int main(int argc, char *argv[])
 		desc.add_options()
 			("help,h",
 				"display the help message")
-			("data,d", po::value<fs::path>(&trainingset)->required()->default_value("data/ibug_lfpw_trainset"),
+			("data,d", po::value<fs::path>(&trainingset)->required()->default_value("data/examples/ibug_lfpw_trainset"),
 				"path to ibug LFPW example images and landmarks")
-			("mean,m", po::value<fs::path>(&meanfile)->required()->default_value("data/mean_ibug_lfpw_68.txt"),
+			("mean,m", po::value<fs::path>(&meanfile)->required()->default_value("data/examples/mean_ibug_lfpw_68.txt"),
 				"pre-calculated mean from ibug LFPW")
 			("facedetector,f", po::value<fs::path>(&facedetector)->required(),
 				"full path to OpenCV's face detector (haarcascade_frontalface_alt2.xml)")

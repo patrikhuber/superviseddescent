@@ -70,7 +70,7 @@ cv::Rect_<T> get_enclosing_bbox(cv::Mat landmarks)
  */
 int main(int argc, char *argv[])
 {
-	fs::path facedetector, inputimage, modelfile, outputfile;
+	fs::path facedetector, inputimage, modelfile;
 	try {
 		po::options_description desc("Allowed options");
 		desc.add_options()
@@ -78,12 +78,10 @@ int main(int argc, char *argv[])
 				"display the help message")
 			("facedetector,f", po::value<fs::path>(&facedetector)->required(),
 				"full path to OpenCV's face detector (haarcascade_frontalface_alt2.xml)")
-			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../data/rcr/face_landmarks_model_rcr_tracking_29.txt"),
+			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("data/rcr/face_landmarks_model_rcr_22.bin"),
 				"learned landmark detection model")
 			("image,i", po::value<fs::path>(&inputimage),
-				"input video file. If not specified, the camera will be used.")
-			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out.png"),
-				"filename for the result image")
+				"input video file. If not specified, camera 0 will be used.")
 			;
 		po::variables_map vm;
 		po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);

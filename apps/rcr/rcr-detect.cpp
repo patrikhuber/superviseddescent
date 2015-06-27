@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 				"display the help message")
 			("facedetector,f", po::value<fs::path>(&facedetector)->required(),
 				"full path to OpenCV's face detector (haarcascade_frontalface_alt2.xml)")
-			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../data/rcr/face_landmarks_model_rcr_22.txt"),
+			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("data/rcr/face_landmarks_model_rcr_22.bin"),
 				"learned landmark detection model")
 			("image,i", po::value<fs::path>(&inputimage)->required(),
 				"input image file")
