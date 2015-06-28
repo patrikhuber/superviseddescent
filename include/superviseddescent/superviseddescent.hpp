@@ -47,7 +47,7 @@ namespace superviseddescent {
  * A callback function that gets called after each training of a regressor.
  * This is the default function that performs nothing.
  *
- * @param[in] currentPredictions Predictions of the current regressor.
+ * @param[in] current_predictions Predictions of the current regressor.
  */
 inline void no_eval(const cv::Mat& current_predictions)
 {
@@ -60,6 +60,14 @@ inline void no_eval(const cv::Mat& current_predictions)
 class NoNormalisation
 {
 public:
+	/**
+	 * Takes a row of data, and returns a normalisation factor
+	 * that can (or may not) depend on that data. In this case,
+	 * it returns a row of ones.
+	 *
+	 * @param[in] params Current parameter estimates.
+	 * @return A row of ones which results in no normalisation.
+	 */
 	inline cv::Mat operator()(cv::Mat params) {
 		return cv::Mat::ones(1, params.cols, params.type());
 	};
@@ -90,6 +98,7 @@ public:
 	 * Construct an optimiser with one or several regressors in series.
 	 *
 	 * @param[in] regressors One or several regressors.
+	 * @param[in] normalisation Normalisation strategy for the data during optimisation.
 	 */
 	SupervisedDescentOptimiser(std::vector<RegressorType> regressors, NormalisationStrategy normalisation = NoNormalisation()) : regressors(std::move(regressors)), normalisation_strategy(std::move(normalisation))
 	{
@@ -151,7 +160,7 @@ public:
 	 *
 	 * @copydoc train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection).
 	 *
-	 * @param[in] onTrainingEpochCallback A callback function that gets called after the training of each individual regressor.
+	 * @param[in] on_training_epoch_callback A callback function that gets called after the training of each individual regressor.
 	 */
 	template<class ProjectionFunction, class OnTrainingEpochCallback>
 	void train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnTrainingEpochCallback on_training_epoch_callback)
@@ -248,7 +257,7 @@ public:
 	 *
 	 * @copydoc test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection).
 	 *
-	 * @param[in] onRegressorIterationCallback A callback function that gets called after each applied regressor, with the current prediction result.
+	 * @param[in] on_regressor_iteration_callback A callback function that gets called after each applied regressor, with the current prediction result.
 	 */
 	template<class ProjectionFunction, class OnRegressorIterationCallback>
 	cv::Mat test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnRegressorIterationCallback on_regressor_iteration_callback)
@@ -334,6 +343,13 @@ public:
 		return current_x;
 	};
 
+	/**
+	 * Returns the learned cascaded regressor model.
+	 *
+	 * Note/Todo: This is not very generic, need to improve this.
+	 *
+	 * @return Returns the learned cascaded regressor model.
+	 */
 	std::vector<cv::Mat> get_model()
 	{
 		std::vector<cv::Mat> model;

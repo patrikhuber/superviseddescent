@@ -106,9 +106,9 @@ public:
 	 * bias) component. In that case, you might not want to regularise it (or
 	 * maybe you do).
 	 *
-	 * @param[in] regularisationType Specifies how to calculate lambda.
+	 * @param[in] regularisation_type Specifies how to calculate lambda.
 	 * @param[in] param Lambda, or a factor, depending on regularisationType.
-	 * @param[in] regulariseLastRow Specifies if the last row should be regularised.
+	 * @param[in] regularise_last_row Specifies if the last row should be regularised.
 	 */
 	Regulariser(RegularisationType regularisation_type = RegularisationType::Manual, float param = 0.0f, bool regularise_last_row = true) : regularisation_type(regularisation_type), lambda(param), regularise_last_row(regularise_last_row)
 	{
@@ -120,7 +120,7 @@ public:
 	 * given data matrix.
 	 *
 	 * @param[in] data Data matrix that might be used to calculate an automatic value for lambda.
-	 * @param[in] numTrainingElements Number of training elements.
+	 * @param[in] num_training_elements Number of training elements.
 	 * @return Returns a diagonal regularisation matrix with the same dimensions as the given data matrix.
 	 */
 	cv::Mat get_matrix(cv::Mat data, int num_training_elements)
@@ -174,16 +174,28 @@ private:
  * \c cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
  *
  * The \c PartialPivLUSolver is a fast solver but it can't check for invertibility.
- * It supports parallel solving if compiled with openmp enabled.
+ * It supports parallel solving if compiled with OpenMP enabled.
  * Uses PartialPivLU::solve() instead of inverting the matrix.
  */
 class PartialPivLUSolver
 {
 public:
-	// Note: we should leave the choice of inverting A or AtA to the solver.
-	// But this also means we need to pass through the regularisation params.
-	// We can't just pass a cv::Mat regularisation because the dimensions for
-	// regularising A and AtA are different.
+	/**
+	 * Solves the linear system \f$ (\text{data}^t * \text{data} + \text{regulariser}) * X = \text{data}^t * \text{labels}\f$
+	 * where \c Regulariser is a diagonal matrix. This results in a least-squares
+	 * approximation of the original system.
+	 * \c labels can consist of multiple columns.
+	 *
+	 * Note/Todo: we should leave the choice of inverting A or AtA to the solver.
+	 *  But this also means we need to pass through the regularisation params.
+	 *  We can't just pass a cv::Mat regularisation because the dimensions for
+	 *  regularising A and AtA are different.
+	 *
+	 * @param[in] data Data matrix with each row being a data sample.
+	 * @param[in] labels Labels for each data sample.
+	 * @param[in] regulariser A regularisation.
+	 * @return The solution matrix.
+	 */
 	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
 	{
 		using cv::Mat;
@@ -228,15 +240,27 @@ public:
  * \c cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
  *
  * The \c ColPivHouseholderQRSolver can check for invertibility, but it is much
- * slower than a \c PartialPivLUSolver.
+ * MUCH slower than a \c PartialPivLUSolver.
  */
 class ColPivHouseholderQRSolver
 {
 public:
-	// Note: we should leave the choice of inverting A or AtA to the solver.
-	// But this also means we need to pass through the regularisation params.
-	// We can't just pass a cv::Mat regularisation because the dimensions for
-	// regularising A and AtA are different.
+	/**
+	 * Solves the linear system \f$ (\text{data}^t * \text{data} + \text{regulariser}) * X = \text{data}^t * \text{labels}\f$
+	 * where \c Regulariser is a diagonal matrix. This results in a least-squares
+	 * approximation of the original system.
+	 * \c labels can consist of multiple columns.
+	 *
+	 * Note/Todo: we should leave the choice of inverting A or AtA to the solver.
+	 *  But this also means we need to pass through the regularisation params.
+	 *  We can't just pass a cv::Mat regularisation because the dimensions for
+	 *  regularising A and AtA are different.
+	 *
+	 * @param[in] data Data matrix with each row being a data sample.
+	 * @param[in] labels Labels for each data sample.
+	 * @param[in] regulariser A regularisation.
+	 * @return The solution matrix.
+	 */
 	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
 	{
 		using cv::Mat;
