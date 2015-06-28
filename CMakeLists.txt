@@ -15,13 +15,13 @@ endif()
 
 # All the options for building the library. Can be changed on the command-line or in initial_cache.cmake.
 message(STATUS "Options:")
-option(BUILD_TESTS "Builds the unit tests." ON)
+option(BUILD_TESTS "Builds the unit tests." OFF)
 message(STATUS "BUILD_TESTS: ${BUILD_TESTS}")
 option(BUILD_EXAMPLES "Build the example hello-world applications." ON)
 message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
 option(BUILD_APPS "Build the RCR landmark detection applications." ON)
 message(STATUS "BUILD_APPS: ${BUILD_APPS}")
-option(BUILD_DOCUMENTATION "Build the library documentation." ON)
+option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
 message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
 
 # Build a CPack driven installer package:
