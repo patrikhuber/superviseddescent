@@ -343,22 +343,6 @@ public:
 		return current_x;
 	};
 
-	/**
-	 * Returns the learned cascaded regressor model.
-	 *
-	 * Note/Todo: This is not very generic, need to improve this.
-	 *
-	 * @return Returns the learned cascaded regressor model.
-	 */
-	std::vector<cv::Mat> get_model()
-	{
-		std::vector<cv::Mat> model;
-		for (auto&& r : regressors) {
-			model.push_back(r.x);
-		}
-		return model;
-	};
-
 private:
 	std::vector<RegressorType> regressors; ///< A series of learned regressors.
 	NormalisationStrategy normalisation_strategy; ///< Strategy for normalising the data during training.
