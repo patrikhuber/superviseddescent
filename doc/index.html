@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">superviseddescent
-   &#160;<span id="projectnumber">0.1.0</span>
+   &#160;<span id="projectnumber">0.4.0</span>
    </div>
   </td>
  </tr>
@@ -86,6 +86,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p>superviseddescent is a C++11 implementation of the supervised descent method, which is a generic algorithm to perform optimisation of arbitrary functions.</p>
+<p>The library contains an implementation of the <em>Robust Cascaded Regression</em> facial landmark detection and features a pre-trained detection model.</p>
 <p>There are two main advantages compared to traditional optimisation algorithms like gradient descent, L-BFGS and the like:</p><ul>
 <li>The function doesn't have to be differentiable. It works with arbitrary functions, for example with the HoG operator (which is a non-differentiable function)</li>
 <li>It might be better at reaching a global optimum - give it a try!</li>
@@ -100,14 +101,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>Fully cross-platform compatible - learned models can be run even on phones</li>
 </ul>
 <h2>Usage</h2>
-<p>It is a header only library, and can thus be included directly into your project by just adding <code>superviseddescent/include</code> to your projects include directory and including <code><a class="el" href="superviseddescent_8hpp_source.html">superviseddescent/superviseddescent.hpp</a></code>.</p>
+<p>It is a header only library, and can thus be included directly into your project by just adding <code>superviseddescent/include</code> and <code>3rdparty/cereal-1.1.1/include</code> to your project's include directory.</p>
 <ul>
-<li>Tested with the following compilers: gcc-4.8.2, clang-3.5, Visual Studio 2013</li>
-<li>Needed dependencies: Boost serialization (1.54.0), OpenCV core (2.4.3), Eigen (3.2). Older versions might work as well.</li>
+<li>Tested with the following compilers: gcc-4.8.2, clang-3.5, Visual Studio 2013 &amp; 2015 RC</li>
+<li>Needed dependencies: OpenCV core (2.4.3), Eigen (3.2). For the apps, Boost (1.54.0) is also required. Older versions of the libraries might work as well.</li>
 </ul>
 <h2>Sample code</h2>
-<h3>Simple example: Approximate sin(x)</h3>
-<p>Define a function: </p><pre class="fragment">auto h = [](Mat value, size_t, int) { return std::sin(value.at&lt;float&gt;(0)); };
+<h3>Robust Cascaded Regression landmark detection:</h3>
+<p>While the method and this library can be used to approximate arbitrary functions, its prime example is facial landmark detection. The library contains an implementation of the <em>Robust Cascaded Regression</em> landmark detection and a pre-trained model. Running it is as simple as: </p><pre class="fragment">rcr::detection_model rcr_model = rcr::load_detection_model("face_landmarks_model_rcr_22.bin");
+cv::Rect facebox = ...; // has to be detected by e.g. V&amp;J
+LandmarkCollection&lt;cv::Vec2f&gt; landmarks = rcr_model.detect(image, facebox);
+</pre><p>The full example is at <a href="https://github.com/patrikhuber/superviseddescent/blob/master/apps/rcr/rcr-detect.cpp">apps/rcr/rcr-detect.cpp</a> and it is built with the library.</p>
+<h3>Simple example for generic optimisation - approximate sin(x):</h3>
+<p>The following examples describe using simple hello-world example how to use the library for generic function optimisation (for example for other computer vision tasks). We'll start with a simple function, <code>sin(x)</code>. Define a function: </p><pre class="fragment">auto h = [](Mat value, size_t, int) { return std::sin(value.at&lt;float&gt;(0)); };
 </pre><p>Generate training data (see <code>examples/simple_function.cpp</code> for the (in this case boring) code):</p><ul>
 <li>training labels <code>y_tr</code> in the interval [-1:0.2:1]</li>
 <li>the inverse function values (the ground truth parameters) <code>x_tr</code></li>
@@ -115,41 +121,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </ul>
 <p>Construct and train the model, and (optionally) specify a callback function that prints the residual after each learned regressor:</p>
 <div class="fragment"><div class="line">vector&lt;LinearRegressor&gt; regressors(10);</div>
-<div class="line">SupervisedDescentOptimiser&lt;LinearRegressor&gt; supervisedDescentModel(regressors);</div>
-<div class="line"><span class="keyword">auto</span> printResidual = [&amp;x_tr](<span class="keyword">const</span> Mat&amp; currentPredictions) {</div>
-<div class="line">    cout &lt;&lt; cv::norm(currentPredictions, x_tr, cv::NORM_L2) / cv::norm(x_tr, cv::NORM_L2) &lt;&lt; endl;</div>
+<div class="line">SupervisedDescentOptimiser&lt;LinearRegressor&gt; supervised_descent_model(regressors);</div>
+<div class="line"><span class="keyword">auto</span> print_residual = [&amp;x_tr](<span class="keyword">const</span> Mat&amp; current_predictions) {</div>
+<div class="line">    cout &lt;&lt; cv::norm(current_predictions, x_tr, cv::NORM_L2) / cv::norm(x_tr, cv::NORM_L2) &lt;&lt; endl;</div>
 <div class="line">};</div>
-<div class="line">supervisedDescentModel.train(x_tr, x0, y_tr, h, printResidual);</div>
-</div><!-- fragment --><p>The model can be tested on test data like so: </p><div class="fragment"><div class="line">Mat predictions = supervisedDescentModel.test(x0_ts, y_ts, h);</div>
+<div class="line">supervised_descent_model.train(x_tr, x0, y_tr, h, print_residual);</div>
+</div><!-- fragment --><p>The model can be tested on test data like so: </p><div class="fragment"><div class="line">Mat predictions = supervised_descent_model.test(x0_ts, y_ts, h);</div>
 <div class="line">cout &lt;&lt; <span class="stringliteral">&quot;Test residual: &quot;</span> &lt;&lt; cv::norm(predictions, x_ts_gt, cv::NORM_L2) / cv::norm(x_ts_gt, cv::NORM_L2) &lt;&lt; endl;</div>
 </div><!-- fragment --><p>Predictions on new data can similarly be made with: </p><div class="fragment"><div class="line">SupervisedDescentOptimiser::predict(Mat x0, Mat y, H h)</div>
 </div><!-- fragment --><p> which returns the prediction result.</p>
-<h3>Landmark detection:</h3>
-<p>The <code>SupervisedDescentOptimiser</code> can be used in the same way for landmark detection. In this case,</p>
-<ul>
-<li><code>h</code> is a feature transform that extracts image features like HoG or SIFT from the image (we thus make it a function object, to store the images)</li>
-<li>we don't use the <code>y</code> values (the so called <em>template</em>) to train, because at testing, the HoG descriptors differ for each person (i.e. each persons face looks different)</li>
-<li>the parameters <code>x</code> are the current 2D landmark locations</li>
-<li>the initial parameters <code>x0</code> are computed by aligning the mean landmark to a detected face box.</li>
-</ul>
-<div class="fragment"><div class="line"><span class="keyword">class </span>HogTransform</div>
-<div class="line">{</div>
-<div class="line"><span class="keyword">public</span>:</div>
-<div class="line">    HogTransform(vector&lt;Mat&gt; images, ...HoG parameters...) { ... };</div>
-<div class="line"></div>
-<div class="line">    Mat operator()(Mat parameters, <span class="keywordtype">size_t</span> regressorLevel, <span class="keywordtype">int</span> trainingIndex = 0)</div>
-<div class="line">    {</div>
-<div class="line">        <span class="comment">// shortened, to get the idea across:</span></div>
-<div class="line">        Mat hogDescriptors = extractHoGFeatures(images[trainingIndex], parameters);</div>
-<div class="line">        <span class="keywordflow">return</span> hogDescriptors;</div>
-<div class="line">    }</div>
-<div class="line"><span class="keyword">private</span>:</div>
-<div class="line">    vector&lt;Mat&gt; images;</div>
-<div class="line">}</div>
-</div><!-- fragment --><p>Training the model is the same, except we pass an empty <code>cv::Mat</code> instead of <code>y</code> values: </p><div class="fragment"><div class="line">HogTransform hog(trainingImages, ...HoG parameters...);</div>
-<div class="line">supervisedDescentModel.train(trainingLandmarks, x0, Mat(), hog, printResidual);</div>
-</div><!-- fragment --><p>Testing and prediction work analogous.</p>
-<p>For the documented full working example, see <code>examples/landmark_detection.cpp</code>.</p>
 <h3>Pose estimation:</h3>
 <p>Using the <code>SupervisedDescentOptimiser</code> for 3D pose estimation from 2D landmarks works exactly in the same way.</p>
 <ul>
@@ -163,21 +143,48 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><span class="keyword">public</span>:</div>
 <div class="line">    ModelProjection(Mat model) : model(model) {};</div>
 <div class="line"></div>
-<div class="line">    Mat operator()(Mat parameters, <span class="keywordtype">size_t</span> regressorLevel, <span class="keywordtype">int</span> trainingIndex = 0)</div>
+<div class="line">    Mat operator()(Mat parameters, <span class="keywordtype">size_t</span> regressor_level, <span class="keywordtype">int</span> training_index = 0)</div>
 <div class="line">    {</div>
 <div class="line">        <span class="comment">// parameters is a vector consisting of [R_x, R_y, R_z, t_x, t_y, t_z]</span></div>
-<div class="line">        projectedPoints = projectModel(parameters);</div>
-<div class="line">        <span class="keywordflow">return</span> projectedPoints;</div>
+<div class="line">        projected_points = project_model(parameters);</div>
+<div class="line">        <span class="keywordflow">return</span> projected_points;</div>
 <div class="line">    };</div>
 <div class="line"><span class="keyword">private</span>:</div>
 <div class="line">    Mat model;</div>
 <div class="line">}</div>
 </div><!-- fragment --><div class="fragment"><div class="line">ModelProjection projection(facemodel);</div>
-<div class="line">supervisedDescentModel.train(x_tr, x0, y_tr, projection, printResidual);</div>
+<div class="line">supervised_descent_model.train(x_tr, x0, y_tr, projection, print_residual);</div>
+</div><!-- fragment --><p>Testing and prediction work analogous.</p>
+<p>For the documented full working example, see <code>examples/landmark_detection.cpp</code>.</p>
+<h3>Landmark detection hello-world:</h3>
+<p>In contrast to the RCR, this is a simple-as-possible hello-world example to understand how the library works and to build your own applications.</p>
+<p>The <code>SupervisedDescentOptimiser</code> can be used in the same way as before for landmark detection. In this case,</p>
+<ul>
+<li><code>h</code> is a feature transform that extracts image features like HOG or SIFT from the image (we thus make it a function object, to store the images)</li>
+<li>we don't use the <code>y</code> values (the so called <em>template</em>) to train, because at testing, the HoG descriptors differ for each person (i.e. each persons face looks different)</li>
+<li>the parameters <code>x</code> are the current 2D landmark locations</li>
+<li>the initial parameters <code>x0</code> are computed by aligning the mean landmark to a detected face box.</li>
+</ul>
+<div class="fragment"><div class="line"><span class="keyword">class </span>HogTransform</div>
+<div class="line">{</div>
+<div class="line"><span class="keyword">public</span>:</div>
+<div class="line">    HogTransform(vector&lt;Mat&gt; images, ...HoG parameters...) { ... };</div>
+<div class="line"></div>
+<div class="line">    Mat operator()(Mat parameters, <span class="keywordtype">size_t</span> regressor_level, <span class="keywordtype">int</span> training_index = 0)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// shortened, to get the idea across:</span></div>
+<div class="line">        Mat hog_descriptors = extract_HOG_features(images[training_index], parameters);</div>
+<div class="line">        <span class="keywordflow">return</span> hog_descriptors;</div>
+<div class="line">    }</div>
+<div class="line"><span class="keyword">private</span>:</div>
+<div class="line">    vector&lt;Mat&gt; images;</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>Training the model is the same, except we pass an empty <code>cv::Mat</code> instead of <code>y</code> values: </p><div class="fragment"><div class="line">HogTransform hog(training_images, ...HoG parameters...);</div>
+<div class="line">supervised_descent_model.train(training_landmarks, x0, Mat(), hog, print_residual);</div>
 </div><!-- fragment --><p>Testing and prediction work analogous.</p>
 <p>For the documented full working example, see <code>examples/landmark_detection.cpp</code>.</p>
 <h2>Build the examples and tests</h2>
-<p>Building of the examples and tests requires CMake&gt;=2.8.11, OpenCV (core, imgproc, highgui, objdetect) and Boost (system, filesystem, program_options, serialization).</p>
+<p>Building of the examples and tests requires CMake&gt;=2.8.11, OpenCV (core, imgproc, highgui, objdetect) and Boost (system, filesystem, program_options).</p>
 <ul>
 <li>copy <code>initial_cache.cmake.template</code> to <code>initial_cache.cmake</code>, edit the necessary paths</li>
 <li>create a build directory next to the <code>superviseddescent</code> folder: <code>mkdir build; cd build</code></li>
@@ -190,12 +197,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <h2>License &amp; contributions</h2>
 <p>This code is licensed under the Apache License, Version 2.0</p>
 <p>Contributions are very welcome! (best in the form of pull requests.) Please use Github issues for any bug reports, ideas, and discussions.</p>
-<p>If you use this code in your own work, please cite the following paper: <em>Random Cascaded-Regression Copse for Robust Facial Landmark Detection</em>, Z. Feng, P. Huber, J. Kittler, W. Christmas, X.J. Wu, IEEE Signal Processing Letters, Vol: 22(1), 2015 (<a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber=6877655">http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&amp;arnumber=6877655</a>).</p>
-<p>(<em>We are working on publishing a paper that more closely resembles this library, and we will replace the previously mentioned paper here with the new one as soon as it is published.</em>) </p>
+<p>If you use this code in your own work, please cite the following paper: <em>Fitting 3D Morphable Models using Local Features</em>, P. Huber, Z. Feng, W. Christmas, J. Kittler, M. Rätsch, IEEE International Conference on Image Processing (ICIP) 2015, Québec City, Canada (<a href="http://arxiv.org/abs/1503.02330">http://arxiv.org/abs/1503.02330</a>). </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jan 31 2015 23:29:39 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jun 28 2015 22:41:55 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

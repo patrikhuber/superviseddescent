@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.7"/>
-<title>superviseddescent: superviseddescent::LinearRegressor Class Reference</title>
+<title>superviseddescent: superviseddescent::LinearRegressor&lt; Solver &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">superviseddescent
-   &#160;<span id="projectnumber">0.1.0</span>
+   &#160;<span id="projectnumber">0.4.0</span>
    </div>
   </td>
  </tr>
@@ -99,59 +99,64 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#friends">Friends</a> &#124;
 <a href="classsuperviseddescent_1_1_linear_regressor-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">superviseddescent::LinearRegressor Class Reference</div>  </div>
+<div class="title">superviseddescent::LinearRegressor&lt; Solver &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
 <p><code>#include &lt;<a class="el" href="regressors_8hpp_source.html">regressors.hpp</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for superviseddescent::LinearRegressor:</div>
+Inheritance diagram for superviseddescent::LinearRegressor&lt; Solver &gt;:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="classsuperviseddescent_1_1_linear_regressor.png" usemap="#superviseddescent::LinearRegressor_map" alt=""/>
-  <map id="superviseddescent::LinearRegressor_map" name="superviseddescent::LinearRegressor_map">
-<area href="classsuperviseddescent_1_1_regressor.html" alt="superviseddescent::Regressor" shape="rect" coords="0,0,218,24"/>
+  <img src="classsuperviseddescent_1_1_linear_regressor.png" usemap="#superviseddescent::LinearRegressor&lt; Solver &gt;_map" alt=""/>
+  <map id="superviseddescent::LinearRegressor&lt; Solver &gt;_map" name="superviseddescent::LinearRegressor&lt; Solver &gt;_map">
+<area href="classsuperviseddescent_1_1_regressor.html" alt="superviseddescent::Regressor" shape="rect" coords="0,0,279,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a0ca9fabd613204489ea81213e0f9396d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a0ca9fabd613204489ea81213e0f9396d">LinearRegressor</a> (<a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a> regulariser=<a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a>())</td></tr>
-<tr class="separator:a0ca9fabd613204489ea81213e0f9396d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a974948bd6d8424ec7cf75a405abe20c4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a974948bd6d8424ec7cf75a405abe20c4">learn</a> (cv::Mat data, cv::Mat labels) override</td></tr>
-<tr class="separator:a974948bd6d8424ec7cf75a405abe20c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f0d9aeb567e22dd71d2f8f13a2131ae"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a5f0d9aeb567e22dd71d2f8f13a2131ae">test</a> (cv::Mat data, cv::Mat labels) override</td></tr>
-<tr class="separator:a5f0d9aeb567e22dd71d2f8f13a2131ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4332e48c2d3e733927bc0905451456d7"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a4332e48c2d3e733927bc0905451456d7">predict</a> (cv::Mat values) override</td></tr>
-<tr class="separator:a4332e48c2d3e733927bc0905451456d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebcac21c36e5b68ebbe033ad707b7868"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#aebcac21c36e5b68ebbe033ad707b7868">LinearRegressor</a> (<a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a> regulariser=<a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a>())</td></tr>
+<tr class="separator:aebcac21c36e5b68ebbe033ad707b7868"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f1b618f5523ed7eb9860af8ccd4bd7c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a2f1b618f5523ed7eb9860af8ccd4bd7c">learn</a> (cv::Mat data, cv::Mat labels) override</td></tr>
+<tr class="separator:a2f1b618f5523ed7eb9860af8ccd4bd7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e052726368bd06de185ee41c57c17bd"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a8e052726368bd06de185ee41c57c17bd">test</a> (cv::Mat data, cv::Mat labels) override</td></tr>
+<tr class="separator:a8e052726368bd06de185ee41c57c17bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57569bb695f44039173f9bed44910c34"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a57569bb695f44039173f9bed44910c34">predict</a> (cv::Mat values) override</td></tr>
+<tr class="separator:a57569bb695f44039173f9bed44910c34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aea6c2fc9604303f58ab0fbcbbc889c6f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea6c2fc9604303f58ab0fbcbbc889c6f"></a>
-cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#aea6c2fc9604303f58ab0fbcbbc889c6f">x</a></td></tr>
-<tr class="memdesc:aea6c2fc9604303f58ab0fbcbbc889c6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The linear model we learn ( \(A*x = b\)). TODO: Make private member variable. <br /></td></tr>
-<tr class="separator:aea6c2fc9604303f58ab0fbcbbc889c6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c85d794517d2d64e620daea99c2cf2b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c85d794517d2d64e620daea99c2cf2b"></a>
+cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html#a9c85d794517d2d64e620daea99c2cf2b">x</a></td></tr>
+<tr class="memdesc:a9c85d794517d2d64e620daea99c2cf2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The linear model we learn ( \(A*x = b\)). TODO: Make private member variable. <br /></td></tr>
+<tr class="separator:a9c85d794517d2d64e620daea99c2cf2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:ac98d07dd8f7b70e16ccb9a01abf56b9c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac98d07dd8f7b70e16ccb9a01abf56b9c"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization::access</b></td></tr>
-<tr class="separator:ac98d07dd8f7b70e16ccb9a01abf56b9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2f44cbb59a08132f4c843e5225bba0e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2f44cbb59a08132f4c843e5225bba0e"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></td></tr>
+<tr class="separator:ab2f44cbb59a08132f4c843e5225bba0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A simple <a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">LinearRegressor</a> that learns coefficients x for the linear relationship \( Ax = b \). This class handles learning, testing, and predicting single examples.</p>
+<div class="textblock"><h3>template&lt;class Solver = PartialPivLUSolver&gt;<br />
+class superviseddescent::LinearRegressor&lt; Solver &gt;</h3>
+
+<p>A simple <a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">LinearRegressor</a> that learns coefficients x for the linear relationship \( Ax = b \). This class handles learning, testing, and predicting single examples.</p>
 <p>A <a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a> can be specified to make the least squares problem more well-behaved (or invertible, in case it is not).</p>
 <p>Works with multi-dimensional label data. In that case, the coefficients for each label will be learned independently. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a0ca9fabd613204489ea81213e0f9396d"></a>
+<a class="anchor" id="aebcac21c36e5b68ebbe033ad707b7868"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class Solver  = PartialPivLUSolver&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">superviseddescent::LinearRegressor::LinearRegressor </td>
+          <td class="memname"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">superviseddescent::LinearRegressor</a>&lt; Solver &gt;::<a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">LinearRegressor</a> </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a>&#160;</td>
           <td class="paramname"><em>regulariser</em> = <code><a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a>()</code></td><td>)</td>
@@ -175,15 +180,17 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a974948bd6d8424ec7cf75a405abe20c4"></a>
+<a class="anchor" id="a2f1b618f5523ed7eb9860af8ccd4bd7c"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class Solver  = PartialPivLUSolver&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool superviseddescent::LinearRegressor::learn </td>
+          <td class="memname">bool <a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">superviseddescent::LinearRegressor</a>&lt; Solver &gt;::learn </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
           <td class="paramname"><em>data</em>, </td>
@@ -208,6 +215,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 </div><div class="memdoc">
 <p>Learns a linear predictor from the given data and labels.</p>
 <p>In case the problem is not invertible, the function will return false and will most likely have learned garbage.</p>
+<p>Note/Todo: We probably want to change the interface to return void. Not all solvers can return a bool, it's kind of optional, so we can't rely on it.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Training data matrix, one example per row. </td></tr>
@@ -215,21 +223,23 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns whether \( \text{data}^t * \text{data} \) was invertible. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns whether \( \text{data}^t * \text{data} \) was invertible. (Note: Always returns true at the moment.) </dd></dl>
 
 <p>Implements <a class="el" href="classsuperviseddescent_1_1_regressor.html#a217f0baa510cc8321d0120a8bec2f78d">superviseddescent::Regressor</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a4332e48c2d3e733927bc0905451456d7"></a>
+<a class="anchor" id="a57569bb695f44039173f9bed44910c34"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class Solver  = PartialPivLUSolver&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat superviseddescent::LinearRegressor::predict </td>
+          <td class="memname">cv::Mat <a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">superviseddescent::LinearRegressor</a>&lt; Solver &gt;::predict </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
           <td class="paramname"><em>values</em></td><td>)</td>
@@ -255,15 +265,17 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 
 </div>
 </div>
-<a class="anchor" id="a5f0d9aeb567e22dd71d2f8f13a2131ae"></a>
+<a class="anchor" id="a8e052726368bd06de185ee41c57c17bd"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class Solver  = PartialPivLUSolver&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">double superviseddescent::LinearRegressor::test </td>
+          <td class="memname">double <a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">superviseddescent::LinearRegressor</a>&lt; Solver &gt;::test </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
           <td class="paramname"><em>data</em>, </td>
@@ -306,7 +318,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jan 31 2015 23:29:38 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jun 28 2015 22:41:54 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

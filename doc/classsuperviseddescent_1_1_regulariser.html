@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">superviseddescent
-   &#160;<span id="projectnumber">0.1.0</span>
+   &#160;<span id="projectnumber">0.4.0</span>
    </div>
   </td>
  </tr>
@@ -114,16 +114,16 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7430f425a12f5973ba272354dd3a3de4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_regulariser.html#a7430f425a12f5973ba272354dd3a3de4">Regulariser</a> (<a class="el" href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bac">RegularisationType</a> regularisationType=<a class="el" href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bacae1ba155a9f2e8c3be94020eef32a0301">RegularisationType::Manual</a>, float param=0.0f, bool regulariseLastRow=true)</td></tr>
-<tr class="separator:a7430f425a12f5973ba272354dd3a3de4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99e85bd6a81e12276f955db0c39cace5"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_regulariser.html#a99e85bd6a81e12276f955db0c39cace5">getMatrix</a> (cv::Mat data, int numTrainingElements)</td></tr>
-<tr class="separator:a99e85bd6a81e12276f955db0c39cace5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84caeb80866e7f4a99b8f91fbf0bf138"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_regulariser.html#a84caeb80866e7f4a99b8f91fbf0bf138">Regulariser</a> (<a class="el" href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bac">RegularisationType</a> regularisation_type=<a class="el" href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bacae1ba155a9f2e8c3be94020eef32a0301">RegularisationType::Manual</a>, float param=0.0f, bool regularise_last_row=true)</td></tr>
+<tr class="separator:a84caeb80866e7f4a99b8f91fbf0bf138"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a550a4bac76416092794519c4f2b1b51c"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_regulariser.html#a550a4bac76416092794519c4f2b1b51c">get_matrix</a> (cv::Mat data, int num_training_elements)</td></tr>
+<tr class="separator:a550a4bac76416092794519c4f2b1b51c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:ac98d07dd8f7b70e16ccb9a01abf56b9c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac98d07dd8f7b70e16ccb9a01abf56b9c"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization::access</b></td></tr>
-<tr class="separator:ac98d07dd8f7b70e16ccb9a01abf56b9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2f44cbb59a08132f4c843e5225bba0e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2f44cbb59a08132f4c843e5225bba0e"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></td></tr>
+<tr class="separator:ab2f44cbb59a08132f4c843e5225bba0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a> class for the <a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">LinearRegressor</a>.</p>
@@ -159,7 +159,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a7430f425a12f5973ba272354dd3a3de4"></a>
+<a class="anchor" id="a84caeb80866e7f4a99b8f91fbf0bf138"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -170,7 +170,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
           <td class="memname">superviseddescent::Regulariser::Regulariser </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bac">RegularisationType</a>&#160;</td>
-          <td class="paramname"><em>regularisationType</em> = <code><a class="el" href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bacae1ba155a9f2e8c3be94020eef32a0301">RegularisationType::Manual</a></code>, </td>
+          <td class="paramname"><em>regularisation_type</em> = <code><a class="el" href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bacae1ba155a9f2e8c3be94020eef32a0301">RegularisationType::Manual</a></code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -182,7 +182,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>regulariseLastRow</em> = <code>true</code>&#160;</td>
+          <td class="paramname"><em>regularise_last_row</em> = <code>true</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -197,12 +197,12 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 </table>
 </div><div class="memdoc">
 <p>Create a new regulariser. Created with default parameters, it will not do any regularisation. <a class="el" href="classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bac">Regulariser::RegularisationType</a> can be used to specify the choice of the regularisation parameter lambda.</p>
-<p><em>regulariseLastRow</em> is useful to specify the regularisation behaviour in the case the last row of the data matrix contains an affine (offset or bias) component. In that case, you might not want to regularise it (or maybe you do).</p>
+<p><code>regularise_last_row</code> is useful to specify the regularisation behaviour in the case the last row of the data matrix contains an affine (offset or bias) component. In that case, you might not want to regularise it (or maybe you do).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">regularisationType</td><td>Specifies how to calculate lambda. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">regularisation_type</td><td>Specifies how to calculate lambda. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">param</td><td>Lambda, or a factor, depending on regularisationType. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">regulariseLastRow</td><td>Specifies if the last row should be regularised. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">regularise_last_row</td><td>Specifies if the last row should be regularised. </td></tr>
   </table>
   </dd>
 </dl>
@@ -210,7 +210,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a99e85bd6a81e12276f955db0c39cace5"></a>
+<a class="anchor" id="a550a4bac76416092794519c4f2b1b51c"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -218,7 +218,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat superviseddescent::Regulariser::getMatrix </td>
+          <td class="memname">cv::Mat superviseddescent::Regulariser::get_matrix </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
           <td class="paramname"><em>data</em>, </td>
@@ -227,7 +227,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>numTrainingElements</em>&#160;</td>
+          <td class="paramname"><em>num_training_elements</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -245,7 +245,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Data matrix that might be used to calculate an automatic value for lambda. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">numTrainingElements</td><td>Number of training elements. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">num_training_elements</td><td>Number of training elements. </td></tr>
   </table>
   </dd>
 </dl>
@@ -259,7 +259,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jan 31 2015 23:29:39 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jun 28 2015 22:41:55 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

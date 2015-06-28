@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['superviseddescent',['superviseddescent',['../namespacesuperviseddescent.html',1,'']]],
-  ['superviseddescentoptimiser',['SupervisedDescentOptimiser',['../classsuperviseddescent_1_1_supervised_descent_optimiser.html#a3e4203a099b95e86ddba7fc6fb4845a7',1,'superviseddescent::SupervisedDescentOptimiser::SupervisedDescentOptimiser()=default'],['../classsuperviseddescent_1_1_supervised_descent_optimiser.html#a3642c176cccc6475640210a4802b78c5',1,'superviseddescent::SupervisedDescentOptimiser::SupervisedDescentOptimiser(std::vector&lt; RegressorType &gt; regressors)']]],
-  ['superviseddescentoptimiser',['SupervisedDescentOptimiser',['../classsuperviseddescent_1_1_supervised_descent_optimiser.html',1,'superviseddescent']]]
+  ['regressor',['Regressor',['../classsuperviseddescent_1_1_regressor.html',1,'superviseddescent']]],
+  ['regularisationtype',['RegularisationType',['../classsuperviseddescent_1_1_regulariser.html#a335ac25b8ba26075d1c7687fe26a1bac',1,'superviseddescent::Regulariser']]],
+  ['regulariser',['Regulariser',['../classsuperviseddescent_1_1_regulariser.html#a84caeb80866e7f4a99b8f91fbf0bf138',1,'superviseddescent::Regulariser']]],
+  ['regulariser',['Regulariser',['../classsuperviseddescent_1_1_regulariser.html',1,'superviseddescent']]]
 ];

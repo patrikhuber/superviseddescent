@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.7"/>
-<title>superviseddescent: superviseddescent::SupervisedDescentOptimiser&lt; RegressorType &gt; Class Template Reference</title>
+<title>superviseddescent: superviseddescent::SupervisedDescentOptimiser&lt; RegressorType, NormalisationStrategy &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">superviseddescent
-   &#160;<span id="projectnumber">0.1.0</span>
+   &#160;<span id="projectnumber">0.4.0</span>
    </div>
   </td>
  </tr>
@@ -98,7 +98,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#friends">Friends</a> &#124;
 <a href="classsuperviseddescent_1_1_supervised_descent_optimiser-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">superviseddescent::SupervisedDescentOptimiser&lt; RegressorType &gt; Class Template Reference</div>  </div>
+<div class="title">superviseddescent::SupervisedDescentOptimiser&lt; RegressorType, NormalisationStrategy &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
@@ -106,50 +106,50 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3e4203a099b95e86ddba7fc6fb4845a7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a3e4203a099b95e86ddba7fc6fb4845a7">SupervisedDescentOptimiser</a> ()=default</td></tr>
-<tr class="separator:a3e4203a099b95e86ddba7fc6fb4845a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3642c176cccc6475640210a4802b78c5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a3642c176cccc6475640210a4802b78c5">SupervisedDescentOptimiser</a> (std::vector&lt; RegressorType &gt; regressors)</td></tr>
-<tr class="separator:a3642c176cccc6475640210a4802b78c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b50054ab13111f205919bd4105b0863"><td class="memTemplParams" colspan="2">template&lt;class H &gt; </td></tr>
-<tr class="memitem:a7b50054ab13111f205919bd4105b0863"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a7b50054ab13111f205919bd4105b0863">train</a> (cv::Mat x, cv::Mat x0, cv::Mat y, H h)</td></tr>
-<tr class="separator:a7b50054ab13111f205919bd4105b0863"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ff2014f71406b4aff29a982ff0ad699"><td class="memTemplParams" colspan="2">template&lt;class H , class OnTrainingEpochCallback &gt; </td></tr>
-<tr class="memitem:a6ff2014f71406b4aff29a982ff0ad699"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a6ff2014f71406b4aff29a982ff0ad699">train</a> (cv::Mat x, cv::Mat x0, cv::Mat y, H h, OnTrainingEpochCallback onTrainingEpochCallback)</td></tr>
-<tr class="separator:a6ff2014f71406b4aff29a982ff0ad699"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c3cffbcdb1f4448a3c4a5f9bfaf83d8"><td class="memTemplParams" colspan="2">template&lt;class H &gt; </td></tr>
-<tr class="memitem:a3c3cffbcdb1f4448a3c4a5f9bfaf83d8"><td class="memTemplItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a3c3cffbcdb1f4448a3c4a5f9bfaf83d8">test</a> (cv::Mat x0, cv::Mat y, H h)</td></tr>
-<tr class="separator:a3c3cffbcdb1f4448a3c4a5f9bfaf83d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae35f9eca659940d49c70fc9451150a17"><td class="memTemplParams" colspan="2">template&lt;class H , class OnRegressorIterationCallback &gt; </td></tr>
-<tr class="memitem:ae35f9eca659940d49c70fc9451150a17"><td class="memTemplItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#ae35f9eca659940d49c70fc9451150a17">test</a> (cv::Mat x0, cv::Mat y, H h, OnRegressorIterationCallback onRegressorIterationCallback)</td></tr>
-<tr class="separator:ae35f9eca659940d49c70fc9451150a17"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e783e26433fe7b9be0b831ae30dd895"><td class="memTemplParams" colspan="2">template&lt;class H &gt; </td></tr>
-<tr class="memitem:a6e783e26433fe7b9be0b831ae30dd895"><td class="memTemplItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a6e783e26433fe7b9be0b831ae30dd895">predict</a> (cv::Mat x0, cv::Mat y, H h)</td></tr>
-<tr class="separator:a6e783e26433fe7b9be0b831ae30dd895"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6703c6f09df8c8dad3983235f66a9a72"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a6703c6f09df8c8dad3983235f66a9a72">SupervisedDescentOptimiser</a> ()=default</td></tr>
+<tr class="separator:a6703c6f09df8c8dad3983235f66a9a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1fdaaab863c089e6508201cc3c9cd7b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#ac1fdaaab863c089e6508201cc3c9cd7b">SupervisedDescentOptimiser</a> (std::vector&lt; RegressorType &gt; regressors, NormalisationStrategy normalisation=<a class="el" href="classsuperviseddescent_1_1_no_normalisation.html">NoNormalisation</a>())</td></tr>
+<tr class="separator:ac1fdaaab863c089e6508201cc3c9cd7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae900258c4636a182b1f770507d75e0af"><td class="memTemplParams" colspan="2">template&lt;class ProjectionFunction &gt; </td></tr>
+<tr class="memitem:ae900258c4636a182b1f770507d75e0af"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#ae900258c4636a182b1f770507d75e0af">train</a> (cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)</td></tr>
+<tr class="separator:ae900258c4636a182b1f770507d75e0af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4bc0dd01c9967dc58becc6e17b1e859f"><td class="memTemplParams" colspan="2">template&lt;class ProjectionFunction , class OnTrainingEpochCallback &gt; </td></tr>
+<tr class="memitem:a4bc0dd01c9967dc58becc6e17b1e859f"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a4bc0dd01c9967dc58becc6e17b1e859f">train</a> (cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnTrainingEpochCallback on_training_epoch_callback)</td></tr>
+<tr class="separator:a4bc0dd01c9967dc58becc6e17b1e859f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd26313467d58efa74146e3768142851"><td class="memTemplParams" colspan="2">template&lt;class ProjectionFunction &gt; </td></tr>
+<tr class="memitem:abd26313467d58efa74146e3768142851"><td class="memTemplItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#abd26313467d58efa74146e3768142851">test</a> (cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)</td></tr>
+<tr class="separator:abd26313467d58efa74146e3768142851"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21d974ffcc3334b0053df2f5179a433e"><td class="memTemplParams" colspan="2">template&lt;class ProjectionFunction , class OnRegressorIterationCallback &gt; </td></tr>
+<tr class="memitem:a21d974ffcc3334b0053df2f5179a433e"><td class="memTemplItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a21d974ffcc3334b0053df2f5179a433e">test</a> (cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnRegressorIterationCallback on_regressor_iteration_callback)</td></tr>
+<tr class="separator:a21d974ffcc3334b0053df2f5179a433e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff24724bf545d1e0a01a34b7644b0820"><td class="memTemplParams" colspan="2">template&lt;class ProjectionFunction &gt; </td></tr>
+<tr class="memitem:aff24724bf545d1e0a01a34b7644b0820"><td class="memTemplItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#aff24724bf545d1e0a01a34b7644b0820">predict</a> (cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)</td></tr>
+<tr class="separator:aff24724bf545d1e0a01a34b7644b0820"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:ac98d07dd8f7b70e16ccb9a01abf56b9c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac98d07dd8f7b70e16ccb9a01abf56b9c"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>boost::serialization::access</b></td></tr>
-<tr class="separator:ac98d07dd8f7b70e16ccb9a01abf56b9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2f44cbb59a08132f4c843e5225bba0e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2f44cbb59a08132f4c843e5225bba0e"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></td></tr>
+<tr class="separator:ab2f44cbb59a08132f4c843e5225bba0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;class RegressorType&gt;<br />
-class superviseddescent::SupervisedDescentOptimiser&lt; RegressorType &gt;</h3>
+<div class="textblock"><h3>template&lt;class RegressorType, class NormalisationStrategy = NoNormalisation&gt;<br />
+class superviseddescent::SupervisedDescentOptimiser&lt; RegressorType, NormalisationStrategy &gt;</h3>
 
 <p>The heart of the library: The main class that performs learning of the gradient, testing and predicting of values.</p>
 <p>The class takes a <code>RegressorType</code> as template parameter to specify a learning algorithm to use. As an example, use a <a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">LinearRegressor</a> from <a class="el" href="regressors_8hpp_source.html">regressors.hpp</a>. To use your own learning algorithm, implement the functions of the abstract class <a class="el" href="classsuperviseddescent_1_1_regressor.html">Regressor</a>. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a3e4203a099b95e86ddba7fc6fb4845a7"></a>
+<a class="anchor" id="a6703c6f09df8c8dad3983235f66a9a72"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class RegressorType &gt; </div>
+template&lt;class RegressorType , class NormalisationStrategy  = NoNormalisation&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType &gt;::<a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">SupervisedDescentOptimiser</a> </td>
+          <td class="memname"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType, NormalisationStrategy &gt;::<a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">SupervisedDescentOptimiser</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -166,21 +166,31 @@ template&lt;class RegressorType &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a3642c176cccc6475640210a4802b78c5"></a>
+<a class="anchor" id="ac1fdaaab863c089e6508201cc3c9cd7b"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class RegressorType &gt; </div>
+template&lt;class RegressorType , class NormalisationStrategy  = NoNormalisation&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType &gt;::<a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">SupervisedDescentOptimiser</a> </td>
+          <td class="memname"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType, NormalisationStrategy &gt;::<a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">SupervisedDescentOptimiser</a> </td>
           <td>(</td>
           <td class="paramtype">std::vector&lt; RegressorType &gt;&#160;</td>
-          <td class="paramname"><em>regressors</em></td><td>)</td>
+          <td class="paramname"><em>regressors</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">NormalisationStrategy&#160;</td>
+          <td class="paramname"><em>normalisation</em> = <code><a class="el" href="classsuperviseddescent_1_1_no_normalisation.html">NoNormalisation</a>()</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -193,6 +203,7 @@ template&lt;class RegressorType &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">regressors</td><td>One or several regressors. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">normalisation</td><td>Normalisation strategy for the data during optimisation. </td></tr>
   </table>
   </dd>
 </dl>
@@ -200,34 +211,34 @@ template&lt;class RegressorType &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a6e783e26433fe7b9be0b831ae30dd895"></a>
+<a class="anchor" id="aff24724bf545d1e0a01a34b7644b0820"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class RegressorType &gt; </div>
+template&lt;class RegressorType , class NormalisationStrategy  = NoNormalisation&gt; </div>
 <div class="memtemplate">
-template&lt;class H &gt; </div>
+template&lt;class ProjectionFunction &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType &gt;::predict </td>
+          <td class="memname">cv::Mat <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType, NormalisationStrategy &gt;::predict </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>x0</em>, </td>
+          <td class="paramname"><em>initialisations</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
+          <td class="paramname"><em>templates</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">H&#160;</td>
-          <td class="paramname"><em>h</em>&#160;</td>
+          <td class="paramtype">ProjectionFunction&#160;</td>
+          <td class="paramname"><em>projection</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -244,12 +255,12 @@ template&lt;class H &gt; </div>
 <p>Predicts the result value for a single example, using the learned regressors.</p>
 <p>The input matrices should only contain one row (i.e. one training example).</p>
 <p><code>y</code> can either be given or set to empty (<code>=cv::Mat()</code>), according to what was learned during training.</p>
-<p>For a detailed explanation of the parameters, see <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a7b50054ab13111f205919bd4105b0863">train(cv::Mat x, cv::Mat x0, cv::Mat y, H h)</a>.</p>
+<p>For a detailed explanation of the parameters, see <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#ae900258c4636a182b1f770507d75e0af">train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">x0</td><td>Initialisation values for the parameters (x). Constant (x0 = c) in case a) and variable in case b). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">y</td><td>An optional matrix of template values. See description above. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">h</td><td>The projection function that projects the given x (parameter) values to the space of the y values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">initialisations</td><td>Initialisation values for the parameters. Constant in case 1) and variable in case 2). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">templates</td><td>An optional matrix of template values. See description above. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">projection</td><td>The projection function that projects the given parameter values to the space of the template values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform. </td></tr>
   </table>
   </dd>
 </dl>
@@ -257,34 +268,34 @@ template&lt;class H &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a3c3cffbcdb1f4448a3c4a5f9bfaf83d8"></a>
+<a class="anchor" id="abd26313467d58efa74146e3768142851"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class RegressorType &gt; </div>
+template&lt;class RegressorType , class NormalisationStrategy  = NoNormalisation&gt; </div>
 <div class="memtemplate">
-template&lt;class H &gt; </div>
+template&lt;class ProjectionFunction &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType &gt;::test </td>
+          <td class="memname">cv::Mat <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType, NormalisationStrategy &gt;::test </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>x0</em>, </td>
+          <td class="paramname"><em>initialisations</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
+          <td class="paramname"><em>templates</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">H&#160;</td>
-          <td class="paramname"><em>h</em>&#160;</td>
+          <td class="paramtype">ProjectionFunction&#160;</td>
+          <td class="paramname"><em>projection</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -301,13 +312,13 @@ template&lt;class H &gt; </div>
 <p>Tests the learned regressor model with the given test data.</p>
 <p>The test data should be specified as one row per example.</p>
 <p><code>y</code> can either be given or set to empty (<code>=cv::Mat()</code>), according to what was learned during training.</p>
-<p>For a detailed explanation of the parameters, see <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a7b50054ab13111f205919bd4105b0863">train(cv::Mat x, cv::Mat x0, cv::Mat y, H h)</a>.</p>
-<p>Calls the testing with a default (no-op) callback function. To specify a callback function, see the overload <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#ae35f9eca659940d49c70fc9451150a17">test(cv::Mat x0, cv::Mat y, H h, OnRegressorIterationCallback onRegressorIterationCallback)</a>.</p>
+<p>For a detailed explanation of the parameters, see <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#ae900258c4636a182b1f770507d75e0af">train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)</a>.</p>
+<p>Calls the testing with a default (no-op) callback function. To specify a callback function, see the overload <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a21d974ffcc3334b0053df2f5179a433e">test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnRegressorIterationCallback onRegressorIterationCallback)</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">x0</td><td>Initialisation values for the parameters (x). Constant (x0 = c) in case a) and variable in case b). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">y</td><td>An optional matrix of template values. See description above. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">h</td><td>The projection function that projects the given x (parameter) values to the space of the y values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">initialisations</td><td>Initialisation values for the parameters. Constant in case 1) and variable in case 2). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">templates</td><td>An optional matrix of template values. See description above. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">projection</td><td>The projection function that projects the given parameter values to the space of the template values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform. </td></tr>
   </table>
   </dd>
 </dl>
@@ -315,40 +326,40 @@ template&lt;class H &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ae35f9eca659940d49c70fc9451150a17"></a>
+<a class="anchor" id="a21d974ffcc3334b0053df2f5179a433e"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class RegressorType &gt; </div>
+template&lt;class RegressorType , class NormalisationStrategy  = NoNormalisation&gt; </div>
 <div class="memtemplate">
-template&lt;class H , class OnRegressorIterationCallback &gt; </div>
+template&lt;class ProjectionFunction , class OnRegressorIterationCallback &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType &gt;::test </td>
+          <td class="memname">cv::Mat <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType, NormalisationStrategy &gt;::test </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>x0</em>, </td>
+          <td class="paramname"><em>initialisations</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
+          <td class="paramname"><em>templates</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">H&#160;</td>
-          <td class="paramname"><em>h</em>, </td>
+          <td class="paramtype">ProjectionFunction&#160;</td>
+          <td class="paramname"><em>projection</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">OnRegressorIterationCallback&#160;</td>
-          <td class="paramname"><em>onRegressorIterationCallback</em>&#160;</td>
+          <td class="paramname"><em>on_regressor_iteration_callback</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -364,67 +375,67 @@ template&lt;class H , class OnRegressorIterationCallback &gt; </div>
 </div><div class="memdoc">
 
 <p></p>
-<p>Identical to <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a3c3cffbcdb1f4448a3c4a5f9bfaf83d8">test(cv::Mat x0, cv::Mat y, H h)</a>, but allows to specify a callback function that gets called with the current prediction after applying each regressor.</p>
-<p>The signature of the callback function must take a cv::Mat with the current predictions and can capture any additional variables from the surrounding context. For example, to print the normalised least squares residual between <code>groundtruth</code> and the current predictions: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> printResidual = [&amp;groundtruth](<span class="keyword">const</span> cv::Mat&amp; currentPredictions) {</div>
-<div class="line"> std::cout &lt;&lt; cv::norm(currentPredictions, groundtruth, cv::NORM_L2) / cv::norm(groundtruth, cv::NORM_L2) &lt;&lt; std::endl;</div>
+<p>Identical to <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#abd26313467d58efa74146e3768142851">test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)</a>, but allows to specify a callback function that gets called with the current prediction after applying each regressor.</p>
+<p>The signature of the callback function must take a cv::Mat with the current predictions and can capture any additional variables from the surrounding context. For example, to print the normalised least squares residual between <code>groundtruth</code> and the current predictions: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> print_residual = [&amp;groundtruth](<span class="keyword">const</span> cv::Mat&amp; current_predictions) {</div>
+<div class="line"> std::cout &lt;&lt; cv::norm(current_predictions, groundtruth, cv::NORM_L2) / cv::norm(groundtruth, cv::NORM_L2) &lt;&lt; std::endl;</div>
 <div class="line">};</div>
 </div><!-- fragment --><p>Tests the learned regressor model with the given test data.</p>
 <p>The test data should be specified as one row per example.</p>
 <p><code>y</code> can either be given or set to empty (<code>=cv::Mat()</code>), according to what was learned during training.</p>
-<p>For a detailed explanation of the parameters, see <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a7b50054ab13111f205919bd4105b0863">train(cv::Mat x, cv::Mat x0, cv::Mat y, H h)</a>.</p>
-<p>Calls the testing with a default (no-op) callback function. To specify a callback function, see the overload <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#ae35f9eca659940d49c70fc9451150a17">test(cv::Mat x0, cv::Mat y, H h, OnRegressorIterationCallback onRegressorIterationCallback)</a>.</p>
+<p>For a detailed explanation of the parameters, see <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#ae900258c4636a182b1f770507d75e0af">train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)</a>.</p>
+<p>Calls the testing with a default (no-op) callback function. To specify a callback function, see the overload <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a21d974ffcc3334b0053df2f5179a433e">test(cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnRegressorIterationCallback onRegressorIterationCallback)</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">x0</td><td>Initialisation values for the parameters (x). Constant (x0 = c) in case a) and variable in case b). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">y</td><td>An optional matrix of template values. See description above. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">h</td><td>The projection function that projects the given x (parameter) values to the space of the y values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">initialisations</td><td>Initialisation values for the parameters. Constant in case 1) and variable in case 2). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">templates</td><td>An optional matrix of template values. See description above. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">projection</td><td>The projection function that projects the given parameter values to the space of the template values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns the final prediction of all given test examples.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">onRegressorIterationCallback</td><td>A callback function that gets called after each applied regressor, with the current prediction result. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">on_regressor_iteration_callback</td><td>A callback function that gets called after each applied regressor, with the current prediction result. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="a7b50054ab13111f205919bd4105b0863"></a>
+<a class="anchor" id="ae900258c4636a182b1f770507d75e0af"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class RegressorType &gt; </div>
+template&lt;class RegressorType , class NormalisationStrategy  = NoNormalisation&gt; </div>
 <div class="memtemplate">
-template&lt;class H &gt; </div>
+template&lt;class ProjectionFunction &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType &gt;::train </td>
+          <td class="memname">void <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType, NormalisationStrategy &gt;::train </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
+          <td class="paramname"><em>parameters</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>x0</em>, </td>
+          <td class="paramname"><em>initialisations</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
+          <td class="paramname"><em>templates</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">H&#160;</td>
-          <td class="paramname"><em>h</em>&#160;</td>
+          <td class="paramtype">ProjectionFunction&#160;</td>
+          <td class="paramname"><em>projection</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -439,71 +450,72 @@ template&lt;class H &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Train the regressor model from the given training data.</p>
-<p>The function takes as input a set of groundtruth parameters <code>x</code>, initialisation values for these parameters <code>x0</code>, an optional set of templates <code>y</code> (see description below) and a function <code>h</code> that is applied to the parameters.</p>
-<p><code>y</code> can either be given or set to empty (<code>=cv::Mat()</code>); There are two cases:<br />
+<p>The function takes as input a set of ground truth parameters (<code>parameters</code>), initialisation values for these parameters (<code>initialisations</code>), an optional set of templates (<code>templates</code>) (see description below) and a function <code>projection</code> that is applied to the parameters.</p>
+<p>In [1], the <code>parameters</code> are called \( x \), the <code>initialisations</code> are \( x_0 \), the <code>templates</code> \( y \) and the <code>projection</code> function is denoted as \( h \).</p>
+<p>The <code>templates</code> y can either be given or set to empty (<code>=cv::Mat()</code>); There are two cases:<br />
 </p><ol type="1">
-<li>y is known at testing time, i.e. a fixed template. For example pose estimation using given landmarks (=y).</li>
-<li>y is not known at testing time. For example landmark detection, where we don't know y at testing (the e.g. HoG values are different for each testing face).</li>
+<li>\( y \) is known at testing time, i.e. a fixed template. For example pose estimation using given landmarks (= \( y \)).</li>
+<li>\( y \) is not known at testing time. For example landmark detection, where we don't know \( y \) at testing (the e.g. HoG values are different for each testing face).</li>
 </ol>
-<p>Examples for the parameters:<br />
+<p>Example cases:<br />
 </p><ol type="1">
-<li>x = the 6 DOF pose parameters (R, t); y = 2D landmark positions; x0 = c; h = projection from 3D model to 2D, using current params x.</li>
-<li>x = groundtruth landmarks - the final location we want to be, i.e. our parameters; no y in both training and test; x0 = landmark locations after e.g. initialisation with a facedetector; h = HoG feature extraction at the current landmark locations x.</li>
+<li>\( x \) = the 6 DOF pose parameters (R, t); \( y \) = 2D landmark positions; \( x_0 \) = const; \( h \) = projection from 3D model to 2D, using current params \( x \).</li>
+<li>\( x \) = groundtruth landmarks - the final location we want to be, i.e. our parameters; no \( y \) in both training and test; \( x_0 \) = landmark locations after e.g. initialisation with a facedetector; \( h \) = HoG feature extraction at the current landmark locations x.</li>
 </ol>
-<p><code>h</code> is a function that takes one training sample (a cv::Mat row vector) and returns a cv::Mat row-vector.</p>
-<p>This function calls a default (no-op) callback function after training of each regressor. To specify a callback function, see the overload <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a6ff2014f71406b4aff29a982ff0ad699">train(cv::Mat x, cv::Mat x0, cv::Mat y, H h, OnTrainingEpochCallback onTrainingEpochCallback)</a>.</p>
+<p><code>projection</code> is a function that takes one training sample (a <code>cv::Mat</code> row vector) and returns a <code>cv::Mat</code> row-vector.</p>
+<p>This function calls a default (no-op) callback function after training of each regressor. To specify a callback function, see the overload <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a4bc0dd01c9967dc58becc6e17b1e859f">train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnTrainingEpochCallback onTrainingEpochCallback)</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">x</td><td>A matrix of ground truth values of parameters, with each row being one training example. These are the parameters we want to learn. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">x0</td><td>Initialisation values for the parameters (x). Constant (x0 = c) in case a) and variable in case b). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">y</td><td>An optional matrix of template values. See description above. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">h</td><td>The projection function that projects the given x (parameter) values to the space of the y values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">parameters</td><td>A matrix of ground truth values of parameters, with each row being one training example. These are the parameters we want to learn. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">initialisations</td><td>Initialisation values for the parameters. Constant in case 1) and variable in case 2). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">templates</td><td>An optional matrix of template values. See description above. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">projection</td><td>The projection function that projects the given parameter values to the space of the template values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="a6ff2014f71406b4aff29a982ff0ad699"></a>
+<a class="anchor" id="a4bc0dd01c9967dc58becc6e17b1e859f"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class RegressorType &gt; </div>
+template&lt;class RegressorType , class NormalisationStrategy  = NoNormalisation&gt; </div>
 <div class="memtemplate">
-template&lt;class H , class OnTrainingEpochCallback &gt; </div>
+template&lt;class ProjectionFunction , class OnTrainingEpochCallback &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType &gt;::train </td>
+          <td class="memname">void <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">superviseddescent::SupervisedDescentOptimiser</a>&lt; RegressorType, NormalisationStrategy &gt;::train </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
+          <td class="paramname"><em>parameters</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>x0</em>, </td>
+          <td class="paramname"><em>initialisations</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
+          <td class="paramname"><em>templates</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">H&#160;</td>
-          <td class="paramname"><em>h</em>, </td>
+          <td class="paramtype">ProjectionFunction&#160;</td>
+          <td class="paramname"><em>projection</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">OnTrainingEpochCallback&#160;</td>
-          <td class="paramname"><em>onTrainingEpochCallback</em>&#160;</td>
+          <td class="paramname"><em>on_training_epoch_callback</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -519,31 +531,32 @@ template&lt;class H , class OnTrainingEpochCallback &gt; </div>
 </div><div class="memdoc">
 
 <p></p>
-<p>Identical to <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a7b50054ab13111f205919bd4105b0863">train(cv::Mat x, cv::Mat x0, cv::Mat y, H h)</a>, but allows to specify a callback function that gets called with the current prediction after every regressor.</p>
-<p>The signature of the callback function must take a cv::Mat with the current predictions and can capture any additional variables from the surrounding context. For example, to print the normalised least squares residual between <code>groundtruth</code> and the current predictions: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> printResidual = [&amp;groundtruth](<span class="keyword">const</span> cv::Mat&amp; currentPredictions) {</div>
-<div class="line"> std::cout &lt;&lt; cv::norm(currentPredictions, groundtruth, cv::NORM_L2) / cv::norm(groundtruth, cv::NORM_L2) &lt;&lt; std::endl;</div>
+<p>Identical to <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#ae900258c4636a182b1f770507d75e0af">train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection)</a>, but allows to specify a callback function that gets called with the current prediction after every regressor.</p>
+<p>The signature of the callback function must take a <code>cv::Mat</code> with the current predictions and can capture any additional variables from the surrounding context. For example, to print the normalised least squares residual between <code>groundtruth</code> and the current predictions: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> print_residual = [&amp;groundtruth](<span class="keyword">const</span> cv::Mat&amp; current_predictions) {</div>
+<div class="line"> std::cout &lt;&lt; cv::norm(current_predictions, groundtruth, cv::NORM_L2) / cv::norm(groundtruth, cv::NORM_L2) &lt;&lt; std::endl;</div>
 <div class="line">};</div>
 </div><!-- fragment --><p>Train the regressor model from the given training data.</p>
-<p>The function takes as input a set of groundtruth parameters <code>x</code>, initialisation values for these parameters <code>x0</code>, an optional set of templates <code>y</code> (see description below) and a function <code>h</code> that is applied to the parameters.</p>
-<p><code>y</code> can either be given or set to empty (<code>=cv::Mat()</code>); There are two cases:<br />
+<p>The function takes as input a set of ground truth parameters (<code>parameters</code>), initialisation values for these parameters (<code>initialisations</code>), an optional set of templates (<code>templates</code>) (see description below) and a function <code>projection</code> that is applied to the parameters.</p>
+<p>In [1], the <code>parameters</code> are called \( x \), the <code>initialisations</code> are \( x_0 \), the <code>templates</code> \( y \) and the <code>projection</code> function is denoted as \( h \).</p>
+<p>The <code>templates</code> y can either be given or set to empty (<code>=cv::Mat()</code>); There are two cases:<br />
 </p><ol type="1">
-<li>y is known at testing time, i.e. a fixed template. For example pose estimation using given landmarks (=y).</li>
-<li>y is not known at testing time. For example landmark detection, where we don't know y at testing (the e.g. HoG values are different for each testing face).</li>
+<li>\( y \) is known at testing time, i.e. a fixed template. For example pose estimation using given landmarks (= \( y \)).</li>
+<li>\( y \) is not known at testing time. For example landmark detection, where we don't know \( y \) at testing (the e.g. HoG values are different for each testing face).</li>
 </ol>
-<p>Examples for the parameters:<br />
+<p>Example cases:<br />
 </p><ol type="1">
-<li>x = the 6 DOF pose parameters (R, t); y = 2D landmark positions; x0 = c; h = projection from 3D model to 2D, using current params x.</li>
-<li>x = groundtruth landmarks - the final location we want to be, i.e. our parameters; no y in both training and test; x0 = landmark locations after e.g. initialisation with a facedetector; h = HoG feature extraction at the current landmark locations x.</li>
+<li>\( x \) = the 6 DOF pose parameters (R, t); \( y \) = 2D landmark positions; \( x_0 \) = const; \( h \) = projection from 3D model to 2D, using current params \( x \).</li>
+<li>\( x \) = groundtruth landmarks - the final location we want to be, i.e. our parameters; no \( y \) in both training and test; \( x_0 \) = landmark locations after e.g. initialisation with a facedetector; \( h \) = HoG feature extraction at the current landmark locations x.</li>
 </ol>
-<p><code>h</code> is a function that takes one training sample (a cv::Mat row vector) and returns a cv::Mat row-vector.</p>
-<p>This function calls a default (no-op) callback function after training of each regressor. To specify a callback function, see the overload <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a6ff2014f71406b4aff29a982ff0ad699">train(cv::Mat x, cv::Mat x0, cv::Mat y, H h, OnTrainingEpochCallback onTrainingEpochCallback)</a>.</p>
+<p><code>projection</code> is a function that takes one training sample (a <code>cv::Mat</code> row vector) and returns a <code>cv::Mat</code> row-vector.</p>
+<p>This function calls a default (no-op) callback function after training of each regressor. To specify a callback function, see the overload <a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html#a4bc0dd01c9967dc58becc6e17b1e859f">train(cv::Mat parameters, cv::Mat initialisations, cv::Mat templates, ProjectionFunction projection, OnTrainingEpochCallback onTrainingEpochCallback)</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">x</td><td>A matrix of ground truth values of parameters, with each row being one training example. These are the parameters we want to learn. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">x0</td><td>Initialisation values for the parameters (x). Constant (x0 = c) in case a) and variable in case b). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">y</td><td>An optional matrix of template values. See description above. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">h</td><td>The projection function that projects the given x (parameter) values to the space of the y values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform.</td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">onTrainingEpochCallback</td><td>A callback function that gets called after the training of each individual regressor. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">parameters</td><td>A matrix of ground truth values of parameters, with each row being one training example. These are the parameters we want to learn. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">initialisations</td><td>Initialisation values for the parameters. Constant in case 1) and variable in case 2). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">templates</td><td>An optional matrix of template values. See description above. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">projection</td><td>The projection function that projects the given parameter values to the space of the template values. Could be a simple function like sin(x), a projection from 3D to 2D space, or a HoG feature transform.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">on_training_epoch_callback</td><td>A callback function that gets called after the training of each individual regressor. </td></tr>
   </table>
   </dd>
 </dl>
@@ -556,7 +569,7 @@ template&lt;class H , class OnTrainingEpochCallback &gt; </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jan 31 2015 23:29:39 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jun 28 2015 22:41:55 for superviseddescent by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

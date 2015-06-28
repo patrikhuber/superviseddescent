@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.7"/>
-<title>superviseddescent: superviseddescent Namespace Reference</title>
+<title>superviseddescent: cv Namespace Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -88,65 +88,92 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">superviseddescent Namespace Reference</div>  </div>
+<div class="title">cv Namespace Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_col_piv_householder_q_r_solver.html">ColPivHouseholderQRSolver</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_linear_regressor.html">LinearRegressor</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_no_normalisation.html">NoNormalisation</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_partial_piv_l_u_solver.html">PartialPivLUSolver</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_regressor.html">Regressor</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_regulariser.html">Regulariser</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsuperviseddescent_1_1_supervised_descent_optimiser.html">SupervisedDescentOptimiser</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a5ba421c39d97f0e5b1c7a3d5dbca5ef2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesuperviseddescent.html#a5ba421c39d97f0e5b1c7a3d5dbca5ef2">no_eval</a> (const cv::Mat &amp;current_predictions)</td></tr>
-<tr class="separator:a5ba421c39d97f0e5b1c7a3d5dbca5ef2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62cc822cc258c9305ac746d3a832f9d4"><td class="memTemplParams" colspan="2">template&lt;class Archive &gt; </td></tr>
+<tr class="memitem:a62cc822cc258c9305ac746d3a832f9d4"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacecv.html#a62cc822cc258c9305ac746d3a832f9d4">save</a> (Archive &amp;ar, const cv::Mat &amp;mat)</td></tr>
+<tr class="separator:a62cc822cc258c9305ac746d3a832f9d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7172a20ab6627a1c1967d322bdfc8756"><td class="memTemplParams" colspan="2">template&lt;class Archive &gt; </td></tr>
+<tr class="memitem:a7172a20ab6627a1c1967d322bdfc8756"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacecv.html#a7172a20ab6627a1c1967d322bdfc8756">load</a> (Archive &amp;ar, cv::Mat &amp;mat)</td></tr>
+<tr class="separator:a7172a20ab6627a1c1967d322bdfc8756"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The main namespace of the supervised descent library.</p>
-<p>superviseddescent is a C++11 implementation of the supervised descent method, which is a generic algorithm to perform optimisation of arbitrary functions. The basic idea is to learn the gradient direction of a function from data using a series of regressors. As the gradient direction is learned directly from data, the function does not have to be differentiable.</p>
-<p>The theory is based on the idea of [1] <em>Supervised Descent Method and Its Applications to Face Alignment</em>, from X. Xiong &amp; F. De la Torre, CVPR 2013. </p>
+<div class="textblock"><p>Serialisation for OpenCV cv::Mat matrices for the serialisation library cereal (<a href="http://uscilab.github.io/cereal/index.html">http://uscilab.github.io/cereal/index.html</a>). </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a5ba421c39d97f0e5b1c7a3d5dbca5ef2"></a>
+<a class="anchor" id="a7172a20ab6627a1c1967d322bdfc8756"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
+<div class="memtemplate">
+template&lt;class Archive &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">void superviseddescent::no_eval </td>
+          <td class="memname">void cv::load </td>
           <td>(</td>
-          <td class="paramtype">const cv::Mat &amp;&#160;</td>
-          <td class="paramname"><em>current_predictions</em></td><td>)</td>
+          <td class="paramtype">Archive &amp;&#160;</td>
+          <td class="paramname"><em>ar</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">cv::Mat &amp;&#160;</td>
+          <td class="paramname"><em>mat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
-<p>A callback function that gets called after each training of a regressor. This is the default function that performs nothing.</p>
+<p>De-serialise a cv::Mat using cereal.</p>
+<p>Supports all types of matrices as well as non-contiguous ones.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">current_predictions</td><td>Predictions of the current regressor. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ar</td><td>The archive to deserialise from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">mat</td><td>The matrix to deserialise into. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a62cc822cc258c9305ac746d3a832f9d4"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Archive &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void cv::save </td>
+          <td>(</td>
+          <td class="paramtype">Archive &amp;&#160;</td>
+          <td class="paramname"><em>ar</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const cv::Mat &amp;&#160;</td>
+          <td class="paramname"><em>mat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Serialise a cv::Mat using cereal.</p>
+<p>Supports all types of matrices as well as non-contiguous ones.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ar</td><td>The archive to serialise to. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">mat</td><td>The matrix to serialise. </td></tr>
   </table>
   </dd>
 </dl>
