@@ -72,7 +72,12 @@ cv::Mat align_mean(cv::Mat mean, cv::Rect facebox, float scaling_x=1.0f, float s
 	return aligned_mean;
 }
 
-// Adaptive RCRC SDM update test
+/**
+ * This class handles the adaptive shape update of the RCR
+ * during training. The update is normalised by calculating the
+ * IED of the given \c params and then returning a normalisation
+ * vector 1/IED.
+ */
 class InterEyeDistanceNormalisation
 {
 public:
@@ -107,6 +112,10 @@ private:
 	}
 };
 
+/**
+ * This class represents a learned RCR landmark detection
+ * model. It can detect landmarks and can be stored/loaded.
+ */
 class detection_model
 {
 public:
@@ -171,6 +180,13 @@ private:
 
 };
 
+/**
+ * Load a trained \c detection_model that was stored
+ * as cereal::BinaryInputArchive from the harddisk.
+ *
+ * @param[in] filename Filename to a model.
+ * @return The loaded detection_model.
+ */
 detection_model load_detection_model(std::string filename)
 {
 	detection_model rcr_model;
@@ -182,6 +198,13 @@ detection_model load_detection_model(std::string filename)
 	return rcr_model;
 };
 
+/**
+ * Save a trained \c detection_model to the harddisk
+ * as cereal::BinaryInputArchive.
+ *
+ * @param[in] model The model to be saved.
+ * @param[in] filename Filename for the model.
+ */
 void save_detection_model(detection_model model, std::string filename)
 {
 	std::ofstream file(filename, std::ios::binary);
