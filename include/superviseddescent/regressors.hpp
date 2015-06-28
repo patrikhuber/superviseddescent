@@ -22,16 +22,12 @@
 #ifndef REGRESSORS_HPP_
 #define REGRESSORS_HPP_
 
-#include "superviseddescent/matserialisation.hpp"
+#include "cereal/cereal.hpp"
+#include "superviseddescent/utils/mat_cerealisation.hpp"
 
-#include "opencv2/core/core.hpp"
 #include "Eigen/Dense"
 
-#ifdef WIN32
-	#define BOOST_ALL_DYN_LINK	// Link against the dynamic boost lib. Seems to be necessary because we use /MD, i.e. link to the dynamic CRT.
-	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
-#endif
-#include "boost/serialization/serialization.hpp"
+#include "opencv2/core/core.hpp"
 
 #include <iostream>
 
@@ -105,16 +101,16 @@ public:
 	 * do any regularisation. Regulariser::RegularisationType can be used to specify the
 	 * choice of the regularisation parameter lambda.
 	 *
-	 * _regulariseLastRow_ is useful to specify the regularisation behaviour in
+	 * \c regularise_last_row is useful to specify the regularisation behaviour in
 	 * the case the last row of the data matrix contains an affine (offset or
 	 * bias) component. In that case, you might not want to regularise it (or
 	 * maybe you do).
 	 *
-	 * @param[in] regularisationType Specifies how to calculate lambda.
+	 * @param[in] regularisation_type Specifies how to calculate lambda.
 	 * @param[in] param Lambda, or a factor, depending on regularisationType.
-	 * @param[in] regulariseLastRow Specifies if the last row should be regularised.
+	 * @param[in] regularise_last_row Specifies if the last row should be regularised.
 	 */
-	Regulariser(RegularisationType regularisationType = RegularisationType::Manual, float param = 0.0f, bool regulariseLastRow = true) : regularisationType(regularisationType), lambda(param), regulariseLastRow(regulariseLastRow)
+	Regulariser(RegularisationType regularisation_type = RegularisationType::Manual, float param = 0.0f, bool regularise_last_row = true) : regularisation_type(regularisation_type), lambda(param), regularise_last_row(regularise_last_row)
 	{
 	};
 
@@ -124,19 +120,19 @@ public:
 	 * given data matrix.
 	 *
 	 * @param[in] data Data matrix that might be used to calculate an automatic value for lambda.
-	 * @param[in] numTrainingElements Number of training elements.
+	 * @param[in] num_training_elements Number of training elements.
 	 * @return Returns a diagonal regularisation matrix with the same dimensions as the given data matrix.
 	 */
-	cv::Mat getMatrix(cv::Mat data, int numTrainingElements)
+	cv::Mat get_matrix(cv::Mat data, int num_training_elements)
 	{
-		switch (regularisationType)
+		switch (regularisation_type)
 		{
 		case RegularisationType::Manual:
 			// We just take lambda as it was given, no calculation necessary.
 			break;
 		case RegularisationType::MatrixNorm:
 			// The given lambda is the factor we have to multiply the automatic value with:
-			lambda = lambda * static_cast<float>(cv::norm(data)) / static_cast<float>(numTrainingElements);
+			lambda = lambda * static_cast<float>(cv::norm(data)) / static_cast<float>(num_training_elements);
 			break;
 		default:
 			break;
@@ -144,7 +140,7 @@ public:
 
 		cv::Mat regulariser = cv::Mat::eye(data.rows, data.cols, CV_32FC1) * lambda;
 
-		if (!regulariseLastRow) {
+		if (!regularise_last_row) {
 			// no lambda for the bias:
 			regulariser.at<float>(regulariser.rows - 1, regulariser.cols - 1) = 0.0f;
 		}
@@ -152,23 +148,23 @@ public:
 	};
 
 private:
-	RegularisationType regularisationType; ///< The type of regularisation this regulariser is using.
+	RegularisationType regularisation_type; ///< The type of regularisation this regulariser is using.
 	float lambda; ///< The parameter for RegularisationType. Can be lambda directly or a factor with which the lambda from MatrixNorm will be multiplied with.
-	bool regulariseLastRow; ///< If the last row of data matrix is a bias (offset), then you might want to choose whether it should be regularised as well. Otherwise, just leave it to default (true).
+	bool regularise_last_row; ///< If the last row of data matrix is a bias (offset), then you might want to choose whether it should be regularised as well. Otherwise, just leave it to default (true).
 
-	friend class boost::serialization::access;
+	friend class cereal::access;
 	/**
-	 * Serialises this class using boost::serialization.
+	 * Serialises this class using cereal.
+	 *
+	 * Note: If we split the optimisation and the model, we should be able to
+	 * delete this. There shouldn't be a need to serialise the regulariser!
 	 *
 	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version)
+	void serialize(Archive& ar)
 	{
-		ar & regularisationType;
-		ar & lambda;
-		ar & regulariseLastRow;
+		ar(regularisation_type, lambda, regularise_last_row);
 	}
 };
 
@@ -178,16 +174,28 @@ private:
  * \c cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
  *
  * The \c PartialPivLUSolver is a fast solver but it can't check for invertibility.
- * It supports parallel solving if compiled with openmp enabled.
+ * It supports parallel solving if compiled with OpenMP enabled.
  * Uses PartialPivLU::solve() instead of inverting the matrix.
  */
 class PartialPivLUSolver
 {
 public:
-	// Note: we should leave the choice of inverting A or AtA to the solver.
-	// But this also means we need to pass through the regularisation params.
-	// We can't just pass a cv::Mat regularisation because the dimensions for
-	// regularising A and AtA are different.
+	/**
+	 * Solves the linear system \f$ (\text{data}^\text{T} * \text{data} + \text{regulariser}) * \text{X} = \text{data}^\text{T} * \text{labels}\f$
+	 * where regulariser is a diagonal matrix. This results in a least-squares
+	 * approximation of the original system.
+	 * \c labels can consist of multiple columns.
+	 *
+	 * Note/Todo: we should leave the choice of inverting A or AtA to the solver.
+	 *  But this also means we need to pass through the regularisation params.
+	 *  We can't just pass a cv::Mat regularisation because the dimensions for
+	 *  regularising A and AtA are different.
+	 *
+	 * @param[in] data Data matrix with each row being a data sample.
+	 * @param[in] labels Labels for each data sample.
+	 * @param[in] regulariser A regularisation.
+	 * @return The solution matrix.
+	 */
 	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
 	{
 		using cv::Mat;
@@ -201,20 +209,20 @@ public:
 
 		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
 		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
-		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
-		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
+		Mat regularisation_matrix = regulariser.get_matrix(AtA_Map, data.rows);
+		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisation_matrix.ptr<float>(), regularisation_matrix.rows, regularisation_matrix.cols);
 
-		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);
-		Eigen::VectorXf diagVec(regularisationMatrix.rows);
-		for (int i = 0; i < diagVec.size(); ++i) {
-			diagVec(i) = regularisationMatrix.at<float>(i, i);
+		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisation_matrix.rows);
+		Eigen::VectorXf diag_vec(regularisation_matrix.rows);
+		for (int i = 0; i < diag_vec.size(); ++i) {
+			diag_vec(i) = regularisation_matrix.at<float>(i, i);
 		}
-		reg_Eigen_diag.diagonal() = diagVec;
+		reg_Eigen_diag.diagonal() = diag_vec;
 		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
 
-		// Perform a fast PartialPivLU and use luOfAtA.solve() (better than inverting):
-		Eigen::PartialPivLU<RowMajorMatrixXf> luOfAtA(AtA_Eigen);
-		RowMajorMatrixXf x_Eigen = luOfAtA.solve(A_Eigen.transpose() * labels_Eigen);
+		// Perform a fast PartialPivLU and use ::solve() (better than inverting):
+		Eigen::PartialPivLU<RowMajorMatrixXf> lu_of_AtA(AtA_Eigen);
+		RowMajorMatrixXf x_Eigen = lu_of_AtA.solve(A_Eigen.transpose() * labels_Eigen);
 		//RowMajorMatrixXf x_Eigen = AtA_Eigen.partialPivLu.solve(A_Eigen.transpose() * labels_Eigen);
 
 		// Map the resulting x back to a cv::Mat by creating a Mat header:
@@ -232,15 +240,27 @@ public:
  * \c cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
  *
  * The \c ColPivHouseholderQRSolver can check for invertibility, but it is much
- * slower than a \c PartialPivLUSolver.
+ * MUCH slower than a \c PartialPivLUSolver.
  */
 class ColPivHouseholderQRSolver
 {
 public:
-	// Note: we should leave the choice of inverting A or AtA to the solver.
-	// But this also means we need to pass through the regularisation params.
-	// We can't just pass a cv::Mat regularisation because the dimensions for
-	// regularising A and AtA are different.
+	/**
+	 * Solves the linear system \f$ (\text{data}^t * \text{data} + \text{regulariser}) * X = \text{data}^t * \text{labels}\f$
+	 * where \c Regulariser is a diagonal matrix. This results in a least-squares
+	 * approximation of the original system.
+	 * \c labels can consist of multiple columns.
+	 *
+	 * Note/Todo: we should leave the choice of inverting A or AtA to the solver.
+	 *  But this also means we need to pass through the regularisation params.
+	 *  We can't just pass a cv::Mat regularisation because the dimensions for
+	 *  regularising A and AtA are different.
+	 *
+	 * @param[in] data Data matrix with each row being a data sample.
+	 * @param[in] labels Labels for each data sample.
+	 * @param[in] regulariser A regularisation.
+	 * @return The solution matrix.
+	 */
 	cv::Mat solve(cv::Mat data, cv::Mat labels, Regulariser regulariser)
 	{
 		using cv::Mat;
@@ -253,25 +273,25 @@ public:
 
 		// Note: This is a bit of unnecessary back-and-forth mapping, just for the regularisation:
 		Mat AtA_Map(static_cast<int>(AtA_Eigen.rows()), static_cast<int>(AtA_Eigen.cols()), CV_32FC1, AtA_Eigen.data());
-		Mat regularisationMatrix = regulariser.getMatrix(AtA_Map, data.rows);
-		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisationMatrix.ptr<float>(), regularisationMatrix.rows, regularisationMatrix.cols);
+		Mat regularisation_matrix = regulariser.get_matrix(AtA_Map, data.rows);
+		Eigen::Map<RowMajorMatrixXf> reg_Eigen(regularisation_matrix.ptr<float>(), regularisation_matrix.rows, regularisation_matrix.cols);
 
-		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisationMatrix.rows);
-		Eigen::VectorXf diagVec(regularisationMatrix.rows);
-		for (int i = 0; i < diagVec.size(); ++i) {
-			diagVec(i) = regularisationMatrix.at<float>(i, i);
+		Eigen::DiagonalMatrix<float, Eigen::Dynamic> reg_Eigen_diag(regularisation_matrix.rows);
+		Eigen::VectorXf diag_vec(regularisation_matrix.rows);
+		for (int i = 0; i < diag_vec.size(); ++i) {
+			diag_vec(i) = regularisation_matrix.at<float>(i, i);
 		}
-		reg_Eigen_diag.diagonal() = diagVec;
+		reg_Eigen_diag.diagonal() = diag_vec;
 		AtA_Eigen = AtA_Eigen + reg_Eigen_diag.toDenseMatrix();
 
 		// Perform a ColPivHouseholderQR (faster than FullPivLU) that allows to check for invertibility:
-		Eigen::ColPivHouseholderQR<RowMajorMatrixXf> qrOfAtA(AtA_Eigen);
-		auto rankOfAtA = qrOfAtA.rank();
-		if (!qrOfAtA.isInvertible()) {
+		Eigen::ColPivHouseholderQR<RowMajorMatrixXf> qr_of_AtA(AtA_Eigen);
+		auto rankOfAtA = qr_of_AtA.rank();
+		if (!qr_of_AtA.isInvertible()) {
 			// Eigen may return garbage (their docu is not very specific). Best option is to increase regularisation.
 			std::cout << "The regularised AtA is not invertible. We continued learning, but Eigen may return garbage (their docu is not very specific). (The rank is " << std::to_string(rankOfAtA) << ", full rank would be " << std::to_string(AtA_Eigen.rows()) << "). Increase lambda." << std::endl;
 		}
-		RowMajorMatrixXf AtAInv_Eigen = qrOfAtA.inverse();
+		RowMajorMatrixXf AtAInv_Eigen = qr_of_AtA.inverse();
 
 		// x = (AtAReg)^-1 * At * b:
 		RowMajorMatrixXf x_Eigen = AtAInv_Eigen * A_Eigen.transpose() * labels_Eigen;
@@ -366,18 +386,16 @@ private:
 	Regulariser regulariser; ///< Holding information about how to regularise.
 	Solver solver; ///< The type of solver used to solve the regressors linear system of equations.
 
-	friend class boost::serialization::access;
+	friend class cereal::access;
 	/**
-	 * Serialises this class using boost::serialization.
+	 * Serialises this class using cereal.
 	 *
 	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 * @param[in] version An optional version argument.
 	 */
 	template<class Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
+	void serialize(Archive& ar)
 	{
-		ar & x;
-		ar & regulariser;
+		ar(x, regulariser);
 	}
 };
 

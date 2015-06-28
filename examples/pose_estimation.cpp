@@ -162,18 +162,18 @@ cv::Mat createPerspectiveProjectionMatrix(float verticalAngle, float aspectRatio
  * Projects a vertex in homogeneous coordinates to screen coordinates.
  *
  * @param[in] vertex A vertex in homogeneous coordinates.
- * @param[in] modelViewProjection A 4x4 model-view-projection matrix.
- * @param[in] screenWidth Screen / window width.
- * @param[in] screenHeight Screen / window height.
+ * @param[in] model_view_projection A 4x4 model-view-projection matrix.
+ * @param[in] screen_width Screen / window width.
+ * @param[in] screen_height Screen / window height.
  */
-cv::Vec3f projectVertex(cv::Vec4f vertex, cv::Mat modelViewProjection, int screenWidth, int screenHeight)
+cv::Vec3f projectVertex(cv::Vec4f vertex, cv::Mat model_view_projection, int screen_width, int screen_height)
 {
-	cv::Mat clipSpace = modelViewProjection * cv::Mat(vertex);
+	cv::Mat clipSpace = model_view_projection * cv::Mat(vertex);
 	cv::Vec4f clipSpaceV(clipSpace);
 	clipSpaceV = clipSpaceV / clipSpaceV[3]; // divide by w
 	// Viewport transform:
-	float x_ss = (clipSpaceV[0] + 1.0f) * (screenWidth / 2.0f);
-	float y_ss = screenHeight - (clipSpaceV[1] + 1.0f) * (screenHeight / 2.0f); // flip the y axis, image origins are different
+	float x_ss = (clipSpaceV[0] + 1.0f) * (screen_width / 2.0f);
+	float y_ss = screen_height - (clipSpaceV[1] + 1.0f) * (screen_height / 2.0f); // flip the y axis, image origins are different
 	cv::Vec2f screenSpace(x_ss, y_ss);
 	return cv::Vec3f(screenSpace[0], screenSpace[1], clipSpaceV[2]);
 }
@@ -274,8 +274,8 @@ int main(int argc, char *argv[])
 	// Random generator for a random angle in [-30, 30]:
 	std::random_device rd;
 	std::mt19937 engine(rd());
-	std::uniform_real_distribution<float> angleDistribution(-30, 30);
-	auto randomAngle = [&angleDistribution, &engine]() { return angleDistribution(engine); };
+	std::uniform_real_distribution<float> angle_distribution(-30, 30);
+	auto random_angle = [&angle_distribution, &engine]() { return angle_distribution(engine); };
 	
 	// For the sake of a brief example, we only sample the angles and keep the x and y translation constant:
 	float tx = 0.0f;
@@ -287,18 +287,18 @@ int main(int argc, char *argv[])
 	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
 	regressors.emplace_back(LinearRegressor<>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 2.0f, true)));
 
-	SupervisedDescentOptimiser<LinearRegressor<>> supervisedDescentModel(regressors);
+	SupervisedDescentOptimiser<LinearRegressor<>> supervised_descent_model(regressors);
 
 	ModelProjection projection(facemodel);
 
 	// Generate 500 random parameter samples, consisting of
 	// the 6 DOF. Stored as [r_x, r_y, r_z, t_x, t_y, t_z]:
-	int numSamples = 500;
-	Mat x_tr(numSamples, 6, CV_32FC1);
-	for (int row = 0; row < numSamples; ++row) {
-		x_tr.at<float>(row, 0) = randomAngle();
-		x_tr.at<float>(row, 1) = randomAngle();
-		x_tr.at<float>(row, 2) = randomAngle();
+	int num_samples = 500;
+	Mat x_tr(num_samples, 6, CV_32FC1);
+	for (int row = 0; row < num_samples; ++row) {
+		x_tr.at<float>(row, 0) = random_angle();
+		x_tr.at<float>(row, 1) = random_angle();
+		x_tr.at<float>(row, 2) = random_angle();
 		x_tr.at<float>(row, 3) = tx;
 		x_tr.at<float>(row, 4) = ty;
 		x_tr.at<float>(row, 5) = tz;
@@ -306,22 +306,22 @@ int main(int argc, char *argv[])
 
 	// Calculate and store the corresponding 2D landmark projections:
 	// Note: In a real application, we would add some noise to the data.
-	auto numLandmarks = facemodel.cols;
-	Mat y_tr(numSamples, 2 * numLandmarks, CV_32FC1);
-	for (int row = 0; row < numSamples; ++row) {
+	auto num_landmarks = facemodel.cols;
+	Mat y_tr(num_samples, 2 * num_landmarks, CV_32FC1);
+	for (int row = 0; row < num_samples; ++row) {
 		auto landmarks = projection(x_tr.row(row), 0);
 		landmarks.copyTo(y_tr.row(row));
 	}
 
-	Mat x0 = Mat::zeros(numSamples, 6, CV_32FC1); // fixed initialisation of the parameters, all zero, except t_z
+	Mat x0 = Mat::zeros(num_samples, 6, CV_32FC1); // fixed initialisation of the parameters, all zero, except t_z
 	x0.col(5) = -2000.0f;
 
-	auto printResidual = [&x_tr](const cv::Mat& currentPredictions) {
-		cout << cv::norm(currentPredictions, x_tr, cv::NORM_L2) / cv::norm(x_tr, cv::NORM_L2) << endl;
+	auto print_residual = [&x_tr](const cv::Mat& current_predictions) {
+		cout << cv::norm(current_predictions, x_tr, cv::NORM_L2) / cv::norm(x_tr, cv::NORM_L2) << endl;
 	};
 	// Train the model. We'll also specify an optional callback function:
 	cout << "Training the model, printing the residual after each learned regressor: " << endl;
-	supervisedDescentModel.train(x_tr, x0, y_tr, projection, printResidual);
+	supervised_descent_model.train(x_tr, x0, y_tr, projection, print_residual);
 
 	// Test: Omitted for brevity, as we didn't generate test data
 	//Mat predictions = supervisedDescentModel.test(x0, y_tr, projection, printResidual);
@@ -331,12 +331,12 @@ int main(int argc, char *argv[])
 	// Normalise the coordinates w.r.t. the image origin and focal length (we do the same during training):
 	landmarks = (landmarks - 500.0f) / 1800.0f;
 	
-	Mat initialParams = Mat::zeros(1, 6, CV_32FC1);
-	initialParams.at<float>(5) = -2000.0f; // [0, 0, 0, 0, 0, -2000]
+	Mat initial_params = Mat::zeros(1, 6, CV_32FC1);
+	initial_params.at<float>(5) = -2000.0f; // [0, 0, 0, 0, 0, -2000]
 	
-	Mat predictedParams = supervisedDescentModel.predict(initialParams, landmarks, projection);
+	Mat predicted_params = supervised_descent_model.predict(initial_params, landmarks, projection);
 	cout << "Groundtruth pose: pitch = 11.0, yaw = -25.0, roll = -10.0" << endl;
-	cout << "Predicted pose: pitch = " << predictedParams.at<float>(0) << ", yaw = " << predictedParams.at<float>(1) << ", roll = " << predictedParams.at<float>(2) << endl;
+	cout << "Predicted pose: pitch = " << predicted_params.at<float>(0) << ", yaw = " << predicted_params.at<float>(1) << ", roll = " << predicted_params.at<float>(2) << endl;
 	
 	return EXIT_SUCCESS;
 }

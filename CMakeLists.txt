@@ -4,6 +4,8 @@ set(superviseddescent_VERSION_MAJOR 0)
 set(superviseddescent_VERSION_MINOR 3)
 set(superviseddescent_VERSION_PATCH 0)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # g++ needs a compiler flag to enable C++11 support
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
@@ -13,11 +15,13 @@ endif()
 
 # All the options for building the library. Can be changed on the command-line or in initial_cache.cmake.
 message(STATUS "Options:")
-option(BUILD_TESTS "Builds the unit tests." ON)
+option(BUILD_TESTS "Builds the unit tests." OFF)
 message(STATUS "BUILD_TESTS: ${BUILD_TESTS}")
-option(BUILD_EXAMPLES "Build the example applications." ON)
+option(BUILD_EXAMPLES "Build the example hello-world applications." ON)
 message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
-option(BUILD_DOCUMENTATION "Build the library documentation." ON)
+option(BUILD_APPS "Build the RCR landmark detection applications." ON)
+message(STATUS "BUILD_APPS: ${BUILD_APPS}")
+option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
 message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
 
 # Build a CPack driven installer package:
@@ -33,35 +37,39 @@ find_package(OpenCV 2.4.3 REQUIRED core)
 message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
 
-find_package(Boost 1.48.0 COMPONENTS system serialization REQUIRED)
-if(Boost_FOUND)
-  message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
-else(Boost_FOUND)
-  message(FATAL_ERROR "Boost not found")
-endif()
-
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Eigen3 REQUIRED)
 message(STATUS "Eigen3 found: ${EIGEN3_FOUND}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
+set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
+
 # Source and header files
 set(HEADERS
 	include/superviseddescent/superviseddescent.hpp
 	include/superviseddescent/regressors.hpp
-	include/superviseddescent/matserialisation.hpp
+	include/superviseddescent/utils/mat_cerealisation.hpp
+	include/superviseddescent/utils/mat_serialization.hpp
 	include/superviseddescent/utils/ThreadPool.h
+	include/rcr/adaptive_vlhog.hpp
+	include/rcr/landmark.hpp
+	include/rcr/landmarks_io.hpp
+	include/rcr/helpers.hpp
+	include/rcr/model.hpp
+	include/rcr/hog.h # we don't add hog.c here because we don't want CMake to see it as a file it has to compile
 )
 
 # Add header includes:
 include_directories("include")
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${CEREAL_INCLUDE_DIR})
+#include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 # The install target:
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include/ DESTINATION 3rdparty/cereal-1.1.1/include) # cereal headers
 
 if(BUILD_TESTS)
 	message(STATUS "Configuring gtest-1.7.0...")
@@ -71,11 +79,15 @@ if(BUILD_TESTS)
 	enable_testing() # Enables CTest
 	add_custom_target(check-dbg COMMAND ${CMAKE_CTEST_COMMAND} -V -C Debug) # to get detailed output on VS
 	add_custom_target(check-rel COMMAND ${CMAKE_CTEST_COMMAND} -V -C Release)
-	add_subdirectory(test)
+	add_subdirectory(tests)
 endif()
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
+endif()
+
+if(BUILD_APPS)
+	add_subdirectory(apps/rcr)
 endif()
 
 if(BUILD_DOCUMENTATION)

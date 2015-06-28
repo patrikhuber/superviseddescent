@@ -138,5 +138,9 @@ VL_EXPORT vl_size vl_hog_get_glyph_size (VlHog const * self) ;
 VL_EXPORT vl_bool vl_hog_get_use_bilinear_orientation_assignments (VlHog const * self) ;
 VL_EXPORT void vl_hog_set_use_bilinear_orientation_assignments (VlHog * self, vl_bool x) ;
 
+extern "C" {
+	#include "hog.c"
+}
+
 /* VL_HOG_H */
 #endif

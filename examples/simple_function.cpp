@@ -41,10 +41,10 @@ void strided_iota(ForwardIterator first, ForwardIterator last, T value, T stride
 };
 
 // Overload that returns a cv::Mat directly.
-Mat strided_iota(float startInterval, float stepSize, int numValues)
+Mat strided_iota(float start_interval, float step_size, int num_values)
 {
-	vector<float> values(numValues);
-	strided_iota(std::begin(values), std::next(std::begin(values), numValues), startInterval, stepSize);
+	vector<float> values(num_values);
+	strided_iota(std::begin(values), std::next(std::begin(values), num_values), start_interval, step_size);
 	return Mat(values, true); // copy the data from the std::vector to the cv::Mat
 };
 
@@ -54,10 +54,10 @@ template<class Function>
 Mat transform(Mat m, Function f)
 {
 	assert(m.type() == CV_32FC1);
-	auto numValues = m.rows;
-	Mat x_tr(numValues, 1, CV_32FC1);
+	auto num_values = m.rows;
+	Mat x_tr(num_values, 1, CV_32FC1);
 	{
-		vector<float> values(numValues);
+		vector<float> values(num_values);
 		std::transform(m.begin<float>(), m.end<float>(), begin(values), f);
 		x_tr = Mat(values, true);
 	}
@@ -65,7 +65,7 @@ Mat transform(Mat m, Function f)
 };
 
 // Calculate the normalised least squares residual.
-double normalisedLeastSquaresResidual(const Mat& prediction, const Mat& groundtruth)
+double normalised_least_squares_residual(const Mat& prediction, const Mat& groundtruth)
 {
 	return cv::norm(prediction, groundtruth, cv::NORM_L2) / cv::norm(groundtruth, cv::NORM_L2);
 };
@@ -92,45 +92,45 @@ int main(int argc, char *argv[])
 	};
 
 	// Generate values in the interval [-1:0.2:1]:
-	float startInterval = -1.0f;
-	float stepSize = 0.2f;
-	int numValues = 11; 
-	Mat y_tr = strided_iota(startInterval, stepSize, numValues);
+	float start_interval = -1.0f;
+	float step_size = 0.2f;
+	int num_values = 11; 
+	Mat y_tr = strided_iota(start_interval, step_size, num_values);
 	
 	// Calculate the inverse function values (the ground truth):
 	Mat x_tr = transform(y_tr, h_inv);
 	
 	// Start at a fixed value x0 = c = 0.5
-	Mat x0 = 0.5f * Mat::ones(numValues, 1, CV_32FC1); 
+	Mat x0 = 0.5f * Mat::ones(num_values, 1, CV_32FC1); 
 
 	// Create 10 linear regressors in series, default-constructed (= no regularisation):
 	vector<LinearRegressor<>> regressors(10);
 	
-	SupervisedDescentOptimiser<LinearRegressor<>> supervisedDescentModel(regressors);
+	SupervisedDescentOptimiser<LinearRegressor<>> supervised_descent_model(regressors);
 	
 	// Train the model. We'll also specify an optional callback function:
 	std::cout << "Training the model, printing the residual after each learned regressor: " << std::endl;
-	auto printResidual = [&](const cv::Mat& currentPredictions) {
-		std::cout << normalisedLeastSquaresResidual(currentPredictions, x_tr) << std::endl;
+	auto print_residual = [&](const cv::Mat& current_predictions) {
+		std::cout << normalised_least_squares_residual(current_predictions, x_tr) << std::endl;
 	};
-	supervisedDescentModel.train(x_tr, x0, y_tr, h, printResidual);
+	supervised_descent_model.train(x_tr, x0, y_tr, h, print_residual);
 
 	// Test the trained model on test data with finer resolution [-1:0.05:1]:
-	float startIntervalTest = -1.0f;
-	float stepSizeTest = 0.05f;
-	int numValuesTest = 41;
-	Mat y_ts = strided_iota(startIntervalTest, stepSizeTest, numValuesTest);
+	float start_interval_test = -1.0f;
+	float step_size_test = 0.05f;
+	int num_values_test = 41;
+	Mat y_ts = strided_iota(start_interval_test, step_size_test, num_values_test);
 
 	// Calculate the inverse function values (the ground truth) of the test data:
 	Mat x_ts_gt = transform(y_ts, h_inv); // the inverse of y_ts
 
 	// Start at a fixed value x0 = c = 0.5
-	Mat x0_ts = 0.5f * Mat::ones(numValuesTest, 1, CV_32FC1);
+	Mat x0_ts = 0.5f * Mat::ones(num_values_test, 1, CV_32FC1);
 
 	// Test the learned model on the test data:
-	Mat predictions = supervisedDescentModel.test(x0_ts, y_ts, h);
-	double testResidual = normalisedLeastSquaresResidual(predictions, x_ts_gt);
-	std::cout << "Normalised least squares residual on the test set: " << testResidual << std::endl;
+	Mat predictions = supervised_descent_model.test(x0_ts, y_ts, h);
+	double test_residual = normalised_least_squares_residual(predictions, x_ts_gt);
+	std::cout << "Normalised least squares residual on the test set: " << test_residual << std::endl;
 	
 	return EXIT_SUCCESS;
 }
