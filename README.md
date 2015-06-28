@@ -3,6 +3,8 @@
 
 superviseddescent is a C++11 implementation of the supervised descent method, which is a generic algorithm to perform optimisation of arbitrary functions.
 
+The library contains an implementation of the _Robust Cascaded Regression_ facial landmark detection and features a pre-trained detection model.
+
 There are two main advantages compared to traditional optimisation algorithms like gradient descent, L-BFGS and the like:
 * The function doesn't have to be differentiable. It works with arbitrary functions, for example with the HoG operator (which is a non-differentiable function)
 * It might be better at reaching a global optimum - give it a try!
@@ -19,15 +21,26 @@ The theory is based on the idea of _Supervised Descent Method and Its Applicatio
 
 ## Usage
 
-It is a header only library, and can thus be included directly into your project by just adding `superviseddescent/include` to your projects include directory and including `superviseddescent/superviseddescent.hpp`.
+It is a header only library, and can thus be included directly into your project by just adding `superviseddescent/include` and `3rdparty/cereal-1.1.1/include` to your project's include directory and an `#include "superviseddescent/superviseddescent.hpp"`.
 
-* Tested with the following compilers: gcc-4.8.2, clang-3.5, Visual Studio 2013
-* Needed dependencies: Boost serialization (1.54.0), OpenCV core (2.4.3), Eigen (3.2). Older versions might work as well.
+* Tested with the following compilers: gcc-4.8.2, clang-3.5, Visual Studio 2013 & 2015 RC
+* Needed dependencies: OpenCV core (2.4.3), Eigen (3.2). For the apps, Boost (1.54.0) is also required. Older versions of the libraries might work as well.
 
 ## Sample code
 
-### Simple example: Approximate sin(x)
+### Robust Cascaded Regression landmark detection
 
+While the method and this library can be used to approximate arbitrary functions, its prime example is facial landmark detection. The library contains an implementation of the _Robust Cascaded Regression_ landmark detection and a pre-trained model. Running it is as simple as:
+
+    rcr::detection_model rcr_model = rcr::load_detection_model("face_landmarks_model_rcr_22.bin");
+    cv::Rect facebox = ...; // has to be detected by e.g. V&J
+    LandmarkCollection<cv::Vec2f> landmarks = rcr_model.detect(image, facebox);
+
+The full example is at [apps/rcr/rcr-detect.cpp](https://github.com/patrikhuber/superviseddescent/blob/master/apps/rcr/rcr-detect.cpp) and it is built with the library.
+
+### Simple example for generic optimisation: Approximate sin(x)
+
+The following examples describe using simple hello-world example how to use the library for generic function optimisation (for example for other computer vision tasks). We'll start with a simple function, `sin(x)`.
 Define a function:
 
     auto h = [](Mat value, size_t, int) { return std::sin(value.at<float>(0)); };
@@ -41,16 +54,16 @@ Construct and train the model, and (optionally) specify a callback function that
 
 ~~~{.cpp}
 	vector<LinearRegressor> regressors(10);
-	SupervisedDescentOptimiser<LinearRegressor> supervisedDescentModel(regressors);
-	auto printResidual = [&x_tr](const Mat& currentPredictions) {
-		cout << cv::norm(currentPredictions, x_tr, cv::NORM_L2) / cv::norm(x_tr, cv::NORM_L2) << endl;
+	SupervisedDescentOptimiser<LinearRegressor> supervised_descent_model(regressors);
+	auto print_residual = [&x_tr](const Mat& current_predictions) {
+		cout << cv::norm(current_predictions, x_tr, cv::NORM_L2) / cv::norm(x_tr, cv::NORM_L2) << endl;
 	};
-	supervisedDescentModel.train(x_tr, x0, y_tr, h, printResidual);
+	supervised_descent_model.train(x_tr, x0, y_tr, h, print_residual);
 ~~~	
 
 The model can be tested on test data like so:
 ~~~{.cpp}
-	Mat predictions = supervisedDescentModel.test(x0_ts, y_ts, h);
+	Mat predictions = supervised_descent_model.test(x0_ts, y_ts, h);
 	cout << "Test residual: " << cv::norm(predictions, x_ts_gt, cv::NORM_L2) / cv::norm(x_ts_gt, cv::NORM_L2) << endl;
 ~~~
 
@@ -59,43 +72,6 @@ Predictions on new data can similarly be made with:
 SupervisedDescentOptimiser::predict(Mat x0, Mat y, H h)
 ~~~
 which returns the prediction result.
-
-
-### Landmark detection:
-
-The `SupervisedDescentOptimiser` can be used in the same way for landmark detection. In this case,
-
-* `h` is a feature transform that extracts image features like HoG or SIFT from the image (we thus make it a function object, to store the images)
-* we don't use the `y` values (the so called _template_) to train, because at testing, the HoG descriptors differ for each person (i.e. each persons face looks different)
-* the parameters `x` are the current 2D landmark locations
-* the initial parameters `x0` are computed by aligning the mean landmark to a detected face box.
-
-~~~{.cpp}
-class HogTransform
-{
-public:
-	HogTransform(vector<Mat> images, ...HoG parameters...) { ... };
-	
-	Mat operator()(Mat parameters, size_t regressorLevel, int trainingIndex = 0)
-	{
-		// shortened, to get the idea across:
-		Mat hogDescriptors = extractHoGFeatures(images[trainingIndex], parameters);
-		return hogDescriptors;
-	}
-private:
-	vector<Mat> images;
-}
-~~~
-
-Training the model is the same, except we pass an empty `cv::Mat` instead of `y` values:
-~~~{.cpp}
-HogTransform hog(trainingImages, ...HoG parameters...);
-supervisedDescentModel.train(trainingLandmarks, x0, Mat(), hog, printResidual);
-~~~
-
-Testing and prediction work analogous.
-
-For the documented full working example, see `examples/landmark_detection.cpp`.
 
 
 ### Pose estimation:
@@ -113,11 +89,11 @@ class ModelProjection
 public:
 	ModelProjection(Mat model) : model(model) {};
 
-	Mat operator()(Mat parameters, size_t regressorLevel, int trainingIndex = 0)
+	Mat operator()(Mat parameters, size_t regressor_level, int training_index = 0)
 	{
 		// parameters is a vector consisting of [R_x, R_y, R_z, t_x, t_y, t_z]
-		projectedPoints = projectModel(parameters);
-		return projectedPoints;
+		projected_points = project_model(parameters);
+		return projected_points;
 	};
 private:
 	Mat model;
@@ -126,17 +102,54 @@ private:
 
 ~~~{.cpp}
 ModelProjection projection(facemodel);
-supervisedDescentModel.train(x_tr, x0, y_tr, projection, printResidual);
+supervised_descent_model.train(x_tr, x0, y_tr, projection, print_residual);
 ~~~
 
 Testing and prediction work analogous.
 
 For the documented full working example, see `examples/landmark_detection.cpp`.
 
+### Landmark detection hello-world:
+
+In contrast to the RCR, this is a simple-as-possible hello-world example to understand how the library works and to build your own applications.
+
+The `SupervisedDescentOptimiser` can be used in the same way as before for landmark detection. In this case,
+
+* `h` is a feature transform that extracts image features like HOG or SIFT from the image (we thus make it a function object, to store the images)
+* we don't use the `y` values (the so called _template_) to train, because at testing, the HoG descriptors differ for each person (i.e. each persons face looks different)
+* the parameters `x` are the current 2D landmark locations
+* the initial parameters `x0` are computed by aligning the mean landmark to a detected face box.
+
+~~~{.cpp}
+class HogTransform
+{
+public:
+	HogTransform(vector<Mat> images, ...HoG parameters...) { ... };
+	
+	Mat operator()(Mat parameters, size_t regressor_level, int training_index = 0)
+	{
+		// shortened, to get the idea across:
+		Mat hog_descriptors = extract_HOG_features(images[training_index], parameters);
+		return hog_descriptors;
+	}
+private:
+	vector<Mat> images;
+}
+~~~
+
+Training the model is the same, except we pass an empty `cv::Mat` instead of `y` values:
+~~~{.cpp}
+HogTransform hog(training_images, ...HoG parameters...);
+supervised_descent_model.train(training_landmarks, x0, Mat(), hog, print_residual);
+~~~
+
+Testing and prediction work analogous.
+
+For the documented full working example, see `examples/landmark_detection.cpp`.
 
 ## Build the examples and tests
 
-Building of the examples and tests requires CMake>=2.8.11, OpenCV (core, imgproc, highgui, objdetect) and Boost (system, filesystem, program_options, serialization).
+Building of the examples and tests requires CMake>=2.8.11, OpenCV (core, imgproc, highgui, objdetect) and Boost (system, filesystem, program_options).
 
 * copy `initial_cache.cmake.template` to `initial_cache.cmake`, edit the necessary paths
 * create a build directory next to the `superviseddescent` folder: `mkdir build; cd build`
