@@ -153,8 +153,8 @@ public:
 	 * For example, to print the normalised least squares residual between
 	 * \p groundtruth and the current predictions:
 	 * \code
-	 * auto printResidual = [&groundtruth](const cv::Mat& currentPredictions) {
-	 *	std::cout << cv::norm(currentPredictions, groundtruth, cv::NORM_L2) / cv::norm(groundtruth, cv::NORM_L2) << std::endl;
+	 * auto print_residual = [&groundtruth](const cv::Mat& current_predictions) {
+	 *	std::cout << cv::norm(current_predictions, groundtruth, cv::NORM_L2) / cv::norm(groundtruth, cv::NORM_L2) << std::endl;
 	 * };
 	 * \endcode
 	 *
@@ -250,8 +250,8 @@ public:
 	 * For example, to print the normalised least squares residual between
 	 * \p groundtruth and the current predictions:
 	 * \code
-	 * auto printResidual = [&groundtruth](const cv::Mat& currentPredictions) {
-	 *	std::cout << cv::norm(currentPredictions, groundtruth, cv::NORM_L2) / cv::norm(groundtruth, cv::NORM_L2) << std::endl;
+	 * auto print_residual = [&groundtruth](const cv::Mat& current_predictions) {
+	 *	std::cout << cv::norm(current_predictions, groundtruth, cv::NORM_L2) / cv::norm(groundtruth, cv::NORM_L2) << std::endl;
 	 * };
 	 * \endcode
 	 *

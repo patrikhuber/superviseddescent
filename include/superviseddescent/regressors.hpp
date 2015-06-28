@@ -181,8 +181,8 @@ class PartialPivLUSolver
 {
 public:
 	/**
-	 * Solves the linear system \f$ (\text{data}^t * \text{data} + \text{regulariser}) * X = \text{data}^t * \text{labels}\f$
-	 * where \c Regulariser is a diagonal matrix. This results in a least-squares
+	 * Solves the linear system \f$ (\text{data}^\text{T} * \text{data} + \text{regulariser}) * \text{X} = \text{data}^\text{T} * \text{labels}\f$
+	 * where regulariser is a diagonal matrix. This results in a least-squares
 	 * approximation of the original system.
 	 * \c labels can consist of multiple columns.
 	 *
