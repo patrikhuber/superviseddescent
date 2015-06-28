@@ -21,14 +21,14 @@ The theory is based on the idea of _Supervised Descent Method and Its Applicatio
 
 ## Usage
 
-It is a header only library, and can thus be included directly into your project by just adding `superviseddescent/include` and `3rdparty/cereal-1.1.1/include` to your project's include directory and an `#include "superviseddescent/superviseddescent.hpp"`.
+It is a header only library, and can thus be included directly into your project by just adding `superviseddescent/include` and `3rdparty/cereal-1.1.1/include` to your project's include directory.
 
 * Tested with the following compilers: gcc-4.8.2, clang-3.5, Visual Studio 2013 & 2015 RC
 * Needed dependencies: OpenCV core (2.4.3), Eigen (3.2). For the apps, Boost (1.54.0) is also required. Older versions of the libraries might work as well.
 
 ## Sample code
 
-### Robust Cascaded Regression landmark detection
+### Robust Cascaded Regression landmark detection:
 
 While the method and this library can be used to approximate arbitrary functions, its prime example is facial landmark detection. The library contains an implementation of the _Robust Cascaded Regression_ landmark detection and a pre-trained model. Running it is as simple as:
 
@@ -38,7 +38,7 @@ While the method and this library can be used to approximate arbitrary functions
 
 The full example is at [apps/rcr/rcr-detect.cpp](https://github.com/patrikhuber/superviseddescent/blob/master/apps/rcr/rcr-detect.cpp) and it is built with the library.
 
-### Simple example for generic optimisation: Approximate sin(x)
+### Simple example for generic optimisation - approximate sin(x):
 
 The following examples describe using simple hello-world example how to use the library for generic function optimisation (for example for other computer vision tasks). We'll start with a simple function, `sin(x)`.
 Define a function:
