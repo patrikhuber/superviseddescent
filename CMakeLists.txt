@@ -45,7 +45,7 @@ message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
 set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
 
-# Source and header files
+# Header files:
 set(HEADERS
 	include/superviseddescent/superviseddescent.hpp
 	include/superviseddescent/regressors.hpp
@@ -67,6 +67,12 @@ include_directories(${CEREAL_INCLUDE_DIR})
 #include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIR})
+
+# Custom target for the library, to make the headers show up in IDEs:
+add_custom_target(superviseddescent SOURCES ${HEADERS})
+source_group(superviseddescent include/superviseddescent/*)
+source_group(superviseddescent\\utils include/superviseddescent/utils/*)
+source_group(rcr include/rcr/*)
 
 # The install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
