@@ -19,6 +19,7 @@
  */
 #include "superviseddescent/superviseddescent.hpp"
 #include "superviseddescent/regressors.hpp"
+#include "superviseddescent/verbose_solver.hpp"
 
 #include "rcr/landmarks_io.hpp"
 #include "rcr/model.hpp"
@@ -439,13 +440,13 @@ int main(int argc, char *argv[])
 	cout << "Kept " << training_images.size() / (num_perturbations + 1) << " images out of " << loaded_images.size() << "." << endl;
 
 	// Create 3 regularised linear regressors in series:
-	vector<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>> regressors;
-	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
-	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
-	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
-	regressors.emplace_back(LinearRegressor<rcr::PartialPivLUSolveSolverDebug>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	vector<LinearRegressor<VerbosePartialPivLUSolver>> regressors;
+	regressors.emplace_back(LinearRegressor<VerbosePartialPivLUSolver>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	regressors.emplace_back(LinearRegressor<VerbosePartialPivLUSolver>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	regressors.emplace_back(LinearRegressor<VerbosePartialPivLUSolver>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
+	regressors.emplace_back(LinearRegressor<VerbosePartialPivLUSolver>(Regulariser(Regulariser::RegularisationType::MatrixNorm, 1.5f, false)));
 	
-	SupervisedDescentOptimiser<LinearRegressor<rcr::PartialPivLUSolveSolverDebug>, rcr::InterEyeDistanceNormalisation> supervised_descent_model(regressors, rcr::InterEyeDistanceNormalisation(model_landmarks, right_eye_identifiers, left_eye_identifiers));
+	SupervisedDescentOptimiser<LinearRegressor<VerbosePartialPivLUSolver>, rcr::InterEyeDistanceNormalisation> supervised_descent_model(regressors, rcr::InterEyeDistanceNormalisation(model_landmarks, right_eye_identifiers, left_eye_identifiers));
 	
 	std::vector<rcr::HoGParam> hog_params{ { VlHogVariant::VlHogVariantUoctti, 5, 11, 4, 1.0f },{ VlHogVariant::VlHogVariantUoctti, 5, 10, 4, 0.7f },{ VlHogVariant::VlHogVariantUoctti, 5, 8, 4, 0.4f },{ VlHogVariant::VlHogVariantUoctti, 5, 6, 4, 0.25f } }; // 3 /*numCells*/, 12 /*cellSize*/, 4 /*numBins*/
 	assert(hog_params.size() == regressors.size());
@@ -468,7 +469,7 @@ int main(int argc, char *argv[])
 	try {
 		rcr::save_detection_model(learned_model, outputfile.string());
 	}
-	catch (cereal::Exception& e) {
+	catch (const cereal::Exception& e) {
 		cout << e.what() << endl;
 	}
 

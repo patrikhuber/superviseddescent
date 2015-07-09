@@ -25,6 +25,8 @@
 #include "helpers.hpp"
 #include "adaptive_vlhog.hpp"
 #include "landmark.hpp"
+#include "superviseddescent/superviseddescent.hpp"
+#include "superviseddescent/verbose_solver.hpp"
 
 #include "cereal/cereal.hpp"
 #include "cereal/types/string.hpp"
@@ -119,7 +121,7 @@ private:
 class detection_model
 {
 public:
-	using model_type = superviseddescent::SupervisedDescentOptimiser<superviseddescent::LinearRegressor<PartialPivLUSolveSolverDebug>, InterEyeDistanceNormalisation>;
+	using model_type = superviseddescent::SupervisedDescentOptimiser<superviseddescent::LinearRegressor<superviseddescent::VerbosePartialPivLUSolver>, InterEyeDistanceNormalisation>;
 	detection_model() = default;
 
 	detection_model(model_type optimised_model, cv::Mat mean, std::vector<std::string> landmark_ids, std::vector<rcr::HoGParam> hog_params, std::vector<std::string> right_eye_ids, std::vector<std::string> left_eye_ids) : optimised_model(optimised_model), mean(mean), landmark_ids(landmark_ids), hog_params(hog_params), right_eye_ids(right_eye_ids), left_eye_ids(left_eye_ids)
@@ -177,7 +179,6 @@ private:
 	{
 		archive(optimised_model, mean, landmark_ids, hog_params, right_eye_ids, left_eye_ids);
 	};
-
 };
 
 /**

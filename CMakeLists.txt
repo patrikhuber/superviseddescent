@@ -49,6 +49,7 @@ set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
 set(HEADERS
 	include/superviseddescent/superviseddescent.hpp
 	include/superviseddescent/regressors.hpp
+	include/superviseddescent/verbose_solver.hpp
 	include/superviseddescent/utils/mat_cerealisation.hpp
 	include/superviseddescent/utils/mat_serialization.hpp
 	include/superviseddescent/utils/ThreadPool.h
