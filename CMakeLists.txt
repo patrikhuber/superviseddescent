@@ -2,7 +2,7 @@ project(superviseddescent)
 cmake_minimum_required(VERSION 2.8.7)
 set(superviseddescent_VERSION_MAJOR 0)
 set(superviseddescent_VERSION_MINOR 4)
-set(superviseddescent_VERSION_PATCH 0)
+set(superviseddescent_VERSION_PATCH 1)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
