@@ -25,6 +25,7 @@
 #include "landmark.hpp"
 
 #include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp" //OpenCV 3.x
 
 #include <vector>
 
