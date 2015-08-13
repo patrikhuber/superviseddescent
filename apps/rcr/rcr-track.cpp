@@ -137,7 +137,8 @@ int main(int argc, char *argv[])
 	bool have_face = false;
 	rcr::LandmarkCollection<cv::Vec2f> current_landmarks;
 
-	for (;;)
+	int numFrames = cap.get(CV_CAP_PROP_FRAME_COUNT); // -1 for camera
+	for (int f=1; f<=numFrames||numFrames==-1; f++)
 	{
 		cap >> image; // get a new frame from camera
 		
