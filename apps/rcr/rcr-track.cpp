@@ -137,11 +137,14 @@ int main(int argc, char *argv[])
 	bool have_face = false;
 	rcr::LandmarkCollection<cv::Vec2f> current_landmarks;
 
-	int numFrames = cap.get(CV_CAP_PROP_FRAME_COUNT); // -1 for camera
-	for (int f=1; f<=numFrames||numFrames==-1; f++)
+	for (;;)
 	{
 		cap >> image; // get a new frame from camera
-		
+
+		if (image.empty()) { // stop if we're at the end of the video
+			break;
+		}
+
 		// Note: For now, we'll just run the face detector each frame.
 		if (!have_face) {
 			// Run the face detector and obtain the initial estimate using the mean landmarks:
