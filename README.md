@@ -1,5 +1,9 @@
 # superviseddescent: A C++11 implementation of the supervised descent optimisation method
+[![GitHub release](http://img.shields.io/github/release/patrikhuber/superviseddescent.svg?style=flat-square)][release]
+[![Apache License 2.0](https://img.shields.io/github/license/patrikhuber/superviseddescent.svg?style=flat-square)][license]
 
+[release]: https://github.com/patrikhuber/superviseddescent/releases
+[license]: https://github.com/patrikhuber/superviseddescent/blob/master/LICENSE
 
 superviseddescent is a C++11 implementation of the supervised descent method, which is a generic algorithm to perform optimisation of arbitrary functions.
 
