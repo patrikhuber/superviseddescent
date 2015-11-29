@@ -132,7 +132,7 @@ public:
 	{
 		// Obtain the initial estimate using the mean landmarks:
 		cv::Mat mean_initialisation = rcr::align_mean(mean, facebox);
-		//rcr::drawLandmarks(image, mean_initialisation, { 0, 0, 255 });
+		//rcr::draw_landmarks(image, mean_initialisation, { 0, 0, 255 });
 
 		std::vector<cv::Mat> images{ image }; // we can't pass a temporary anymore to HogTransform
 		rcr::HogTransform hog(images, hog_params, landmark_ids, right_eye_ids, left_eye_ids);
