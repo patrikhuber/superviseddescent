@@ -28,6 +28,8 @@ extern "C" {
 
 #include "helpers.hpp"
 
+#include "cereal/access.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -82,10 +84,10 @@ public:
 	 * Note: Only VlHogVariantUoctti is tested.
 	 *
 	 * @param[in] images A vector of images used for training or testing.
-	 * @param[in] vlHogVariant The VLFeat HoG variant.
-	 * @param[in] numCells Number of HoG cells that should be constructed around each landmark.
-	 * @param[in] cellSize Width of one HoG cell in pixels.
-	 * @param[in] numBins Number of orientations of a HoG cell.
+	 * @param[in] hog_params Parameters for the VLFeat HOG features.
+	 * @param[in] modelLandmarksList Todo.
+	 * @param[in] rightEyeIdentifiers Todo.
+	 * @param[in] leftEyeIdentifiers Todo.
 	 */
 	HogTransform(const std::vector<cv::Mat>& images, std::vector<HoGParam> hog_params, std::vector<std::string> modelLandmarksList, std::vector<std::string> rightEyeIdentifiers, std::vector<std::string> leftEyeIdentifiers) : images(images), hog_params(hog_params), modelLandmarksList(modelLandmarksList), rightEyeIdentifiers(rightEyeIdentifiers), leftEyeIdentifiers(leftEyeIdentifiers)
 	{
