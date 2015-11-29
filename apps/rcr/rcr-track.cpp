@@ -140,6 +140,9 @@ int main(int argc, char *argv[])
 	for (;;)
 	{
 		cap >> image; // get a new frame from camera
+		if (image.empty()) { // stop if we're at the end of the video
+			break;
+		}
 		
 		// Note: For now, we'll just run the face detector each frame.
 		if (!have_face) {
