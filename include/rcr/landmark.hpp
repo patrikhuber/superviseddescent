@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef LANDMARK_HPP_
-#define LANDMARK_HPP_
+#ifndef RCR_LANDMARK_HPP_
+#define RCR_LANDMARK_HPP_
 
 #include <string>
 #include <vector>
@@ -65,4 +65,4 @@ LandmarkCollection<T> filter(const LandmarkCollection<T>& landmarks, const std::
 
 } /* namespace rcr */
 
-#endif /* LANDMARK_HPP_ */
+#endif /* RCR_LANDMARK_HPP_ */
