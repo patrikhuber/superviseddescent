@@ -42,7 +42,7 @@ namespace rcr {
  * @param[in] landmarks The landmarks to convert to a cv::Mat row.
  * @return A cv::Mat with one row consisting of the given landmarks.
  */
-cv::Mat to_row(LandmarkCollection<cv::Vec2f> landmarks)
+inline cv::Mat to_row(LandmarkCollection<cv::Vec2f> landmarks)
 {
 	// landmarks.size() must be <= max_int
 	auto num_landmarks = static_cast<int>(landmarks.size());
@@ -63,7 +63,7 @@ cv::Mat to_row(LandmarkCollection<cv::Vec2f> landmarks)
  * @param[in] model_instance A row of 2D landmarks (e.g. an instance of a model).
  * @return A LandmarkCollection with the landmarks and their names.
  */
-LandmarkCollection<cv::Vec2f> to_landmark_collection(cv::Mat model_instance, std::vector<std::string> model_landmarks_list)
+inline LandmarkCollection<cv::Vec2f> to_landmark_collection(cv::Mat model_instance, std::vector<std::string> model_landmarks_list)
 {
 	LandmarkCollection<cv::Vec2f> collection;
 	auto num_landmarks = model_instance.cols / 2;
@@ -81,7 +81,7 @@ LandmarkCollection<cv::Vec2f> to_landmark_collection(cv::Mat model_instance, std
  * @param[in] landmarks The landmarks to draw, in the format [x_0, ... , x_n, y_0, ... , y_n].
  * @param[in] color Color of the landmarks to be drawn.
  */
-void draw_landmarks(cv::Mat image, cv::Mat landmarks, cv::Scalar color = cv::Scalar(0.0, 255.0, 0.0))
+inline void draw_landmarks(cv::Mat image, cv::Mat landmarks, cv::Scalar color = cv::Scalar(0.0, 255.0, 0.0))
 {
 	auto num_landmarks = std::max(landmarks.cols, landmarks.rows) / 2;
 	for (int i = 0; i < num_landmarks; ++i) {
@@ -96,14 +96,14 @@ void draw_landmarks(cv::Mat image, cv::Mat landmarks, cv::Scalar color = cv::Sca
  * @param[in] landmarks The landmarks to draw.
  * @param[in] color Color of the landmarks to be drawn.
  */
-void draw_landmarks(cv::Mat image, LandmarkCollection<cv::Vec2f> landmarks, cv::Scalar color = cv::Scalar(0.0, 255.0, 0.0))
+inline void draw_landmarks(cv::Mat image, LandmarkCollection<cv::Vec2f> landmarks, cv::Scalar color = cv::Scalar(0.0, 255.0, 0.0))
 {
 	draw_landmarks(image, to_row(landmarks), color);
 }
 
 // checks overlap...
 // Possible better names: check_equal, check_is_true_positive, overlap...
-bool check_face(std::vector<cv::Rect> detected_faces, LandmarkCollection<cv::Vec2f> groundtruth_landmarks)
+inline bool check_face(std::vector<cv::Rect> detected_faces, LandmarkCollection<cv::Vec2f> groundtruth_landmarks)
 {
 	// If no face is detected, return immediately:
 	if (detected_faces.empty()) {
@@ -133,7 +133,7 @@ bool check_face(std::vector<cv::Rect> detected_faces, LandmarkCollection<cv::Vec
 // Calculate the IED from one or several identifiers.
 // Several is necessary because sometimes (e.g. ibug) doesn't define the eye center.
 // throws if any of given ids not present in lms. => Todo: Think about if we should throw or use optional<>.
-double get_ied(LandmarkCollection<cv::Vec2f> lms, std::vector<std::string> right_eye_identifiers, std::vector<std::string> left_eye_identifiers)
+inline double get_ied(LandmarkCollection<cv::Vec2f> lms, std::vector<std::string> right_eye_identifiers, std::vector<std::string> left_eye_identifiers)
 {
 	// Calculate the inter-eye distance. Which landmarks to take for that is specified in the config, it
 	// might be one or two, and we calculate the average of them (per eye). For example, it might be the outer eye-corners.
