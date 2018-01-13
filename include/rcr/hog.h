@@ -24,7 +24,7 @@ typedef int vl_bool;
 typedef long long vl_index;
 typedef unsigned long long vl_uindex;
 //#define VL_EXPORT extern "C"
-#define VL_EXPORT
+#define VL_EXPORT inline
 #define VL_TRUE 1
 #define VL_FALSE 0
 #define VL_PI 3.141592653589793
