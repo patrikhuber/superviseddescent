@@ -38,6 +38,7 @@
 
 #include <vector>
 #include <string>
+#include <fstream>
 
 namespace rcr {
 
@@ -60,7 +61,7 @@ namespace rcr {
  * @param[in] translation_y Optional translation in y of the model.
  * @return A cv::Mat of the aligned points.
  */
-cv::Mat align_mean(cv::Mat mean, cv::Rect facebox, float scaling_x=1.0f, float scaling_y=1.0f, float translation_x=0.0f, float translation_y=0.0f)
+inline cv::Mat align_mean(cv::Mat mean, cv::Rect facebox, float scaling_x=1.0f, float scaling_y=1.0f, float translation_x=0.0f, float translation_y=0.0f)
 {
 	using cv::Mat;
 	// Initial estimate x_0: Center the mean face at the [-0.5, 0.5] x [-0.5, 0.5] square (assuming the face-box is that square)
@@ -188,7 +189,7 @@ private:
  * @param[in] filename Filename to a model.
  * @return The loaded detection_model.
  */
-detection_model load_detection_model(std::string filename)
+inline detection_model load_detection_model(std::string filename)
 {
 	detection_model rcr_model;
 	
@@ -206,7 +207,7 @@ detection_model load_detection_model(std::string filename)
  * @param[in] model The model to be saved.
  * @param[in] filename Filename for the model.
  */
-void save_detection_model(detection_model model, std::string filename)
+inline void save_detection_model(detection_model model, std::string filename)
 {
 	std::ofstream file(filename, std::ios::binary);
 	cereal::BinaryOutputArchive output_archive(file);

@@ -171,7 +171,7 @@ image edges would be oriented at 90 degrees from these.
  ** by setting @a transposed to true.
  **/
 
-VlHog * vl_hog_new (VlHogVariant variant, vl_size numOrientations, vl_bool transposed)
+inline VlHog * vl_hog_new (VlHogVariant variant, vl_size numOrientations, vl_bool transposed)
 {
   vl_index o, k ;
   VlHog * self = (VlHog*)calloc(1, sizeof(VlHog)) ;
@@ -318,7 +318,7 @@ VlHog * vl_hog_new (VlHogVariant variant, vl_size numOrientations, vl_bool trans
  ** @param self HOG object to delete.
  **/
 
-void
+inline void
 vl_hog_delete (VlHog * self)
 {
   if (self->orientationX) {
@@ -361,7 +361,7 @@ vl_hog_delete (VlHog * self)
  ** @return size (height and width) of a glyph.
  **/
 
-vl_size
+inline vl_size
 vl_hog_get_glyph_size (VlHog const * self)
 {
   return self->glyphSize ;
@@ -379,7 +379,7 @@ vl_hog_get_glyph_size (VlHog const * self)
  ** given by <code>flippedHog[i] = hog[permutation[i]]</code>.
  **/
 
-vl_index const *
+inline vl_index const *
 vl_hog_get_permutation (VlHog const * self)
 {
   return self->permutation ;
@@ -391,7 +391,7 @@ vl_hog_get_permutation (VlHog const * self)
  ** @param x @c true if orientations should be assigned with bilinear interpolation.
  **/
 
-void
+inline void
 vl_hog_set_use_bilinear_orientation_assignments (VlHog * self, vl_bool x) {
   self->useBilinearOrientationAssigment = x ;
 }
@@ -401,7 +401,7 @@ vl_hog_set_use_bilinear_orientation_assignments (VlHog * self, vl_bool x) {
  ** @return @c true if orientations are be assigned with bilinear interpolation.
  **/
 
-vl_bool
+inline vl_bool
 vl_hog_get_use_bilinear_orientation_assignments (VlHog const * self) {
   return self->useBilinearOrientationAssigment ;
 }
@@ -424,7 +424,7 @@ vl_hog_get_use_bilinear_orientation_assignments (VlHog const * self) {
  ** HOG cell.
  **/
 
-void
+inline void
 vl_hog_render (VlHog const * self,
                float * image,
                float const * descriptor,
@@ -500,7 +500,7 @@ vl_hog_render (VlHog const * self,
  ** @return imension of a HOG cell descriptors.
  **/
 
-vl_size
+inline vl_size
 vl_hog_get_dimension (VlHog const * self)
 {
   return self->dimension ;
@@ -511,7 +511,7 @@ vl_hog_get_dimension (VlHog const * self)
  ** @return number of HOG cells in the horizontal direction.
  **/
 
-vl_size
+inline vl_size
 vl_hog_get_width (VlHog * self)
 {
   return self->hogWidth ;
@@ -522,7 +522,7 @@ vl_hog_get_width (VlHog * self)
  ** @return number of HOG cells in the vertical direction.
  **/
 
-vl_size
+inline vl_size
 vl_hog_get_height (VlHog * self)
 {
   return self->hogHeight ;
@@ -536,7 +536,7 @@ vl_hog_get_height (VlHog * self)
  ** @param cellSize size of a HOG cell.
  **/
 
-static void
+inline static void
 vl_hog_prepare_buffers (VlHog * self, vl_size width, vl_size height, vl_size cellSize)
 {
   vl_size hogWidth = (width + cellSize/2) / cellSize ;
@@ -592,7 +592,7 @@ vl_hog_prepare_buffers (VlHog * self, vl_size width, vl_size height, vl_size cel
  ** pixels and not smaller than @c cellSize.
  **/
 
-void
+inline void
 vl_hog_put_image (VlHog * self,
                   float const * image,
                   vl_size width, vl_size height, vl_size numChannels,
@@ -743,6 +743,7 @@ vl_hog_put_image (VlHog * self,
  ** starting from the x axis (pointing to the right).
  **/
 
+inline
 void vl_hog_put_polar_field (VlHog * self,
                              float const * modulus,
                              float const * angle,
@@ -854,7 +855,7 @@ void vl_hog_put_polar_field (VlHog * self,
  ** ::vl_hog_get_width, ::vl_hog_get_height, and ::vl_hog_get_dimension.
  **/
 
-void
+inline void
 vl_hog_extract (VlHog * self, float * features)
 {
   vl_index x, y ;

@@ -40,7 +40,7 @@ namespace rcr {
  * @param[in] filename Path to a .pts file.
  * @return An ordered vector with the 68 ibug landmarks.
  */
-LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
+inline LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
 {
 	using std::getline;
 	using cv::Vec2f;

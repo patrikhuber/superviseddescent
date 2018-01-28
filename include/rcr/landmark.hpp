@@ -52,7 +52,7 @@ template<class LandmarkType> using LandmarkCollection = std::vector<Landmark<Lan
  * @return A new, filtered LandmarkCollection.
  */
 template<class T>
-LandmarkCollection<T> filter(const LandmarkCollection<T>& landmarks, const std::vector<std::string>& filter)
+inline LandmarkCollection<T> filter(const LandmarkCollection<T>& landmarks, const std::vector<std::string>& filter)
 {
 	LandmarkCollection<T> filtered_landmarks;
 	using std::begin;

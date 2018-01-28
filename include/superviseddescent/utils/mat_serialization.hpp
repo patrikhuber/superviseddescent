@@ -49,7 +49,7 @@ namespace boost {
  * @param[in] version An optional version argument.
  */
 template<class Archive>
-void serialize(Archive& ar, cv::Mat& mat, const unsigned int /*version*/)
+inline void serialize(Archive& ar, cv::Mat& mat, const unsigned int /*version*/)
 {
 	int rows, cols, type;
 	bool continuous;
