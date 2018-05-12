@@ -129,10 +129,11 @@ public:
 	{};
 
 	// Run the model from a fbox. i.e. init using the mean, then optimise.
-	LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Rect facebox)
+        // Optional scaling and translation values can be given to rescale and position the model's mean (in the [-0.5, 0.5] coordinate system) when putting it into the given facebox.
+	LandmarkCollection<cv::Vec2f> detect(cv::Mat image, cv::Rect facebox, float scaling_x = 1.0f, float scaling_y = 1.0f, float translation_x = 0.0f, float translation_y = 0.0f)
 	{
 		// Obtain the initial estimate using the mean landmarks:
-		cv::Mat mean_initialisation = rcr::align_mean(mean, facebox);
+		cv::Mat mean_initialisation = rcr::align_mean(mean, facebox, scaling_x, scaling_y, translation_x, translation_y);
 		//rcr::draw_landmarks(image, mean_initialisation, { 0, 0, 255 });
 
 		std::vector<cv::Mat> images{ image }; // we can't pass a temporary anymore to HogTransform
