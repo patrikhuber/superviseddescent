@@ -195,6 +195,10 @@ inline detection_model load_detection_model(std::string filename)
 	detection_model rcr_model;
 	
 	std::ifstream file(filename, std::ios::binary);
+	if (!file)
+	{
+		throw std::runtime_error("The given model file could not be opened: " + filename);
+	}
 	cereal::BinaryInputArchive input_archive(file);
 	input_archive(rcr_model);
 
